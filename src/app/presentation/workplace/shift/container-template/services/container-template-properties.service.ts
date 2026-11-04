@@ -4,6 +4,8 @@
  * Service for managing the properties dialog of container template items.
  * @param editedProperties - Currently edited properties in the modal dialog
  * @param contextMenuTargetItem - The item targeted by the context menu right-click
+ * @param invoiceSource - Set by the schedule container dialog: whether an item's travel time, briefing and debriefing are
+ *   billed to the customer; the template editor leaves it unset and shows no billing choice
  */
 import { Injectable, inject, TemplateRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +18,7 @@ import { ContainerTemplateShiftService } from 'src/app/domain/services/container
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { EditedProperties } from './edited-properties.interface';
+import { ItemInvoiceSource } from './item-invoice-source.interface';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 
 @Injectable()
@@ -29,6 +32,7 @@ export class ContainerTemplatePropertiesService {
 
   public contextMenuTargetItem: IContainerTemplateItem | null = null;
   public editedProperties: EditedProperties | null = null;
+  public invoiceSource: ItemInvoiceSource | null = null;
   private currentSelectedWeekday: string | null = null;
   private currentIsHoliday = false;
 
@@ -50,6 +54,7 @@ export class ContainerTemplatePropertiesService {
       travelTimeAfter: this.contextMenuTargetItem.travelTimeAfter || '00:00',
       transportMode:
         this.contextMenuTargetItem.transportMode ?? TransportModeEnum.byCar,
+      toInvoice: this.invoiceSource?.isInvoiced(this.contextMenuTargetItem),
     };
 
     this.ngbModal.open(propertiesModal, { centered: true }).result.then(
@@ -62,6 +67,10 @@ export class ContainerTemplatePropertiesService {
 
   applyPropertiesChanges(): void {
     if (!this.contextMenuTargetItem || !this.editedProperties) return;
+
+    if (this.invoiceSource && this.editedProperties.toInvoice !== undefined) {
+      this.invoiceSource.setInvoiced(this.contextMenuTargetItem, this.editedProperties.toInvoice);
+    }
 
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
     const targetItemId =
@@ -169,6 +178,12 @@ export class ContainerTemplatePropertiesService {
   onPropertiesTravelTimeAfterChange(time: OwnTime): void {
     if (this.editedProperties) {
       this.editedProperties.travelTimeAfter = `${time.hours}:${time.minutes}`;
+    }
+  }
+
+  onPropertiesToInvoiceChange(toInvoice: boolean): void {
+    if (this.editedProperties) {
+      this.editedProperties.toInvoice = toInvoice;
     }
   }
 

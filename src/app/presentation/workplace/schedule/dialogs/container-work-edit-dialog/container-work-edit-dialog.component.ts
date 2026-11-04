@@ -198,6 +198,7 @@ export class ContainerWorkEditDialogComponent {
   }
 
   constructor() {
+    this.propertiesService.invoiceSource = this.lifecycleService;
     afterNextRender(() => {
       effect(
         () => {

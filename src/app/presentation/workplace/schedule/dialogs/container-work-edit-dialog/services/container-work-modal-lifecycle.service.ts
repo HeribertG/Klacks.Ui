@@ -10,6 +10,8 @@
  *   available-task list and the autofill
  * @param canAutofill - False while the available tasks load or while the container slot of a holiday is not resolved
  *   (container still loading or not loadable)
+ * @param invoiceByItem - Per inner service whether its travel time, briefing and debriefing are billed to the customer;
+ *   read from the stored changes, billable unless the planner switched it off
  */
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,6 +22,7 @@ import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
+import { ItemInvoiceSource } from 'src/app/presentation/workplace/shift/container-template/services/item-invoice-source.interface';
 import { ContainerWorkChildrenService, ContainerWorkChildren, SubWorkResource, SubBreakResource, WorkChangeResource } from 'src/app/domain/services/schedule/container-work-children.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateRouteService } from 'src/app/presentation/workplace/shift/container-template/services/container-template-route.service';
@@ -52,7 +55,9 @@ const MINUTES_PER_HOUR = 60;
 const EMPTY_TIME = '00:00';
 
 @Injectable()
-export class ContainerWorkModalLifecycleService {
+export class ContainerWorkModalLifecycleService implements ItemInvoiceSource {
+  private invoiceByItem = new Map<string, boolean>();
+
   private childrenService = inject(ContainerWorkChildrenService);
   private shiftService = inject(ContainerTemplateShiftService);
   private routeService = inject(ContainerTemplateRouteService);
@@ -399,7 +404,20 @@ export class ContainerWorkModalLifecycleService {
     return OwnTime.forTime(DEFAULT_TIME_TO_HOURS, DEFAULT_TIME_TO_MINUTES);
   }
 
+  isInvoiced(item: IContainerTemplateItem): boolean {
+    return this.invoiceByItem.get(this.itemKey(item)) ?? WORK_CHANGE_TO_INVOICE_DEFAULT;
+  }
+
+  setInvoiced(item: IContainerTemplateItem, toInvoice: boolean): void {
+    this.invoiceByItem.set(this.itemKey(item), toInvoice);
+  }
+
+  private itemKey(item: IContainerTemplateItem): string {
+    return item.id || item.tmpId || '';
+  }
+
   private initializeItemsFromChildren(children: ContainerWorkChildren): void {
+    this.invoiceByItem.clear();
     const items: IContainerTemplateItem[] = [];
     const workChangesByWorkId = this.groupWorkChangesByWorkId(children.subWorkChanges ?? []);
 
@@ -408,6 +426,7 @@ export class ContainerWorkModalLifecycleService {
         ? (subWork.shift as unknown as IShift)
         : this.availableShiftsAsIShift.find(s => s.id === subWork.shiftId);
       const workChanges = workChangesByWorkId.get(subWork.id) ?? [];
+      this.invoiceByItem.set(subWork.id, workChanges.every((change) => change.toInvoice !== false));
 
       items.push({
         id: subWork.id,
@@ -499,13 +518,13 @@ export class ContainerWorkModalLifecycleService {
     if (item.briefingTime && item.briefingTime !== EMPTY_TIME) {
       const durationMinutes = this.parseTimeToMinutes(item.briefingTime);
       const briefingStart = this.subtractMinutes(startTime, durationMinutes);
-      workChanges.push(this.createWorkChange(workId, WORK_CHANGE_TYPE_CORRECTION_START, DESCRIPTION_BRIEFING, briefingStart, startTime, durationMinutes));
+      workChanges.push(this.createWorkChange(item, workId, WORK_CHANGE_TYPE_CORRECTION_START, DESCRIPTION_BRIEFING, briefingStart, startTime, durationMinutes));
     }
 
     if (item.debriefingTime && item.debriefingTime !== EMPTY_TIME) {
       const durationMinutes = this.parseTimeToMinutes(item.debriefingTime);
       const debriefingEnd = this.addMinutesToTime(endTime, durationMinutes);
-      workChanges.push(this.createWorkChange(workId, WORK_CHANGE_TYPE_CORRECTION_END, DESCRIPTION_DEBRIEFING, endTime, debriefingEnd, durationMinutes));
+      workChanges.push(this.createWorkChange(item, workId, WORK_CHANGE_TYPE_CORRECTION_END, DESCRIPTION_DEBRIEFING, endTime, debriefingEnd, durationMinutes));
     }
 
     if (item.travelTimeBefore && item.travelTimeBefore !== EMPTY_TIME) {
@@ -513,7 +532,7 @@ export class ContainerWorkModalLifecycleService {
       const briefingDuration = item.briefingTime && item.briefingTime !== EMPTY_TIME ? this.parseTimeToMinutes(item.briefingTime) : 0;
       const briefingStart = this.subtractMinutes(startTime, briefingDuration);
       const travelStart = this.subtractMinutes(briefingStart, durationMinutes);
-      workChanges.push(this.createWorkChange(workId, WORK_CHANGE_TYPE_CORRECTION_START, DESCRIPTION_TRAVEL_BEFORE, travelStart, briefingStart, durationMinutes));
+      workChanges.push(this.createWorkChange(item, workId, WORK_CHANGE_TYPE_CORRECTION_START, DESCRIPTION_TRAVEL_BEFORE, travelStart, briefingStart, durationMinutes));
     }
 
     if (item.travelTimeAfter && item.travelTimeAfter !== EMPTY_TIME) {
@@ -521,11 +540,11 @@ export class ContainerWorkModalLifecycleService {
       const debriefingDuration = item.debriefingTime && item.debriefingTime !== EMPTY_TIME ? this.parseTimeToMinutes(item.debriefingTime) : 0;
       const debriefingEnd = this.addMinutesToTime(endTime, debriefingDuration);
       const travelEnd = this.addMinutesToTime(debriefingEnd, durationMinutes);
-      workChanges.push(this.createWorkChange(workId, WORK_CHANGE_TYPE_CORRECTION_END, DESCRIPTION_TRAVEL_AFTER, debriefingEnd, travelEnd, durationMinutes));
+      workChanges.push(this.createWorkChange(item, workId, WORK_CHANGE_TYPE_CORRECTION_END, DESCRIPTION_TRAVEL_AFTER, debriefingEnd, travelEnd, durationMinutes));
     }
   }
 
-  private createWorkChange(workId: string, type: number, description: string, startTime: string, endTime: string, durationMinutes: number): WorkChangeResource {
+  private createWorkChange(item: IContainerTemplateItem, workId: string, type: number, description: string, startTime: string, endTime: string, durationMinutes: number): WorkChangeResource {
     return {
       id: EMPTY_GUID,
       workId,
@@ -536,7 +555,7 @@ export class ContainerWorkModalLifecycleService {
       type,
       replaceClientId: null,
       description,
-      toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT,
+      toInvoice: this.isInvoiced(item),
     };
   }
 

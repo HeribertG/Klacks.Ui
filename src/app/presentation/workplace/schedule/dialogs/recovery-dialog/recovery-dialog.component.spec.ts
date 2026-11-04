@@ -162,6 +162,13 @@ describe('RecoveryDialogComponent', () => {
     launcher = TestBed.inject(RecoveryDialogLauncherService);
   });
 
+  it('explains a container held after a failed recalculation in its own words', () => {
+    const reasonKey = (component as unknown as { uncoveredReasonKey: (reason: string) => string }).uncoveredReasonKey;
+
+    expect(reasonKey.call(component, 'recalculation failed')).toBe('recovery.dialog.reason.recalculationFailed');
+    expect(reasonKey.call(component, 'locked')).toBe('recovery.dialog.reason.locked');
+  });
+
   it('pre-fills employee and day from a preset and opens the modal', async () => {
     await component.open({ clientId: 'client-1', date: new Date(2026, 9, 6) });
 

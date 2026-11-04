@@ -226,6 +226,8 @@ export class RecoveryDialogComponent {
         return 'recovery.dialog.reason.blocked';
       case 'non-critical':
         return 'recovery.dialog.reason.nonCritical';
+      case 'recalculation failed':
+        return 'recovery.dialog.reason.recalculationFailed';
       default:
         return 'recovery.dialog.reason.noCandidate';
     }
