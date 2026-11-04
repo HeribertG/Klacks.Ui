@@ -52,4 +52,56 @@ describe('ContainerWorkModalLifecycleService work changes', () => {
     expect(built.subWorkChanges).toHaveLength(4);
     expect(built.subWorkChanges.every((change) => change.toInvoice)).toBe(true);
   });
+
+  it('bills none of them once the planner switches billing off for the item', () => {
+    const item = billedItem();
+    service.setInvoiced(item, false);
+
+    const built = build([item]);
+
+    expect(built.subWorkChanges).toHaveLength(4);
+    expect(built.subWorkChanges.some((change) => change.toInvoice)).toBe(false);
+  });
+
+  it('reads the stored choice back when the container opens', () => {
+    const stored = { toInvoice: false, description: 'travel_time_before', workId: 'item-1' } as unknown as WorkChangeResource;
+    (service as unknown as { initializeItemsFromChildren: (children: unknown) => void }).initializeItemsFromChildren({
+      subWorks: [{ id: 'item-1', shiftId: 'shift-1', startTime: '08:00:00', endTime: '12:00:00' }],
+      subBreaks: [],
+      subWorkChanges: [stored],
+    });
+
+    expect(service.isInvoiced(billedItem())).toBe(false);
+  });
+
+  it('keeps billing switched off when a container saved that way is saved again', () => {
+    const stored = { toInvoice: false, description: 'travel_time_before', workId: 'item-1' } as unknown as WorkChangeResource;
+    (service as unknown as { initializeItemsFromChildren: (children: unknown) => void }).initializeItemsFromChildren({
+      subWorks: [{ id: 'item-1', shiftId: 'shift-1', startTime: '08:00:00', endTime: '12:00:00' }],
+      subBreaks: [],
+      subWorkChanges: [stored],
+    });
+
+    const built = build([billedItem()]);
+
+    expect(built.subWorkChanges.length).toBeGreaterThan(0);
+    expect(built.subWorkChanges.some((change) => change.toInvoice)).toBe(false);
+  });
+
+  const billedItem = (): IContainerTemplateItem =>
+    ({
+      id: 'item-1',
+      shiftId: 'shift-1',
+      startItem: '08:00:00',
+      endItem: '12:00:00',
+      briefingTime: '00:15:00',
+      debriefingTime: '00:15:00',
+      travelTimeBefore: '00:15:00',
+      travelTimeAfter: '00:15:00',
+    }) as unknown as IContainerTemplateItem;
+
+  const build = (items: IContainerTemplateItem[]) =>
+    (
+      service as unknown as { buildChildrenFromItems: (items: IContainerTemplateItem[]) => { subWorkChanges: WorkChangeResource[] } }
+    ).buildChildrenFromItems(items);
 });

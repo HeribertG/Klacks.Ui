@@ -273,6 +273,19 @@
         </div>
       }
 
+      @if (propertiesService.editedProperties?.toInvoice !== undefined) {
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="propertiesService.editedProperties?.toInvoice"
+              (change)="propertiesService.onPropertiesToInvoiceChange($any($event.target).checked)"
+            />
+            {{ "schedule.container-work.extras-to-invoice" | translate }}
+          </label>
+        </div>
+      }
+
       @if (routeService.isTransportModeMix) {
         <div class="transport-mode-group">
           <label>
