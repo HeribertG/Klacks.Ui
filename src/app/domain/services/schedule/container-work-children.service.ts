@@ -12,6 +12,7 @@ import {
   DataContainerWorkChildrenService,
 } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
 import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+import { IContainerSplitResponse } from 'src/app/domain/models/container/container-split-response.interface';
 
 export { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
 export { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
@@ -30,5 +31,9 @@ export class ContainerWorkChildrenService {
 
   saveChildren(workId: string, children: ContainerWorkChildren): Observable<ContainerWorkChildren> {
     return this.api.saveChildren(workId, children);
+  }
+
+  splitContainer(workId: string, splitTime: string, targetClientId: string): Observable<IContainerSplitResponse> {
+    return this.api.splitContainer(workId, { splitTime, targetClientId });
   }
 }

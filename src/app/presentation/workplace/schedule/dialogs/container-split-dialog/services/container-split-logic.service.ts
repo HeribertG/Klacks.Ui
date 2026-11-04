@@ -2,15 +2,16 @@
 
 /**
  * Pure split logic for container works: a container may only be split between two consecutive items
- * (tasks or absences), never through one, and both halves must keep at least one task.
+ * (tasks or absences), never through one, and both halves must keep at least one task. A task counts with its travel,
+ * briefing and debriefing times, as the server split does.
  * @param containerStart - Container start (HH:MM); all times are compared relative to it so containers crossing midnight work
  * @param splitTime - Chosen split time (HH:MM)
  */
 import { Injectable } from '@angular/core';
 import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+import { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
 
 import { SplitGap } from './split-gap.interface';
-import { CategorizationResult } from './categorization-result.interface';
 import { TimelineItem } from './timeline-item.interface';
 
 const MINUTES_PER_HOUR = 60;
@@ -69,39 +70,6 @@ export class ContainerSplitLogicService {
     );
   }
 
-  categorizeItems(
-    children: ContainerWorkChildren,
-    splitTime: string,
-    containerStart: string,
-  ): CategorizationResult {
-    const origin = this.toMinutes(containerStart);
-    const split = this.toRelative(splitTime, origin);
-    const endsBeforeSplit = (item: { startTime: string; endTime: string }) =>
-      this.relativeEnd(item.startTime, item.endTime, origin) <= split;
-
-    const beforeWorks = children.subWorks.filter(endsBeforeSplit);
-    const afterWorks = children.subWorks.filter((w) => !endsBeforeSplit(w));
-    const beforeWorkIds = new Set(beforeWorks.map((w) => w.id));
-    const afterWorkIds = new Set(afterWorks.map((w) => w.id));
-
-    return {
-      beforeWorks,
-      afterWorks,
-      beforeBreaks: children.subBreaks.filter(endsBeforeSplit),
-      afterBreaks: children.subBreaks.filter((b) => !endsBeforeSplit(b)),
-      beforeWorkChanges: children.subWorkChanges.filter((wc) => beforeWorkIds.has(wc.workId)),
-      afterWorkChanges: children.subWorkChanges.filter((wc) => afterWorkIds.has(wc.workId)),
-    };
-  }
-
-  splitCrossesMidnight(splitTime: string, containerStart: string): boolean {
-    return this.toMinutes(splitTime) < this.toMinutes(containerStart);
-  }
-
-  durationHours(startTime: string, endTime: string): number {
-    return this.spanLength(this.toMinutes(startTime), this.toMinutes(endTime)) / MINUTES_PER_HOUR;
-  }
-
   toTimeParts(time: string): { hours: string; minutes: string } {
     const [hours, minutes] = time.split(TIME_SEPARATOR);
     return { hours, minutes };
@@ -109,8 +77,7 @@ export class ContainerSplitLogicService {
 
   private buildTimeline(children: ContainerWorkChildren, origin: number): TimelineItem[] {
     const tasks = children.subWorks.map((w) => ({
-      start: this.toRelative(w.startTime, origin),
-      end: this.relativeEnd(w.startTime, w.endTime, origin),
+      ...this.occupiedSpan(w, children, origin),
       isTask: true,
       label: w.shift?.abbreviation ?? null,
     }));
@@ -121,6 +88,18 @@ export class ContainerSplitLogicService {
       label: null,
     }));
     return [...tasks, ...absences].sort((a, b) => a.start - b.start || a.end - b.end);
+  }
+
+  /** A task occupies its own span widened by its travel, briefing and debriefing times (work changes with a span). */
+  private occupiedSpan(work: SubWorkResource, children: ContainerWorkChildren, origin: number): { start: number; end: number } {
+    const spans = children.subWorkChanges
+      .filter((wc) => wc.workId === work.id && this.toMinutes(wc.startTime) !== this.toMinutes(wc.endTime))
+      .map((wc) => ({ startTime: wc.startTime, endTime: wc.endTime }))
+      .concat([{ startTime: work.startTime, endTime: work.endTime }]);
+    return {
+      start: Math.min(...spans.map((s) => this.toRelative(s.startTime, origin))),
+      end: Math.max(...spans.map((s) => this.relativeEnd(s.startTime, s.endTime, origin))),
+    };
   }
 
   private relativeEnd(startTime: string, endTime: string, origin: number): number {

@@ -2,8 +2,9 @@
 
 /**
  * The coded refusals the interceptor explains with one toast and passes on: a frozen, consumed or cut key a shift screen
- * saved into, a refused move reversal, a WorkChange refused on a container, and a refused end date or reset of a shift.
- * Checked in that order.
+ * saved into, a refused move reversal, a WorkChange refused on a container, a container or template that does not
+ * hold all of its services, a refused action on a service inside a container, and a refused end date or reset of a
+ * shift. Checked in that order.
  * @param error - The failed response
  */
 
@@ -14,6 +15,7 @@ import { readScenarioVariantConflictKey } from 'src/app/domain/models/schedule/s
 import { CONTAINER_WORK_CHANGE_TOAST_NAME, containerWorkChangeRefusalKey } from './container-work-change-refusal.helper';
 import { MOVE_REVERSAL_TOAST_NAME, moveReversalRefusalKey } from './move-reversal-refusal.helper';
 import { readShiftRefusalToast } from './shift-reset-refusal.helper';
+import { CONTAINER_REFUSAL_TOAST_NAME, containerRefusalKey } from './container-refusal.helper';
 
 export function codedRefusalToast(error: HttpErrorResponse): CodedRefusalToast | null {
   const variantKey = readScenarioVariantConflictKey(error);
@@ -26,9 +28,14 @@ export function codedRefusalToast(error: HttpErrorResponse): CodedRefusalToast |
     return { key: reversalKey, name: MOVE_REVERSAL_TOAST_NAME };
   }
 
-  const containerKey = containerWorkChangeRefusalKey(error);
+  const workChangeKey = containerWorkChangeRefusalKey(error);
+  if (workChangeKey) {
+    return { key: workChangeKey, name: CONTAINER_WORK_CHANGE_TOAST_NAME };
+  }
+
+  const containerKey = containerRefusalKey(error);
   if (containerKey) {
-    return { key: containerKey, name: CONTAINER_WORK_CHANGE_TOAST_NAME };
+    return { key: containerKey, name: CONTAINER_REFUSAL_TOAST_NAME };
   }
 
   const shiftRefusal = readShiftRefusalToast(error);

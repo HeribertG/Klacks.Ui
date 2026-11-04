@@ -6,7 +6,7 @@
  * @param error - The failed response
  */
 
-import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { readRefusalCode } from './read-refusal-code.helper';
 
 export const CONTAINER_WORK_CHANGE_TOAST_NAME = 'container-work-change-refused';
 
@@ -16,10 +16,6 @@ const CONTAINER_WORK_CHANGE_KEYS: Readonly<Record<string, string>> = {
 };
 
 export function containerWorkChangeRefusalKey(error: unknown): string | null {
-  if (!(error instanceof HttpErrorResponse) || error.status !== HttpStatusCode.BadRequest) {
-    return null;
-  }
-
-  const code = (error.error as { errorCode?: unknown } | null)?.errorCode;
-  return typeof code === 'string' ? (CONTAINER_WORK_CHANGE_KEYS[code] ?? null) : null;
+  const code = readRefusalCode(error);
+  return code ? (CONTAINER_WORK_CHANGE_KEYS[code] ?? null) : null;
 }

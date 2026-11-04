@@ -3,7 +3,6 @@
 /**
  * Dialog for splitting a container work into two containers at a split time that lies between two of its items.
  * @param workId - ID of the container work to split
- * @param shiftId - Shift ID used to create the copy container
  * @param clientId - Current client ID of the container (copy defaults to same client)
  * @param containerStart - Container start time (HH:MM)
  * @param containerEnd - Container end time (HH:MM)
@@ -27,19 +26,16 @@ import { ContainerWorkChildren } from 'src/app/domain/models/container/container
 import { ClientSearchService } from 'src/app/domain/services/client/client-search.service';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { ContainerSplitLogicService } from './services/container-split-logic.service';
-import { CategorizationResult } from './services/categorization-result.interface';
 import { SplitGap } from './services/split-gap.interface';
-import { DataManagementWorkService } from 'src/app/domain/services/work/data-management-work.service';
-import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
-import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerSplitOptions } from './open-container-split-options.interface';
-import { addDays } from 'src/app/domain/helpers/date.helper';
+
+const SECONDS_SUFFIX = ':00';
 
 @Component({
   selector: 'app-container-split-dialog',
@@ -57,18 +53,14 @@ export class ContainerSplitDialogComponent {
   private childrenService = inject(ContainerWorkChildrenService);
   private clientSearchService = inject(ClientSearchService);
   private logicService = inject(ContainerSplitLogicService);
-  private workService = inject(DataManagementWorkService);
-  private analyseScenarioService = inject(AnalyseScenarioService);
   private lockService = inject(ContainerLockService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
 
   private modalRef: NgbModalRef | null = null;
   private allClients: IClientForReplacement[] = [];
-  private copyWorkCreated = false;
 
   workId = '';
-  shiftId = '';
 
   readonly containerStart = signal<string>('');
   readonly containerEnd = signal<string>('');
@@ -102,22 +94,16 @@ export class ContainerSplitDialogComponent {
     this.logicService.isSplitTimeValid(this.splitTime(), this.splitGaps(), this.containerStart()),
   );
 
-  readonly categorization = computed<CategorizationResult | null>(() => {
-    const c = this.children();
-    if (!c || !this.isSplitTimeValid()) return null;
-    return this.logicService.categorizeItems(c, this.splitTime(), this.containerStart());
-  });
-
   readonly canSave = computed(
     () =>
-      !!this.categorization() &&
+      !!this.children() &&
+      this.isSplitTimeValid() &&
       !!this.replaceClientId() &&
       !this.isSaving(),
   );
 
   open(options: IOpenContainerSplitOptions): void {
     this.workId = options.workId;
-    this.shiftId = options.shiftId;
     this.containerStart.set(options.containerStart);
     this.containerEnd.set(options.containerEnd);
     this.currentClientId.set(options.clientId);
@@ -216,21 +202,21 @@ export class ContainerSplitDialogComponent {
   }
 
   onSave(): void {
-    const cat = this.categorization();
-    if (!cat || !this.canSave()) return;
+    if (!this.canSave()) return;
 
-    const originalEndTime = this.containerEnd();
-    const beforeChildren = this.buildBeforeChildren(cat);
-    const afterChildren = this.buildAfterChildren(cat);
-    const clientId = this.replaceClientId() ?? this.currentClientId();
-
+    const targetClientId = this.replaceClientId() ?? this.currentClientId();
     this.isSaving.set(true);
-    this.copyWorkCreated = false;
-
-    this.childrenService.saveChildren(this.workId, beforeChildren).subscribe({
-      next: () => this.createCopyWork(clientId, afterChildren, originalEndTime),
-      error: () => this.isSaving.set(false),
-    });
+    this.childrenService
+      .splitContainer(this.workId, `${this.splitTime()}${SECONDS_SUFFIX}`, targetClientId)
+      .subscribe({
+        next: () => {
+          this.lockService.release();
+          this.isSaving.set(false);
+          this.modalRef?.close();
+          this.refreshSchedule();
+        },
+        error: () => this.isSaving.set(false),
+      });
   }
 
   close(): void {
@@ -238,110 +224,8 @@ export class ContainerSplitDialogComponent {
     this.modalRef?.dismiss();
   }
 
-  private buildBeforeChildren(cat: CategorizationResult): ContainerWorkChildren {
-    return {
-      subWorks: cat.beforeWorks,
-      subBreaks: cat.beforeBreaks,
-      subWorkChanges: cat.beforeWorkChanges,
-      parentEndTime: this.splitTime(),
-    };
-  }
-
-  private buildAfterChildren(cat: CategorizationResult): ContainerWorkChildren {
-    const subWorks = cat.afterWorks.map((w) => ({ ...w, id: crypto.randomUUID() }));
-    const newWorkIds = new Map(cat.afterWorks.map((w, index) => [w.id, subWorks[index].id]));
-    return {
-      subWorks,
-      subBreaks: cat.afterBreaks.map((b) => ({ ...b, id: crypto.randomUUID() })),
-      subWorkChanges: cat.afterWorkChanges.map((wc) => ({
-        ...wc,
-        id: crypto.randomUUID(),
-        workId: newWorkIds.get(wc.workId) ?? wc.workId,
-      })),
-      parentStartTime: this.splitTime(),
-    };
-  }
-
-  private createCopyWork(
-    clientId: string,
-    afterChildren: ContainerWorkChildren,
-    originalEndTime: string,
-  ): void {
-    const splitTime = this.splitTime();
-    const work = new Work();
-    work.clientId = clientId;
-    work.shiftId = this.shiftId;
-    const dayOffset = this.logicService.splitCrossesMidnight(splitTime, this.containerStart()) ? 1 : 0;
-    work.currentDate = addDays(this.currentDate(), dayOffset);
-    work.startTime = splitTime;
-    work.endTime = originalEndTime;
-    work.workTime = this.logicService.durationHours(splitTime, originalEndTime);
-    work.analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
-
-    this.workService.addWorkEntry(work).subscribe({
-      next: (newWork) => {
-        if (!newWork.id) {
-          this.restoreOriginal(originalEndTime);
-          return;
-        }
-        this.copyWorkCreated = true;
-        this.acquireLockAndSaveAfterChildren(newWork.id, afterChildren, originalEndTime);
-      },
-      error: () => {
-        this.restoreOriginal(originalEndTime);
-      },
-    });
-  }
-
-  private acquireLockAndSaveAfterChildren(
-    newWorkId: string,
-    afterChildren: ContainerWorkChildren,
-    originalEndTime: string,
-  ): void {
-    this.lockService.release();
-    this.lockService
-      .acquire(ContainerLockResourceType.containerWork, newWorkId)
-      .subscribe({
-        next: (lock) => {
-          if (!lock.acquired) {
-            this.restoreOriginal(originalEndTime);
-            return;
-          }
-          this.saveAfterChildren(newWorkId, afterChildren, originalEndTime);
-        },
-        error: () => {
-          this.restoreOriginal(originalEndTime);
-        },
-      });
-  }
-
-  private saveAfterChildren(
-    newWorkId: string,
-    afterChildren: ContainerWorkChildren,
-    originalEndTime: string,
-  ): void {
-    this.childrenService.saveChildren(newWorkId, afterChildren).subscribe({
-      next: () => {
-        this.lockService.release();
-        this.isSaving.set(false);
-        this.modalRef?.close();
-        this.refreshSchedule();
-      },
-      error: () => {
-        this.restoreOriginal(originalEndTime);
-      },
-    });
-  }
-
   private releaseHeldLock(): void {
     if (this.lockService.currentLock()) {
-      this.lockService.release();
-    }
-  }
-
-  private releaseLockHeldForOtherResource(): void {
-    const held = this.lockService.currentLock();
-    if (held && held.resourceId !== this.workId) {
       this.lockService.release();
     }
   }
@@ -358,47 +242,6 @@ export class ContainerSplitDialogComponent {
       console.error('Error refreshing schedule after container split:', err);
     });
     this.workScheduleLoader.refreshAllLoadedPeriodHours();
-  }
-
-  private refreshScheduleIfCopyCreated(): void {
-    if (this.copyWorkCreated) {
-      this.refreshSchedule();
-    }
-  }
-
-  private restoreOriginal(originalEndTime: string): void {
-    const restoreChildren: ContainerWorkChildren = {
-      ...(this.children() ?? { subWorks: [], subBreaks: [], subWorkChanges: [] }),
-      parentEndTime: originalEndTime,
-    };
-    this.releaseLockHeldForOtherResource();
-    this.lockService
-      .acquire(ContainerLockResourceType.containerWork, this.workId)
-      .subscribe({
-        next: (lock) => {
-          if (lock.acquired) {
-            this.childrenService
-              .saveChildren(this.workId, restoreChildren)
-              .subscribe({
-                complete: () => {
-                  this.lockService.release();
-                  this.refreshScheduleIfCopyCreated();
-                },
-                error: () => {
-                  this.lockService.release();
-                  this.refreshScheduleIfCopyCreated();
-                },
-              });
-          } else {
-            this.refreshScheduleIfCopyCreated();
-          }
-          this.isSaving.set(false);
-        },
-        error: () => {
-          this.isSaving.set(false);
-          this.refreshScheduleIfCopyCreated();
-        },
-      });
   }
 
   private buildDisplayName(client: IClientForReplacement): string {

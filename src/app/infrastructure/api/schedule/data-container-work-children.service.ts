@@ -10,6 +10,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ContainerWorkChildren } from '../../../domain/models/container/container-work-children.interface';
+import { IContainerSplitRequest } from '../../../domain/models/container/container-split-request.interface';
+import { IContainerSplitResponse } from '../../../domain/models/container/container-split-response.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -25,5 +27,9 @@ export class DataContainerWorkChildrenService {
 
   saveChildren(workId: string, children: ContainerWorkChildren): Observable<ContainerWorkChildren> {
     return this.httpClient.put<ContainerWorkChildren>(`${environment.baseUrl}Works/${workId}/Children`, children);
+  }
+
+  splitContainer(workId: string, request: IContainerSplitRequest): Observable<IContainerSplitResponse> {
+    return this.httpClient.post<IContainerSplitResponse>(`${environment.baseUrl}Works/${workId}/Split`, request);
   }
 }

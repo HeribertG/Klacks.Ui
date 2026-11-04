@@ -2,7 +2,6 @@
 
 export interface IOpenContainerSplitOptions {
   workId: string;
-  shiftId: string;
   clientId: string;
   containerStart: string;
   containerEnd: string;

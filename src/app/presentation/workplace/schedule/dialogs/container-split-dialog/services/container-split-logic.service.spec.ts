@@ -84,6 +84,31 @@ describe('ContainerSplitLogicService', () => {
     service = new ContainerSplitLogicService();
   });
 
+  describe('travel, briefing and debriefing times', () => {
+    const travelBefore = (workId: string, startTime: string, endTime: string): WorkChangeResource => ({
+      ...makeWorkChange(`travel-${workId}`, workId),
+      startTime,
+      endTime,
+      type: 1,
+      description: 'travel_time_before',
+    });
+
+    it('shrinks the gap by the travel time before the later task', () => {
+      const gaps = service.computeSplitGaps(
+        makeChildren(
+          [makeSubWork('1', '08:00:00', '10:00:00'), makeSubWork('2', '12:00:00', '13:00:00')],
+          [],
+          [travelBefore('2', '11:30:00', '12:00:00')],
+        ),
+        '08:00',
+        '16:00',
+      );
+
+      expect(gaps.map((g) => [g.start, g.end])).toEqual([['10:00', '11:30']]);
+    });
+
+  });
+
   describe('computeSplitGaps', () => {
     it('offers one gap between each pair of consecutive tasks, starting at the end of the earlier task', () => {
       const gaps = service.computeSplitGaps(makeChildren(DEMO_TASKS), '07:00', '15:00');
@@ -222,87 +247,6 @@ describe('ContainerSplitLogicService', () => {
     });
   });
 
-  describe('categorizeItems', () => {
-    it('distributes the demo tasks at 12:00 into FZK, WAN, OBG and DOK', () => {
-      const result = service.categorizeItems(makeChildren(DEMO_TASKS), '12:00', '07:00');
 
-      expect(result.beforeWorks.map((w) => w.id)).toEqual(['fzk', 'wan', 'obg']);
-      expect(result.afterWorks.map((w) => w.id)).toEqual(['dok']);
-    });
 
-    it('keeps a task ending exactly at the split time before and one starting there after', () => {
-      const result = service.categorizeItems(
-        makeChildren([makeSubWork('1', '08:00', '10:00'), makeSubWork('2', '10:00', '12:00')]),
-        '10:00',
-        '08:00',
-      );
-
-      expect(result.beforeWorks.map((w) => w.id)).toEqual(['1']);
-      expect(result.afterWorks.map((w) => w.id)).toEqual(['2']);
-    });
-
-    it('moves absences whole, never splitting them', () => {
-      const result = service.categorizeItems(
-        makeChildren(
-          [makeSubWork('1', '08:00', '10:00'), makeSubWork('2', '13:00', '15:00')],
-          [makeSubBreak('b1', '10:15', '10:45'), makeSubBreak('b2', '12:00', '12:30')],
-        ),
-        '11:00',
-        '08:00',
-      );
-
-      expect(result.beforeBreaks).toEqual([makeSubBreak('b1', '10:15', '10:45')]);
-      expect(result.afterBreaks).toEqual([makeSubBreak('b2', '12:00', '12:30')]);
-    });
-
-    it('moves the work changes together with their task', () => {
-      const result = service.categorizeItems(
-        makeChildren(
-          [makeSubWork('1', '08:00', '10:00'), makeSubWork('2', '13:00', '15:00')],
-          [],
-          [makeWorkChange('wc1', '1'), makeWorkChange('wc2', '2')],
-        ),
-        '11:00',
-        '08:00',
-      );
-
-      expect(result.beforeWorkChanges.map((wc) => wc.id)).toEqual(['wc1']);
-      expect(result.afterWorkChanges.map((wc) => wc.id)).toEqual(['wc2']);
-    });
-
-    it('distributes the items of a container crossing midnight', () => {
-      const result = service.categorizeItems(
-        makeChildren([makeSubWork('1', '22:30', '23:30'), makeSubWork('2', '01:00', '02:00')]),
-        '00:00',
-        '22:00',
-      );
-
-      expect(result.beforeWorks.map((w) => w.id)).toEqual(['1']);
-      expect(result.afterWorks.map((w) => w.id)).toEqual(['2']);
-    });
-  });
-
-  describe('splitCrossesMidnight', () => {
-    it('is false when the split lies on the start day of the container', () => {
-      expect(service.splitCrossesMidnight('23:30', '22:00')).toBe(false);
-    });
-
-    it('is true when the split lies after midnight of a container crossing midnight', () => {
-      expect(service.splitCrossesMidnight('00:15', '22:00')).toBe(true);
-    });
-
-    it('is false for a day container', () => {
-      expect(service.splitCrossesMidnight('12:00', '08:00')).toBe(false);
-    });
-  });
-
-  describe('durationHours', () => {
-    it('returns the duration in hours, not minutes', () => {
-      expect(service.durationHours('12:00', '15:30')).toBe(3.5);
-    });
-
-    it('wraps across midnight', () => {
-      expect(service.durationHours('23:45', '06:00')).toBe(6.25);
-    });
-  });
 });

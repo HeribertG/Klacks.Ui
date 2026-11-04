@@ -187,7 +187,6 @@ export class ScheduleDialogService {
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
       this.containerSplitDialog.open({
         workId: entry.sourceId,
-        shiftId: entry.entryId,
         clientId: entry.clientId,
         containerStart: entry.startTime,
         containerEnd: entry.endTime,
