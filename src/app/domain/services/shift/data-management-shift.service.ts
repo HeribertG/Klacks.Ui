@@ -19,8 +19,8 @@ import {
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
-import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { NewShiftKind } from 'src/app/domain/enums/new-shift-kind.enum';
+import { buildNewShift } from 'src/app/domain/helpers/new-shift.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
@@ -38,7 +38,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
-import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   hasShiftScheduleChange,
   SHIFT_DATE_FIELDS,
@@ -291,47 +291,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   }
 
   private prepareNewShift(): IShift {
-    const value = new Shift();
-    value.fromDate = companyToday();
-    value.startShift = '07:00:00';
-    value.endShift = '15:00:00';
-    value.workTime = 8;
-    value.beforeShift = '';
-    value.afterShift = '';
-    value.abbreviation = '';
-    value.isMonday = true;
-    value.isTuesday = true;
-    value.isWednesday = true;
-    value.isThursday = true;
-    value.isFriday = true;
-    value.quantity = 1;
-    value.sumEmployees = 1;
-
-    // A duty without a customer is created SEALED, never as a draft. OriginalOrder means "a customer's
-    // request still being worked out", so a draft without a customer would be indistinguishable from one
-    // where the customer was simply not filled in yet - and after saving, only ClientId = null remains,
-    // because isClientless lives in the browser and is gone after a reload. The status carries the
-    // intent instead, which the backend enforces: a draft without a customer is refused, and a sealed
-    // order without one must already meet the sealing requirements. Owner decision 2026-09-07.
-    const kind = this.pendingNewShiftKind();
+    const value = buildNewShift(this.pendingNewShiftKind());
     this.pendingNewShiftKind.set(NewShiftKind.Order);
-    const clientless = kind === NewShiftKind.Clientless;
-    value.status = clientless ? ShiftStatus.SealedOrder : ShiftStatus.OriginalOrder;
-    value.isClientless = clientless;
-
-    // A container is a template, not an order: it never names a customer or an address and has no time range. It starts
-    // as a draft like an order and becomes its one-row shape when sealed (ContainerShiftRules in the backend).
-    if (kind === NewShiftKind.Container) {
-      value.shiftType = ShiftType.IsContainer;
-      value.status = ShiftStatus.OriginalOrder;
-      value.isClientless = false;
-      value.clientId = undefined;
-      value.addressName = undefined;
-      value.isTimeRange = false;
-    }
-
     this.assignActiveVariant(value);
-
     return value;
   }
 
