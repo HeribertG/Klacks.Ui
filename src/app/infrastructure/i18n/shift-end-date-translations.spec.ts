@@ -22,7 +22,7 @@ const KEYS = [
   'setting.report.discardCancel',
   SHIFT_RESET_REFUSED_KEY,
   'shift.cut-shift.reset-undo-hint',
-  'shift.cut-shift.reset-start-hint',
+  'shift.cut-shift.reset-keep-hint',
 ];
 
 const load = (language: string): Record<string, string> =>
