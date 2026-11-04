@@ -4,8 +4,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { ChangePassword } from 'src/app/domain/models/change-password-class';
+import { IPasswordChangeResult } from 'src/app/domain/models/auth/password-change-result.interface';
 import { ChangeRole } from 'src/app/domain/models/change-role-class';
-import { ResponseAuthentication } from 'src/app/domain/models/response-authentication-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -63,9 +63,9 @@ export class UserAdministrationService {
       .pipe(retry(1));
   }
 
-  changePassword(value: ChangePassword): Observable<IAuthentication> {
+  changePassword(value: ChangePassword): Observable<IPasswordChangeResult> {
     return this.httpClient
-      .post<IAuthentication>(
+      .post<IPasswordChangeResult>(
         `${environment.baseUrl}Accounts/ChangePasswordUser/`,
         value
       )
@@ -75,15 +75,6 @@ export class UserAdministrationService {
   changeRole(value: ChangeRole) {
     return this.httpClient
       .put(`${environment.baseUrl}Accounts/ChangeRoleUser`, value)
-      .pipe();
-  }
-
-  ChangePassword(value: ChangePassword): Observable<ResponseAuthentication> {
-    return this.httpClient
-      .put<ResponseAuthentication>(
-        `${environment.baseUrl}Accounts/ChangePassword`,
-        value
-      )
       .pipe();
   }
 

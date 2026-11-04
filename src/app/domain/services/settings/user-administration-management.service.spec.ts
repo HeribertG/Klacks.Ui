@@ -7,7 +7,6 @@ import { UserAdministrationManagementService } from './user-administration-manag
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
-import { ChangePassword } from 'src/app/domain/models/change-password-class';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -29,7 +28,6 @@ describe('UserAdministrationManagementService', () => {
             addAccount: vi.fn(),
             deactivateAccount: vi.fn(),
             changeRole: vi.fn(),
-            ChangePassword: vi.fn(),
             requestPasswordReset: vi.fn()
         };
 
@@ -219,38 +217,6 @@ describe('UserAdministrationManagementService', () => {
             expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
                 code: 'ACCOUNT_ROLE_UPDATE_ERROR',
             }));
-        });
-    });
-
-    describe('sendPasswordResetEmail', () => {
-        it('should send password reset email successfully', async () => {
-            service = TestBed.inject(UserAdministrationManagementService);
-
-            const passwordChange: ChangePassword = {
-                email: 'test@test.com',
-            } as ChangePassword;
-
-            mockUserAdministrationService.ChangePassword.mockReturnValue(of({ success: true, expires: undefined, isAdmin: false, isAuthorised: false }));
-
-            service.sendPasswordResetEmail(passwordChange);
-
-            await new Promise(resolve => setTimeout(resolve, 110));
-            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'REGISTER_SEND_PASSWORD' }));
-        });
-
-        it('should handle password reset email failure', async () => {
-            service = TestBed.inject(UserAdministrationManagementService);
-
-            const passwordChange: ChangePassword = {
-                email: 'test@test.com',
-            } as ChangePassword;
-
-            mockUserAdministrationService.ChangePassword.mockReturnValue(of({ success: false, expires: undefined, isAdmin: false, isAuthorised: false }));
-
-            service.sendPasswordResetEmail(passwordChange);
-
-            await new Promise(resolve => setTimeout(resolve, 110));
-            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'REGISTER_SEND_PASSWORD_ERROR' }));
         });
     });
 

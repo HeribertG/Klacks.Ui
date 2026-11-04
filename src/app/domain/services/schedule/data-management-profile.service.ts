@@ -2,6 +2,7 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/domain/models/change-password-class';
+import { IPasswordChangeResult } from 'src/app/domain/models/auth/password-change-result.interface';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -66,7 +67,8 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       .changePassword(this.changePasswordWrapper!)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
+        next: (result) => {
+          this.adoptRenewedSession(result);
           this.isReset.set(true);
           resetSignalAfterDelay(this.isReset);
           this.eventBus.emit(DomainEventType.SUCCESS, {
@@ -83,6 +85,22 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
           }
         },
       });
+  }
+
+  /**
+   * A successful password change revokes every refresh token of the account on the server and returns a fresh pair
+   * for this session. Storing it keeps the session alive past the next token refresh; the format of the expiry
+   * matches what the login stores.
+   * @param result - Response of the password change with the fresh access token, refresh token and expiry
+   */
+  private adoptRenewedSession(result: IPasswordChangeResult): void {
+    if (!result || !result.token || !result.refreshToken) {
+      return;
+    }
+
+    this.localStorageService.set(StorageKeys.TOKEN, result.token);
+    this.localStorageService.set(StorageKeys.TOKEN_EXP, result.expires);
+    this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, result.refreshToken);
   }
 
   /* #endregion  ChangePassword */

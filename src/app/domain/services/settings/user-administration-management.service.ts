@@ -9,7 +9,6 @@ import { UserAdministrationService } from 'src/app/infrastructure/api/settings/u
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
-import { ChangePassword } from 'src/app/domain/models/change-password-class';
 import { ChangeRole } from 'src/app/domain/models/change-role-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -239,38 +238,6 @@ export class UserAdministrationManagementService {
       )
       .subscribe(() => {
         this.loadAccountsList();
-      });
-  }
-
-  sendPasswordResetEmail(passwordChange: ChangePassword): void {
-    this.isLoading.set(true);
-
-    this.userAdministrationService
-      .ChangePassword(passwordChange)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('Failed to send password reset:', error);
-          this.eventBus.emit(DomainEventType.INFO, {
-            message: '',
-            context: 'REGISTER_SEND_PASSWORD_ERROR',
-          });
-          return of({ success: false });
-        }),
-        finalize(() => this.isLoading.set(false))
-      )
-      .subscribe((result) => {
-        if (result.success) {
-          this.eventBus.emit(DomainEventType.INFO, {
-            message: '',
-            context: 'REGISTER_SEND_PASSWORD',
-          });
-        } else {
-          this.eventBus.emit(DomainEventType.INFO, {
-            message: '',
-            context: 'REGISTER_SEND_PASSWORD_ERROR',
-          });
-        }
       });
   }
 
