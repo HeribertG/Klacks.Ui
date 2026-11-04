@@ -14,6 +14,7 @@ import { DataManagementCalendarSelectionService } from 'src/app/domain/services/
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
+import { NewShiftKind } from 'src/app/domain/enums/new-shift-kind.enum';
 import { ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
@@ -438,7 +439,7 @@ describe('DataManagementShiftService', () => {
         });
 
         it('opens as a draft container without customer, address or time range', () => {
-            service.pendingContainerCreation.set(true);
+            service.pendingNewShiftKind.set(NewShiftKind.Container);
 
             service.createShift();
 
@@ -450,12 +451,12 @@ describe('DataManagementShiftService', () => {
         });
 
         it('applies only once, so the next new shift is an order again', () => {
-            service.pendingContainerCreation.set(true);
+            service.pendingNewShiftKind.set(NewShiftKind.Container);
             service.createShift();
 
             service.createShift();
 
-            expect(service.pendingContainerCreation()).toBe(false);
+            expect(service.pendingNewShiftKind()).toBe(NewShiftKind.Order);
             expect(service.editShift!.shiftType).not.toBe(ShiftType.IsContainer);
         });
     });

@@ -9,6 +9,8 @@ import { AllShiftListComponent } from './all-shift-list.component';
 import { DataProactiveAttributionService } from 'src/app/infrastructure/api/assistant/data-proactive-attribution.service';
 import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+import { NewShiftKind } from 'src/app/domain/enums/new-shift-kind.enum';
+import { signal } from '@angular/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -115,12 +117,9 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
   let mockShiftService: any;
   let grantedPermissions: Set<string>;
 
-  const build = (queryParams: Record<string, string>) => {
-    mockNavigationService = { navigateToNewShift: vi.fn() };
-    mockShiftService = {
-      pendingClientlessCreation: { set: vi.fn() },
-      pendingContainerCreation: { set: vi.fn() },
-    };
+  const build = (queryParams: Record<string, string>, navigated = true) => {
+    mockNavigationService = { navigateToNewShift: vi.fn(() => Promise.resolve(navigated)) };
+    mockShiftService = { pendingNewShiftKind: signal(NewShiftKind.Order) };
 
     TestBed.configureTestingModule({
       imports: [AllShiftListComponent, TranslateModule.forRoot()],
@@ -164,7 +163,7 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
 
     (component as any).openPlannableCreateFormIfRequested();
 
-    expect(mockShiftService.pendingClientlessCreation.set).toHaveBeenCalledWith(true);
+    expect(mockShiftService.pendingNewShiftKind()).toBe(NewShiftKind.Clientless);
     expect(mockNavigationService.navigateToNewShift).toHaveBeenCalled();
   });
 
@@ -198,9 +197,29 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
 
     component.onAddContainer();
 
-    expect(mockShiftService.pendingContainerCreation.set).toHaveBeenCalledWith(true);
-    expect(mockShiftService.pendingClientlessCreation.set).not.toHaveBeenCalled();
+    expect(mockShiftService.pendingNewShiftKind()).toBe(NewShiftKind.Container);
     expect(mockNavigationService.navigateToNewShift).toHaveBeenCalled();
+  });
+
+  it('opens a new order without inheriting an earlier kind', () => {
+    grantedPermissions = new Set([PERMISSIONS.CanCreateShifts]);
+    build({});
+    mockShiftService.pendingNewShiftKind.set(NewShiftKind.Container);
+
+    component.onAddShift();
+
+    expect(mockShiftService.pendingNewShiftKind()).toBe(NewShiftKind.Order);
+  });
+
+  it('drops the kind again when the navigation to the form does not happen', async () => {
+    grantedPermissions = new Set([PERMISSIONS.CanCreateShifts]);
+    build({}, false);
+
+    component.onAddContainer();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mockShiftService.pendingNewShiftKind()).toBe(NewShiftKind.Order);
   });
 });
 

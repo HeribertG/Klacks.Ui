@@ -121,8 +121,8 @@ export class NavigationService {
     this.router.navigate(['/workplace/edit-shift', id]);
   }
 
-  navigateToNewShift(): void {
-    this.router.navigate(['/workplace/new-shift']);
+  navigateToNewShift(): Promise<boolean> {
+    return this.router.navigate(['/workplace/new-shift']);
   }
 
   navigateToClientAvailability(): void {

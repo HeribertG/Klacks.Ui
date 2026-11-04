@@ -28,6 +28,7 @@ import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.se
 import { ProactiveShiftAttributionService } from 'src/app/domain/services/assistant/proactive-shift-attribution.service';
 import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+import { NewShiftKind } from 'src/app/domain/enums/new-shift-kind.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
@@ -56,7 +57,6 @@ import { SetupConsultationOfferService } from 'src/app/presentation/services/set
 const CLIENTLESS_CREATE_QUERY_PARAM = 'create';
 const CLIENTLESS_CREATE_QUERY_VALUE = 'plannable';
 
-const DEFAULT_LIST_TITLE_KEY = 'shift.all-shift.list.title';
 const LIST_TITLE_KEYS: Readonly<Record<ShiftFilterType, string>> = {
   [ShiftFilterType.Original]: 'shift.all-shift.nav.original',
   [ShiftFilterType.Shift]: 'shift.all-shift.nav.planbar',
@@ -180,22 +180,35 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   resizeWindow: (() => void) | undefined;
 
   onAddShift(): void {
-    this.navigationService.navigateToNewShift();
+    this.openNewShiftForm(NewShiftKind.Order);
   }
 
   onAddPlannableShift(): void {
-    this.dataManagementShiftService.pendingClientlessCreation.set(true);
-    this.navigationService.navigateToNewShift();
+    this.openNewShiftForm(NewShiftKind.Clientless);
+  }
+
+  onAddContainer(): void {
+    this.openNewShiftForm(NewShiftKind.Container);
   }
 
   /** Names the kind of row the chosen view lists, so orders, containers and absences are not all called "shifts". */
   get listTitleKey(): string {
-    return LIST_TITLE_KEYS[this.dataManagementShiftService.currentFilter.filterType] ?? DEFAULT_LIST_TITLE_KEY;
+    return LIST_TITLE_KEYS[this.dataManagementShiftService.currentFilter.filterType];
   }
 
-  onAddContainer(): void {
-    this.dataManagementShiftService.pendingContainerCreation.set(true);
-    this.navigationService.navigateToNewShift();
+  /**
+   * Hands the kind to the form and opens it. When the navigation does not happen (a guard or another navigation stops
+   * it), the kind is reset, so a later new-shift form does not inherit it.
+   */
+  private openNewShiftForm(kind: NewShiftKind): void {
+    this.dataManagementShiftService.pendingNewShiftKind.set(kind);
+    const resetKind = () => this.dataManagementShiftService.pendingNewShiftKind.set(NewShiftKind.Order);
+    this.navigationService.navigateToNewShift().then(
+      (navigated) => {
+        if (!navigated) resetKind();
+      },
+      () => resetKind(),
+    );
   }
 
   /**
