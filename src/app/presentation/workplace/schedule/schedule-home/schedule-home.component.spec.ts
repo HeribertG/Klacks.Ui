@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
@@ -20,6 +20,7 @@ import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.int
 import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
 import { TimelinePdfExportService } from '../schedule-section/services/timeline-pdf-export.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
+import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
@@ -37,6 +38,8 @@ describe('ScheduleHomeComponent', () => {
   let mockSearchStateService: any;
   let queryParamMap$: BehaviorSubject<any>;
   let activatedRoute: any;
+  let showAvailability: WritableSignal<boolean>;
+  let showScheduleCommands: WritableSignal<boolean>;
 
   function navigateTo(queryParams: Record<string, string>): void {
     activatedRoute.snapshot.queryParamMap = convertToParamMap(queryParams);
@@ -52,6 +55,8 @@ describe('ScheduleHomeComponent', () => {
       selectedGroup: undefined,
     };
     mockSearchStateService = { setRestoreSearch: vi.fn() };
+    showAvailability = signal(false);
+    showScheduleCommands = signal(false);
 
     queryParamMap$ = new BehaviorSubject<any>(convertToParamMap(queryParams));
     activatedRoute = {
@@ -66,7 +71,8 @@ describe('ScheduleHomeComponent', () => {
         { provide: DataClientService, useValue: mockDataClientService },
         { provide: GroupSelectionService, useValue: mockGroupSelectionService },
         { provide: SearchStateService, useValue: mockSearchStateService },
-        { provide: DataManagementScheduleService, useValue: { workFilter, readDatas: vi.fn() } },
+        { provide: DataManagementScheduleService, useValue: { workFilter, readDatas: vi.fn(), showAvailability } },
+        { provide: ScheduleDataService, useValue: { showScheduleCommands } },
         { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
         { provide: SavebarService, useValue: {} },
         { provide: LayoutService, useValue: {} },
@@ -308,6 +314,50 @@ describe('ScheduleHomeComponent', () => {
       expect(filter.currentMonth).toBe(11);
       expect(filter.currentYear).toBe(2026);
       expect(dataManagement.readDatas).toHaveBeenCalled();
+    });
+  });
+
+  describe('applyDisplayQueryParams', () => {
+    function applyDisplayQueryParams(): void {
+      (component as unknown as { applyDisplayQueryParams(): void }).applyDisplayQueryParams();
+    }
+
+    it('switches on the availability overlay and the planning commands named in the link', () => {
+      setup({ showAvailability: 'true', showCommands: 'true' });
+
+      applyDisplayQueryParams();
+
+      expect(showAvailability()).toBe(true);
+      expect(showScheduleCommands()).toBe(true);
+    });
+
+    it('switches on only the display the link names', () => {
+      setup({ showCommands: 'true' });
+
+      applyDisplayQueryParams();
+
+      expect(showAvailability()).toBe(false);
+      expect(showScheduleCommands()).toBe(true);
+    });
+
+    it('never hides a display the user switched on', () => {
+      setup({ showAvailability: 'false' });
+      showAvailability.set(true);
+
+      applyDisplayQueryParams();
+
+      expect(showAvailability()).toBe(true);
+    });
+
+    it('applies the displays of the next message while the page stays open', async () => {
+      setup({});
+      (component as unknown as { setupActionQueryParamReaction(): void }).setupActionQueryParamReaction();
+      const dataManagement = TestBed.inject(DataManagementScheduleService) as unknown as { readDatas: ReturnType<typeof vi.fn> };
+
+      navigateTo({ showAvailability: 'true' });
+
+      await vi.waitFor(() => expect(dataManagement.readDatas).toHaveBeenCalled());
+      expect(showAvailability()).toBe(true);
     });
   });
 

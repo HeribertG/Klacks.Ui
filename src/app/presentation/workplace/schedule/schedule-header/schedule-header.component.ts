@@ -14,11 +14,11 @@
  * @param pdfExportRequested - Emits when the PDF export button is clicked
  */
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   output,
@@ -115,7 +115,7 @@ import {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
+export class ScheduleHeaderComponent implements OnInit {
   readonly breakPlaceholderIcon = viewChild<IconBreakPlaceholderComponent>('breakPlaceholderIcon');
   readonly scheduleCommandsIcon = viewChild<IconThunderCircleComponent>('scheduleCommandsIcon');
   readonly availabilityCheckIcon = viewChild<IconAvailabilityCheckComponent>('availabilityCheckIcon');
@@ -156,15 +156,14 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   constructor() {
     this.recalculation.connect(this.destroyRef);
+    effect(() =>
+      this.displayToggles.colourIcons(this.breakPlaceholderIcon(), this.scheduleCommandsIcon(), this.availabilityCheckIcon())
+    );
   }
 
   ngOnInit(): void {
     this.emitZoomChange();
     this.timelineValue = Math.round(this.viewModeService.timelineRowHeightFactor() * SCHEDULE_HEADER_PERCENT_BASE);
-  }
-
-  ngAfterViewInit(): void {
-    this.displayToggles.colourIcons(this.breakPlaceholderIcon(), this.scheduleCommandsIcon(), this.availabilityCheckIcon());
   }
 
   onTimelineRangeChange(range: TimelineViewRange): void {

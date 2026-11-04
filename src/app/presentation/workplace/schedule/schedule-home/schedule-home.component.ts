@@ -85,6 +85,9 @@ const GROUP_QUERY_PARAM = 'groupId';
 const CLIENT_QUERY_PARAM = 'clientId';
 const DATE_QUERY_PARAM = 'date';
 const SCENARIO_QUERY_PARAM = 'scenarioId';
+const SHOW_AVAILABILITY_QUERY_PARAM = 'showAvailability';
+const SHOW_COMMANDS_QUERY_PARAM = 'showCommands';
+const DISPLAY_ON_VALUE = 'true';
 const ISO_WEEK_THURSDAY_OFFSET = 4;
 const SUNDAY_AS_ISO_WEEKDAY = 7;
 const MONTH_INDEX_OFFSET = 1;
@@ -135,6 +138,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private calendarChipsResolver = inject(CalendarChipsResolverService);
   private groupSelectionService = inject(GroupSelectionService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private scheduleDataService = inject(ScheduleDataService);
   private injector = inject(Injector);
   private allScheduleStateService = inject(AllScheduleStateService);
   private signalRService = inject(SCHEDULE_SIGNALR);
@@ -172,6 +176,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     await this.applyClientQueryParam();
     this.applyDateQueryParam();
     await this.applyScenarioQueryParam();
+    this.applyDisplayQueryParams();
     this.isInitialized = true;
     this.cdr.markForCheck();
 
@@ -198,7 +203,9 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
       !params.get(CLIENT_QUERY_PARAM) &&
       !params.get(GROUP_QUERY_PARAM) &&
       !params.get(DATE_QUERY_PARAM) &&
-      !params.get(SCENARIO_QUERY_PARAM)
+      !params.get(SCENARIO_QUERY_PARAM) &&
+      !params.get(SHOW_AVAILABILITY_QUERY_PARAM) &&
+      !params.get(SHOW_COMMANDS_QUERY_PARAM)
     ) {
       return;
     }
@@ -207,7 +214,23 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     await this.applyClientQueryParam();
     this.applyDateQueryParam();
     await this.applyScenarioQueryParam();
+    this.applyDisplayQueryParams();
     this.dataManagementSchedule.readDatas();
+  }
+
+  /**
+   * Switches on the availability overlay and the planning commands when the page is opened with showAvailability=true or
+   * showCommands=true (Klacksy's open_schedule after it entered availabilities or keywords). The same signals as the two
+   * header buttons; a link only switches a display on, it never hides what the user switched on.
+   */
+  private applyDisplayQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get(SHOW_AVAILABILITY_QUERY_PARAM) === DISPLAY_ON_VALUE) {
+      this.dataManagementSchedule.showAvailability.set(true);
+    }
+    if (params.get(SHOW_COMMANDS_QUERY_PARAM) === DISPLAY_ON_VALUE) {
+      this.scheduleDataService.showScheduleCommands.set(true);
+    }
   }
 
   private async applyGroupQueryParam(): Promise<void> {
