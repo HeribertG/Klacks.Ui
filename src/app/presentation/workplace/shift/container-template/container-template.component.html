@@ -355,19 +355,20 @@
                           | translate
                       "
                     ></app-icon-route-file>
-                    <button
-                      type="button"
+                    <app-icon-route-map
                       class="icon-table route-map-toggle"
+                      role="button"
+                      tabindex="0"
                       [class.active]="routeMapShown()"
                       [attr.aria-pressed]="routeMapShown()"
                       [attr.aria-label]="'shift.container-template.tooltip.route-map' | translate"
                       (click)="toggleRouteMap()"
+                      (keydown.enter)="toggleRouteMap()"
+                      (keydown.space)="$event.preventDefault(); toggleRouteMap()"
                       [ngbTooltip]="
                         'shift.container-template.tooltip.route-map' | translate
                       "
-                    >
-                      <app-icon-route-map />
-                    </button>
+                    ></app-icon-route-map>
                   }
                 }
                 <app-icon-pdf-icon
