@@ -20,6 +20,9 @@ import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ShiftFormService } from '../services/shift-form.service';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 
 interface ShiftServiceStub {
   isReset: WritableSignal<boolean>;
@@ -32,6 +35,7 @@ interface ShiftServiceStub {
   init: ReturnType<typeof vi.fn>;
   hasChangesToLose?: ReturnType<typeof vi.fn>;
   resetData?: ReturnType<typeof vi.fn>;
+  editShift?: Partial<IShift>;
 }
 
 describe('EditShiftHomeComponent - service callback slots', () => {
@@ -101,6 +105,42 @@ describe('EditShiftHomeComponent - service callback slots', () => {
     // Assert
     expect(shiftService.onBeforeSave).toBeUndefined();
     expect(shiftService.onReadCompleted).toBeUndefined();
+  });
+
+  it('names a new order and a new container in the header', () => {
+    const component = createComponent();
+
+    shiftService.editShift = { shiftType: ShiftType.IsTask };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-new-order');
+
+    shiftService.editShift = { shiftType: ShiftType.IsContainer };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-new-container');
+  });
+
+  it('keeps the general header for a new duty without a customer', () => {
+    const component = createComponent();
+
+    shiftService.editShift = { shiftType: ShiftType.IsTask, isClientless: true };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header');
+  });
+
+  it('names an existing container, order or shift as edited', () => {
+    const component = createComponent();
+
+    shiftService.editShift = { id: 'c-1', shiftType: ShiftType.IsContainer, status: ShiftStatus.OriginalShift };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-edit-container');
+
+    shiftService.editShift = { id: 'o-1', shiftType: ShiftType.IsTask, status: ShiftStatus.OriginalOrder, clientId: 'client-1' };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-edit-order');
+
+    shiftService.editShift = { id: 'o-2', shiftType: ShiftType.IsTask, status: ShiftStatus.SealedOrder, clientId: 'client-1' };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-edit-order');
+
+    shiftService.editShift = { id: 's-1', shiftType: ShiftType.IsTask, status: ShiftStatus.SealedOrder, clientId: undefined };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-edit-shift');
+
+    shiftService.editShift = { id: 's-2', shiftType: ShiftType.IsTask, status: ShiftStatus.OriginalShift, clientId: 'client-1' };
+    expect(component.headerKey).toBe('shift.edit-shift.home.header-edit-shift');
   });
 
   it('should leave slots alone that a newer editor has taken over', () => {

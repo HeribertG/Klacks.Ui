@@ -44,6 +44,12 @@ import { ShiftEditPermissionService } from 'src/app/application/services/shift-e
 import { CanComponentDeactivate } from 'src/app/application/helpers/can-component-deactivate.interface';
 
 const LEAVE_WITHOUT_ASKING_ROUTES: readonly string[] = ['/error', '/no-access'];
+const SHIFT_HEADER_KEY = 'shift.edit-shift.home.header';
+const NEW_ORDER_HEADER_KEY = 'shift.edit-shift.home.header-new-order';
+const NEW_CONTAINER_HEADER_KEY = 'shift.edit-shift.home.header-new-container';
+const EDIT_ORDER_HEADER_KEY = 'shift.edit-shift.home.header-edit-order';
+const EDIT_CONTAINER_HEADER_KEY = 'shift.edit-shift.home.header-edit-container';
+const EDIT_SHIFT_HEADER_KEY = 'shift.edit-shift.home.header-edit-shift';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -125,6 +131,25 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy, CanComponentDe
 
   get isClientless(): boolean {
     return !!this.dataManagementShiftService.editShift?.isClientless;
+  }
+
+  /**
+   * Names what the form holds: a container, an order (draft or sealed with a customer) or a shift (plannable, cut or a
+   * duty without a customer), each as new or edited.
+   */
+  get headerKey(): string {
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift) {
+      return SHIFT_HEADER_KEY;
+    }
+    if (!shift.id) {
+      if (this.isContainer) return NEW_CONTAINER_HEADER_KEY;
+      return this.isClientless ? SHIFT_HEADER_KEY : NEW_ORDER_HEADER_KEY;
+    }
+    if (this.isContainer) return EDIT_CONTAINER_HEADER_KEY;
+    const isOrder =
+      shift.status === ShiftStatus.OriginalOrder || (shift.status === ShiftStatus.SealedOrder && !!shift.clientId);
+    return isOrder ? EDIT_ORDER_HEADER_KEY : EDIT_SHIFT_HEADER_KEY;
   }
 
   ngOnInit(): void {

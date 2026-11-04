@@ -19,6 +19,8 @@ import {
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
+import { NewShiftKind } from 'src/app/domain/enums/new-shift-kind.enum';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
@@ -100,7 +102,11 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public makeValidation = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
-  public pendingClientlessCreation = signal(false);
+  /**
+   * What the next new-shift form creates. Set right before navigating to it, consumed (back to Order) when the form
+   * opens, and reset by the caller when that navigation does not happen, so it never outlives one form.
+   */
+  public pendingNewShiftKind = signal(NewShiftKind.Order);
   public defaultMacroPreselected = signal(false);
 
   public listWrapper: ITruncatedShift | undefined;
@@ -307,10 +313,22 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     // because isClientless lives in the browser and is gone after a reload. The status carries the
     // intent instead, which the backend enforces: a draft without a customer is refused, and a sealed
     // order without one must already meet the sealing requirements. Owner decision 2026-09-07.
-    const clientless = this.pendingClientlessCreation();
+    const kind = this.pendingNewShiftKind();
+    this.pendingNewShiftKind.set(NewShiftKind.Order);
+    const clientless = kind === NewShiftKind.Clientless;
     value.status = clientless ? ShiftStatus.SealedOrder : ShiftStatus.OriginalOrder;
     value.isClientless = clientless;
-    this.pendingClientlessCreation.set(false);
+
+    // A container is a template, not an order: it never names a customer or an address and has no time range. It starts
+    // as a draft like an order and becomes its one-row shape when sealed (ContainerShiftRules in the backend).
+    if (kind === NewShiftKind.Container) {
+      value.shiftType = ShiftType.IsContainer;
+      value.status = ShiftStatus.OriginalOrder;
+      value.isClientless = false;
+      value.clientId = undefined;
+      value.addressName = undefined;
+      value.isTimeRange = false;
+    }
 
     this.assignActiveVariant(value);
 

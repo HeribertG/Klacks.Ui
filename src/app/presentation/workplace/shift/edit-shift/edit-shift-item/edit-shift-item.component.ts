@@ -316,33 +316,10 @@ export class EditShiftItemComponent
     return !this.isValidUntilDisabled && this.dataManagementShiftService.isEndDateOpen();
   }
 
-  get isContainerVisible(): boolean {
-    const status = this.dataManagementShiftService.editShift?.status;
-    return status === ShiftStatus.OriginalOrder;
-  }
-
   get isContainer(): boolean {
     return (
       this.dataManagementShiftService.editShift?.shiftType ===
       ShiftType.IsContainer
     );
-  }
-
-  get isContainerChecked(): boolean {
-    return this.isContainer;
-  }
-
-  set isContainerChecked(value: boolean) {
-    if (this.dataManagementShiftService.editShift) {
-      this.dataManagementShiftService.editShift.shiftType = value
-        ? ShiftType.IsContainer
-        : ShiftType.IsTask;
-
-      if (value) {
-        this.dataManagementShiftService.editShift.clientId = undefined;
-        this.dataManagementShiftService.editShift.addressName = undefined;
-        this.dataManagementShiftService.editShift.isTimeRange = false;
-      }
-    }
   }
 }

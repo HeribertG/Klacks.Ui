@@ -1,7 +1,7 @@
 <div class="container-dashboard" id="edit-shift-home-container" data-klacksy-target="shift-form">
   <app-variant-mode-bar />
   <div class="container-headline" id="edit-shift-headline">
-    {{ "shift.edit-shift.home.header" | translate }}
+    {{ headerKey | translate }}
     @if (isNavVisible) {
     <app-nav-toggle id="edit-shift-nav-toggle" [(open)]="navOpen"></app-nav-toggle>
     }

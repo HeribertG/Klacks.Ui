@@ -204,21 +204,6 @@
         </div>
       </div>
 
-      @if (isChecked && isContainerVisible) {
-      <div class="form-group is-container">
-        <label class="checkbox-label" for="isContainer">
-          <input
-            type="checkbox"
-            [(ngModel)]="isContainerChecked"
-            id="isContainer"
-            name="isContainer"
-            [disabled]="isFieldsDisabled"
-          />
-          {{ "shift.edit-shift.main.is-container" | translate }}
-        </label>
-      </div>
-      }
-
       <div class="endColumn" style="margin-top: 5px">
         <div class="form-group">
           <label for="description">{{
