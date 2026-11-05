@@ -88,19 +88,20 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   }
 
   /**
-   * A successful password change revokes every refresh token of the account on the server and returns a fresh pair
-   * for this session. Storing it keeps the session alive past the next token refresh; the format of the expiry
-   * matches what the login stores.
-   * @param result - Response of the password change with the fresh access token, refresh token and expiry
+   * A successful password change revokes every refresh token of the account on the server, returns a fresh access
+   * token for this session and sets the new refresh token as HttpOnly cookie. Storing the access token keeps the
+   * session alive; a refresh token an older build left in localStorage is now revoked and is dropped so it can never
+   * override the cookie. The format of the expiry matches what the login stores.
+   * @param result - Response of the password change with the fresh access token and its expiry
    */
   private adoptRenewedSession(result: IPasswordChangeResult): void {
-    if (!result || !result.token || !result.refreshToken) {
+    if (!result || !result.token) {
       return;
     }
 
     this.localStorageService.set(StorageKeys.TOKEN, result.token);
     this.localStorageService.set(StorageKeys.TOKEN_EXP, result.expires);
-    this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, result.refreshToken);
+    this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
   }
 
   /* #endregion  ChangePassword */

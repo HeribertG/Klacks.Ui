@@ -15,8 +15,10 @@ import {
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  DestroyRef,
   viewChild
 } from '@angular/core';
+import { createDestroyAwareTimeout } from 'src/app/shared/helpers/destroy-aware-timeout.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -87,6 +89,7 @@ export class AllAddressListComponent
   private navigationService = inject(NavigationService);
   private cdr = inject(ChangeDetectorRef);
   private assistantPageContext = inject(AssistantPageContextService);
+  private readonly deferWhileAlive = createDestroyAwareTimeout(inject(DestroyRef));
 
   private static readonly assistantEntityType = 'client';
 
@@ -151,7 +154,7 @@ export class AllAddressListComponent
         this.cdr.markForCheck();
       });
 
-    setTimeout(() => {
+    this.deferWhileAlive(() => {
       const resizeDirective = this.resizeDirective();
       if (resizeDirective) {
         resizeDirective.recalcHeight();
@@ -349,7 +352,7 @@ export class AllAddressListComponent
         this.dataManagementClientService.paginationDataService()?.firstItem;
     }
     this.page = event;
-    setTimeout(() => {
+    this.deferWhileAlive(() => {
       this.readPage();
       this.cdr.markForCheck();
     }, 100);

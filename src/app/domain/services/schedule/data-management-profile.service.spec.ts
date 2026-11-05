@@ -48,12 +48,11 @@ describe('DataManagementProfileService', () => {
     service.passwordChangeIsAllowed(true);
   });
 
-  it('stores the fresh token pair returned by a successful password change', () => {
+  it('stores the fresh access token and drops the revoked legacy refresh token after a password change', () => {
     const result: IPasswordChangeResult = {
       success: true,
       mailSuccess: true,
       token: 'new-access',
-      refreshToken: 'new-refresh',
       expires: '2026-11-04T10:15:00Z',
     };
     changePassword.mockReturnValue(of(result));
@@ -62,16 +61,15 @@ describe('DataManagementProfileService', () => {
 
     expect(changePassword).toHaveBeenCalledTimes(1);
     expect(storage.get(StorageKeys.TOKEN)).toBe('new-access');
-    expect(storage.get(StorageKeys.TOKEN_REFRESHTOKEN)).toBe('new-refresh');
+    expect(storage.has(StorageKeys.TOKEN_REFRESHTOKEN)).toBe(false);
     expect(storage.get(StorageKeys.TOKEN_EXP)).toBe('2026-11-04T10:15:00Z');
   });
 
-  it('keeps the stored session when the response carries no token pair', () => {
+  it('keeps the stored session when the response carries no access token', () => {
     const result: IPasswordChangeResult = {
       success: true,
       mailSuccess: true,
       token: '',
-      refreshToken: '',
       expires: '',
     };
     changePassword.mockReturnValue(of(result));

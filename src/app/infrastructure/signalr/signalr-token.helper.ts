@@ -2,8 +2,8 @@
 
 /**
  * Token lifecycle helper for SignalR: expiry detection, backend validation and silent refresh.
- * @param localStorage - Reads and writes JWT and refresh tokens from local storage
- * @param dataAuthService - Performs the refresh through the shared single-flight endpoint
+ * @param localStorage - Reads and writes the access token and its expiry in local storage
+ * @param dataAuthService - Performs the cookie-based refresh through the shared single-flight endpoint
  */
 import { firstValueFrom } from 'rxjs';
 import { LocalStorageService } from '../storage/local-storage.service';
@@ -24,15 +24,12 @@ export class SignalRTokenHelper {
 
   async attemptTokenRefresh(): Promise<void> {
     try {
-      const refreshToken = this.localStorage.get(StorageKeys.TOKEN_REFRESHTOKEN);
-      if (!refreshToken) {
-        console.warn('[SignalR] no refresh token in storage - cannot refresh');
+      if (!this.localStorage.get(StorageKeys.TOKEN)) {
+        console.warn('[SignalR] no session in storage - cannot refresh');
         return;
       }
 
-      const token = await firstValueFrom(
-        this.dataAuthService.refreshToken({ refreshToken }),
-      );
+      const token = await firstValueFrom(this.dataAuthService.refreshToken());
 
       if (!token?.token) {
         console.warn('[SignalR] refresh response missing token field');
@@ -40,9 +37,6 @@ export class SignalRTokenHelper {
       }
 
       this.localStorage.set(StorageKeys.TOKEN, token.token);
-      if (token.refreshToken) {
-        this.localStorage.set(StorageKeys.TOKEN_REFRESHTOKEN, token.refreshToken);
-      }
       this.localStorage.set(StorageKeys.TOKEN_EXP, token.expTime.toString());
     } catch (error) {
       console.warn('[SignalR] token refresh failed', error);

@@ -3,6 +3,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Input,
   OnInit,
   inject,
@@ -10,6 +11,7 @@ import {
   input,
   output
 } from '@angular/core';
+import { createDestroyAwareTimeout } from 'src/app/shared/helpers/destroy-aware-timeout.helper';
 
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
@@ -53,6 +55,7 @@ export class PaginationComponent implements OnInit {
 
   private rowSizePreference = inject(RowSizePreferenceService);
   private cdr = inject(ChangeDetectorRef);
+  private readonly deferWhileAlive = createDestroyAwareTimeout(inject(DestroyRef));
 
   ngOnInit(): void {
     if (this.numberOfItemsPerPage === undefined) {
@@ -75,7 +78,7 @@ export class PaginationComponent implements OnInit {
       this.realRow = savedRowSize;
       if (savedRowSize !== AUTOMATIC_ROW_SIZE) {
         this.numberOfItemsPerPage = savedRowSize;
-        setTimeout(() => {
+        this.deferWhileAlive(() => {
           this.numberOfItemsPerPageChange.emit(savedRowSize);
           this.cdr.markForCheck();
         }, 0);

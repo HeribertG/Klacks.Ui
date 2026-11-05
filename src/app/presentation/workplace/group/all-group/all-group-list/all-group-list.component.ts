@@ -20,6 +20,7 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { createDestroyAwareTimeout } from 'src/app/shared/helpers/destroy-aware-timeout.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
@@ -89,6 +90,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private allGroupStateService = inject(AllGroupStateService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+  private readonly deferWhileAlive = createDestroyAwareTimeout(this.destroyRef);
 
   private effectRef: EffectRef | null = null;
 
@@ -149,7 +151,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
       });
 
-    setTimeout(() => {
+    this.deferWhileAlive(() => {
       const resizeDirective = this.resizeDirective();
       if (resizeDirective) {
         resizeDirective.recalcHeight();
@@ -157,7 +159,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setupTableResize();
     }, 100);
 
-    setTimeout(() => {
+    this.deferWhileAlive(() => {
       this.spinnerService.showProgressSpinner = false;
       this.cdr.markForCheck();
     }, 300);
@@ -380,7 +382,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.page = event;
-    setTimeout(() => {
+    this.deferWhileAlive(() => {
       this.readPage();
       this.cdr.markForCheck();
     }, 100);

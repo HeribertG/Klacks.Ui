@@ -9,6 +9,7 @@ import { OAuth2AuthorizeResponse } from '../../domain/models/auth/oauth2-authori
 import { OAuth2CallbackRequest } from '../../domain/models/auth/oauth2-callback-request.interface';
 import { OAuth2LogoutResponse } from '../../domain/models/auth/oauth2-logout-response.interface';
 import { MyToken } from 'src/app/domain/models/my-token-class';
+import { credentialedRequestOptions } from '../helpers/credentialed-request.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +32,8 @@ export class DataOAuth2Service {
   callback(request: OAuth2CallbackRequest): Observable<MyToken> {
     return this.httpClient.post<MyToken>(
       `${environment.baseUrl}OAuth2/callback`,
-      request
+      request,
+      credentialedRequestOptions()
     );
   }
 

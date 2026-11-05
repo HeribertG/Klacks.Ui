@@ -15,6 +15,5 @@ export class MyToken implements IMyToken {
   isAdmin = false;
   isAuthorised = false;
   permissions: string[] = [];
-  refreshToken = '';
   version = '';
 }

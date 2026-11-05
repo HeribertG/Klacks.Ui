@@ -3,14 +3,16 @@
 /* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
 /* eslint-disable no-prototype-builtins */
 import { inject, Injectable, Injector, ProviderToken } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { timeout } from 'rxjs/operators';
+import { SERVER_LOGOUT_WAIT_MS } from 'src/app/domain/constants/auth-request.constants';
 import { MyToken } from 'src/app/domain/models/my-token-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from 'src/app/domain/helpers/date.helper';
 import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
+import { isRefreshTokenRejection } from 'src/app/domain/helpers/refresh-token-rejection.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
@@ -100,25 +102,15 @@ export class AuthService {
   }
 
   /**
-   * Logs the user out. Invalidates the refresh token(s) on the server first (fire-and-forget,
-   * so a failure - e.g. an already-expired access token - never blocks the client-side logout),
-   * then clears all locally stored session state, tears down every realtime hub connection and
-   * drops the session-scoped draft and instance id. The server call is skipped entirely when
-   * there is no local token - there is nothing to invalidate server-side, and issuing it anyway
-   * would just produce a guaranteed, meaningless 401.
-   *
-   * The server logout request is issued before the token is removed so the auth interceptor can
-   * still attach the Authorization header and connection id. Realtime connections are stopped only
-   * after removeToken(), because a deliberate hub stop schedules a reconnect that is short-circuited
-   * by the now-missing token.
+   * Logs this device out. Revokes the refresh token in the cookie on the server and clears the cookie first
+   * (fire-and-forget, so a failure never blocks the client-side logout), then clears all locally stored session
+   * state, tears down every realtime hub connection and drops the session-scoped draft and instance id. The server
+   * call is skipped when there is no local token - there is no local session to end. Realtime connections are stopped
+   * only after removeToken(), because a deliberate hub stop schedules a reconnect that is short-circuited by the
+   * now-missing token.
    */
   logOut() {
-    if (this.localStorageService.get(StorageKeys.TOKEN)) {
-      this.dataAuthService.logout().subscribe({
-        next: () => undefined,
-        error: () => undefined,
-      });
-    }
+    this.requestServerLogout();
 
     this.removeToken();
     this.removeStateValue();
@@ -171,8 +163,36 @@ export class AuthService {
     }
   }
 
+  private requestServerLogout(): void {
+    if (!this.localStorageService.get(StorageKeys.TOKEN)) {
+      return;
+    }
+    this.dataAuthService.logout().subscribe({
+      next: () => undefined,
+      error: () => undefined,
+    });
+  }
+
+  /**
+   * Server logout that finishes before the SSO sign-out leaves the page for the provider, so the cookie is revoked
+   * and cleared in time. Bounded by SERVER_LOGOUT_WAIT_MS; a failure or timeout never blocks the sign-out.
+   */
+  private async awaitServerLogout(): Promise<void> {
+    if (!this.localStorageService.get(StorageKeys.TOKEN)) {
+      return;
+    }
+    try {
+      await firstValueFrom(this.dataAuthService.logout().pipe(timeout(SERVER_LOGOUT_WAIT_MS)), {
+        defaultValue: undefined,
+      });
+    } catch {
+      // Server logout failed or timed out - the local sign-out continues.
+    }
+  }
+
   async logOutWithSso(): Promise<void> {
     const providerId = this.localStorageService.get('oauth2_provider_id');
+    await this.awaitServerLogout();
 
     if (providerId) {
       try {
@@ -239,13 +259,16 @@ export class AuthService {
       const res = EqualDate(currentDate, tokenDate);
       if (res <= 0) {
         try {
-          this.refreshToken().then((x) => {
-            if (x! === true) {
-              this.navigationService.navigateAfterLogin();
-            } else {
-              this.logOut();
-            }
-          });
+          this.refreshToken().then(
+            (x) => {
+              if (x! === true) {
+                this.navigationService.navigateAfterLogin();
+              } else {
+                this.logOut();
+              }
+            },
+            () => undefined
+          );
         } catch {
           this.navigationService.navigateToRoot();
           this.toastShowService.showInfo(DomainMessages.EXPIRED_TOKEN);
@@ -273,12 +296,6 @@ export class AuthService {
       StorageKeys.TOKEN_APPVERSION,
       token.version
     );
-    if (token.refreshToken) {
-      this.localStorageService.set(
-        StorageKeys.TOKEN_REFRESHTOKEN,
-        token.refreshToken
-      );
-    }
 
     this.authorizationService.store(token.permissions);
     this.loadCompanyClockIfAuthenticated();
@@ -306,10 +323,10 @@ export class AuthService {
       this.localStorageService.remove(StorageKeys.TOKEN_USERID);
       this.localStorageService.remove(StorageKeys.TOKEN_APPVERSION);
       this.localStorageService.remove(StorageKeys.TOKEN_SUBJECT);
+      this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
       this.authorizationService.clear();
 
       if (!isRefresh) {
-        this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
         this.removeStateValue();
       }
     } catch {
@@ -364,14 +381,14 @@ export class AuthService {
   }
 
   /**
-   * Silently refreshes an expired-but-renewable access token during app bootstrap,
-   * before any component or config initializer fires its first authenticated request.
-   * Single-flight: concurrent callers share one refresh so the rotating refresh token
-   * is never spent twice. Does nothing when there is no token or the token is still
-   * valid. A refresh failure only clears the session when the server actually
-   * rejected the refresh token (400/401) - a network/server error is left to the
-   * normal 401/login flow so a still-recoverable session is never dropped just
-   * because the backend was briefly unreachable at boot.
+   * Prepares the stored session during app bootstrap, before any component or config initializer fires its first
+   * authenticated request. Single-flight: concurrent callers share one run. Without a local session nothing is
+   * refreshed and a leftover legacy refresh token is dropped. A still-valid session is renewed once only when it still
+   * holds a refresh token from an older build (migration into the HttpOnly cookie) or lacks the rights list
+   * (backfill); a failure there is swallowed and the session stays. An expired session is renewed through the cookie;
+   * it is only cleared when the server actually rejected the refresh (400/401) - a network/server error is left to the
+   * normal 401/login flow so a still-recoverable session is never dropped just because the backend was briefly
+   * unreachable at boot.
    */
   ensureFreshTokenAtStartup(): Promise<void> {
     if (!this.startupRefreshPromise) {
@@ -382,75 +399,60 @@ export class AuthService {
 
   private async performStartupRefresh(): Promise<void> {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
-    if (!token || !this.isAccessTokenExpired(token)) {
-      if (token) {
-        this.loadCompanyClockIfAuthenticated();
-        await this.backfillPermissionsIfMissing();
+    if (!token) {
+      this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
+      return;
+    }
+
+    if (!this.isAccessTokenExpired(token)) {
+      this.loadCompanyClockIfAuthenticated();
+      if (this.needsSessionRepair()) {
+        await this.renewSessionQuietly();
       }
       return;
     }
 
-    const refreshToken = this.localStorageService.get(
-      StorageKeys.TOKEN_REFRESHTOKEN
-    );
-    if (!refreshToken) {
-      this.logOut();
-      return;
-    }
-
-    if (await this.isRefreshTokenRejected(refreshToken)) {
+    if (await this.isRefreshRejected()) {
       this.logOut();
     }
   }
 
   /**
-   * Repairs a session that was opened before the backend started sending the rights list: its
-   * access token is still valid, but nothing in storage says what the user may do, which would
-   * read as a user who lost all rights. One refresh fetches the list and the repair then deletes
-   * itself. A failure is swallowed on purpose - such a session stays signed in today, and losing
-   * it over a backfill would be a worse bug than the missing list.
+   * A still-valid session needs one renewal when an older build left its refresh token in localStorage (it has to be
+   * moved into the cookie before the access token expires) or when the session was opened before the backend sent
+   * the rights list (nothing in storage says what the user may do).
    */
-  private async backfillPermissionsIfMissing(): Promise<void> {
-    if (this.authorizationService.hasStoredPermissions()) {
-      return;
-    }
-
-    const refreshToken = this.localStorageService.get(
-      StorageKeys.TOKEN_REFRESHTOKEN
+  private needsSessionRepair(): boolean {
+    return (
+      this.localStorageService.get(StorageKeys.TOKEN_REFRESHTOKEN) !== null ||
+      !this.authorizationService.hasStoredPermissions()
     );
-    if (!refreshToken) {
-      return;
-    }
+  }
 
+  private async renewSessionQuietly(): Promise<void> {
     try {
-      const response = await firstValueFrom(
-        this.dataAuthService.refreshToken({ refreshToken })
-      );
+      const response = await firstValueFrom(this.dataAuthService.refreshToken());
       if (response) {
         this.storeToken(response, true);
       }
     } catch {
-      // Backfill failed - the session stays as it is.
+      // Repair failed - the session stays as it is.
     }
   }
 
   /**
-   * Attempts the startup refresh and reports whether the server explicitly rejected
-   * the refresh token (400/401 - definitely dead), as opposed to succeeding or failing
-   * for an unrelated reason (network error, 5xx) that should not clear the session.
+   * Attempts the startup refresh and reports whether the server explicitly rejected it (400/401 - definitely dead),
+   * as opposed to succeeding or failing for an unrelated reason (network error, 5xx) that should not clear the session.
    */
-  private async isRefreshTokenRejected(refreshToken: string): Promise<boolean> {
+  private async isRefreshRejected(): Promise<boolean> {
     try {
-      const response = await firstValueFrom(
-        this.dataAuthService.refreshToken({ refreshToken })
-      );
+      const response = await firstValueFrom(this.dataAuthService.refreshToken());
       if (response) {
         this.storeToken(response, true);
       }
       return false;
     } catch (error) {
-      const status = error instanceof HttpErrorResponse ? error.status : 0;
-      return status === 400 || status === 401;
+      return isRefreshTokenRejection(error);
     }
   }
 
@@ -458,27 +460,29 @@ export class AuthService {
     return isJwtExpired(token);
   }
 
+  /**
+   * Renews the access token through the refresh-token cookie. Only a tab that still holds a local session refreshes,
+   * so a leftover cookie never revives a signed-out tab.
+   * @returns true when renewed, false when there is no session or the server rejected the refresh (400/401) - the
+   * session is dead. A transient failure (network, 5xx, 429) rejects the promise instead, so callers keep the session.
+   */
   async refreshToken(): Promise<boolean> {
-    const refreshToken = this.localStorageService.get(
-      StorageKeys.TOKEN_REFRESHTOKEN
-    );
-
-    if (!refreshToken) {
+    if (!this.localStorageService.get(StorageKeys.TOKEN)) {
       return false;
     }
 
     try {
-      const response = await firstValueFrom(
-        this.dataAuthService.refreshToken({ refreshToken })
-      );
-
-      if (response) {
-        this.storeToken(response, true);
-        return true;
+      const response = await firstValueFrom(this.dataAuthService.refreshToken());
+      if (!response) {
+        return false;
       }
-      return false;
-    } catch {
-      return false;
+      this.storeToken(response, true);
+      return true;
+    } catch (error) {
+      if (isRefreshTokenRejection(error)) {
+        return false;
+      }
+      throw error;
     }
   }
 

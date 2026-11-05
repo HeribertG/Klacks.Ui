@@ -141,12 +141,14 @@ describe('TokenRefreshInterceptor', () => {
         expect(completed).toBe(true);
     });
 
-    it('should logout and navigate to root when refresh token throws error', async () => {
+    it('should keep the session and fail the request with its 401 when the refresh fails transiently', async () => {
         const testUrl = '/api/test';
-        let completed = false;
+        let failedStatus: number | undefined;
 
         localStorageService.get.mockReturnValue('old-token');
-        authService.refreshToken.mockReturnValue(Promise.reject(new Error('Refresh failed')));
+        authService.refreshToken.mockReturnValue(
+            Promise.reject(new HttpErrorResponse({ status: 503, statusText: 'Service Unavailable' }))
+        );
 
         httpClient
             .get(testUrl, {
@@ -154,13 +156,10 @@ describe('TokenRefreshInterceptor', () => {
         })
             .subscribe({
             next: () => {
-                throw new Error('Should not succeed when refresh token throws error');
+                throw new Error('Should not succeed when the refresh failed');
             },
-            error: () => {
-                throw new Error('Should complete without error');
-            },
-            complete: () => {
-                completed = true;
+            error: (error: HttpErrorResponse) => {
+                failedStatus = error.status;
             },
         });
 
@@ -170,10 +169,36 @@ describe('TokenRefreshInterceptor', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         expect(authService.refreshToken).toHaveBeenCalled();
-        expect(draftRecoveryService.capture).toHaveBeenCalled();
-        expect(authService.logOut).toHaveBeenCalled();
-        expect(navigationService.redirectToLogin).toHaveBeenCalled();
-        expect(completed).toBe(true);
+        expect(failedStatus).toBe(401);
+        expect(authService.logOut).not.toHaveBeenCalled();
+        expect(draftRecoveryService.capture).not.toHaveBeenCalled();
+        expect(navigationService.redirectToLogin).not.toHaveBeenCalled();
+    });
+
+    it('should fail all parallel waiters without logging out when the refresh fails transiently', async () => {
+        const testUrl = '/api/test';
+        const failures: number[] = [];
+
+        localStorageService.get.mockReturnValue('old-token');
+        authService.refreshToken.mockReturnValue(Promise.reject(new HttpErrorResponse({ status: 0 })));
+
+        const subscribe = () =>
+            httpClient
+                .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
+                .subscribe({ error: (error: HttpErrorResponse) => failures.push(error.status) });
+
+        subscribe();
+        subscribe();
+
+        const requests = httpMock.match(testUrl);
+        expect(requests.length).toBe(2);
+        requests.forEach((r) => r.flush(null, { status: 401, statusText: 'Unauthorized' }));
+
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
+        expect(authService.refreshToken).toHaveBeenCalledTimes(1);
+        expect(failures).toEqual([401, 401]);
+        expect(authService.logOut).not.toHaveBeenCalled();
     });
 
     it('should release all parallel waiting requests when refresh fails (no spinner leak)', async () => {

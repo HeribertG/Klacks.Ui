@@ -4,6 +4,5 @@ export interface IPasswordChangeResult {
   success: boolean;
   mailSuccess: boolean;
   token: string;
-  refreshToken: string;
   expires: string;
 }

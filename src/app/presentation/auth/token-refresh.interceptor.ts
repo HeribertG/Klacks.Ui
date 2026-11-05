@@ -19,19 +19,22 @@ import { DraftRecoveryService } from '../services/draft-recovery.service';
 
 const REFRESH_SUCCEEDED = 'succeeded';
 const REFRESH_FAILED = 'failed';
+const REFRESH_UNAVAILABLE = 'unavailable';
 
 /**
  * Refreshes an expired access token on a 401 and replays the failed request.
  * Serialises concurrent 401s so only one refresh runs: the first request
  * performs the refresh, all others wait for its outcome. On success the waiters
- * replay with the new token; on failure they are released (so their observables
- * complete and the loading spinner is not leaked) and the user is logged out.
- * Completing without an error is deliberate and covered by tests: the user is
- * redirected to the login page anyway, so error handlers would only produce
- * noise for components that are about to be destroyed.
+ * replay with the new token. When the server rejects the refresh (400/401) they
+ * are released (so their observables complete and the loading spinner is not
+ * leaked) and the user is logged out; completing without an error is deliberate
+ * and covered by tests: the user is redirected to the login page anyway, so error
+ * handlers would only produce noise for components that are about to be destroyed.
+ * When the refresh fails transiently (network, 5xx, 429) the session stays: the
+ * original requests fail with their 401 and the next request tries again.
  * A per-request retry flag (`TOKEN_REFRESH_RETRIED`) prevents infinite refresh
- * loops, and a token-comparison shortcut prevents a second refresh attempt with
- * an already-rotated (and now invalid) refresh token.
+ * loops, and a token-comparison shortcut replays a request with the token another
+ * caller already renewed instead of refreshing a second time.
  */
 @Injectable()
 export class TokenRefreshInterceptor implements HttpInterceptor {
@@ -54,7 +57,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
           this.shouldRefreshToken(req) &&
           !req.context.get(TOKEN_REFRESH_RETRIED)
         ) {
-          return this.handle401Error(req, next);
+          return this.handle401Error(req, next, error);
         }
         return throwError(() => error);
       })
@@ -63,7 +66,8 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
 
   private handle401Error(
     req: HttpRequest<unknown>,
-    next: HttpHandler
+    next: HttpHandler,
+    unauthorized: HttpErrorResponse
   ): Observable<HttpEvent<unknown>> {
     const requestToken = this.extractBearerToken(req);
     const currentToken = this.localStorageService.get(StorageKeys.TOKEN);
@@ -94,9 +98,8 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
         }),
         catchError(() => {
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(REFRESH_FAILED);
-          this.handleAuthFailure();
-          return EMPTY;
+          this.refreshTokenSubject.next(REFRESH_UNAVAILABLE);
+          return throwError(() => unauthorized);
         })
       );
     }
@@ -107,6 +110,9 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
       switchMap((status) => {
         if (status === REFRESH_FAILED) {
           return EMPTY;
+        }
+        if (status === REFRESH_UNAVAILABLE) {
+          return throwError(() => unauthorized);
         }
         return next.handle(this.addAuthHeader(req));
       })

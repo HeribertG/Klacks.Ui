@@ -21,6 +21,9 @@ describe('OAuth2CallbackTokenStorageService', () => {
             set: (key: string, value: string): void => {
               store[key] = value;
             },
+            remove: (key: string): void => {
+              delete store[key];
+            },
           },
         },
       ],
@@ -29,23 +32,25 @@ describe('OAuth2CallbackTokenStorageService', () => {
   });
 
   function token(overrides: Partial<OAuth2Token>): OAuth2Token {
-    return { token: 'jwt', username: 'fallback-name', id: 'user-1', refreshToken: '', ...overrides } as OAuth2Token;
+    return { token: 'jwt', username: 'fallback-name', id: 'user-1', ...overrides } as OAuth2Token;
   }
 
   it('stores the session and the provider id taken from the state prefix', () => {
     const expires = new Date(Date.UTC(2026, 9, 22, 12, 0, 0));
 
-    service.store(token({ userName: 'Display Name', expires, refreshToken: 'refresh' }), 'google_nonce');
+    store[StorageKeys.TOKEN_REFRESHTOKEN] = 'legacy-refresh';
+
+    service.store(token({ userName: 'Display Name', expires }), 'google_nonce');
 
     expect(store[StorageKeys.TOKEN]).toBe('jwt');
     expect(store[StorageKeys.TOKEN_USERNAME]).toBe('Display Name');
     expect(store[StorageKeys.TOKEN_USERID]).toBe('user-1');
     expect(store[StorageKeys.TOKEN_EXP]).toBe(expires.toString());
-    expect(store[StorageKeys.TOKEN_REFRESHTOKEN]).toBe('refresh');
+    expect(StorageKeys.TOKEN_REFRESHTOKEN in store).toBe(false);
     expect(store[StorageKeys.OAUTH2_PROVIDER_ID]).toBe('google');
   });
 
-  it('falls back to username and empty expiry and skips a missing refresh token or provider id', () => {
+  it('falls back to username and empty expiry and skips a missing provider id', () => {
     service.store(token({}), '_nonce');
 
     expect(store[StorageKeys.TOKEN_USERNAME]).toBe('fallback-name');

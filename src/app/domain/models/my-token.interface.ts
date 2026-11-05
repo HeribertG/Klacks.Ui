@@ -13,6 +13,5 @@ export interface IMyToken {
   isAdmin: boolean;
   isAuthorised: boolean;
   permissions: string[];
-  refreshToken: string;
   version: string;
 }

@@ -2,8 +2,9 @@
 
 /**
  * Stores the session that an OAuth2 provider callback returned: token, user name (userName wins over username), user
- * id, expiry (empty text when unknown), the refresh token when one was issued, and the provider id that prefixes the
- * handshake state ("<providerId>_<nonce>") so a later logout can sign out at the same provider.
+ * id, expiry (empty text when unknown) and the provider id that prefixes the handshake state ("<providerId>_<nonce>") so a
+ * later logout can sign out at the same provider. The refresh token arrives as an HttpOnly cookie; a refresh token an
+ * older build left in localStorage is dropped so it can never override that cookie.
  * @param token - Token response of the OAuth2 callback endpoint
  * @param state - Handshake state echoed by the provider
  */
@@ -28,9 +29,7 @@ export class OAuth2CallbackTokenStorageService {
       StorageKeys.TOKEN_EXP,
       token.expires?.toString() || OAuth2CallbackTokenStorageService.UNKNOWN_EXPIRY
     );
-    if (token.refreshToken) {
-      this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, token.refreshToken);
-    }
+    this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
 
     const providerId = state.split(OAuth2CallbackTokenStorageService.STATE_SEPARATOR)[0];
     if (providerId) {

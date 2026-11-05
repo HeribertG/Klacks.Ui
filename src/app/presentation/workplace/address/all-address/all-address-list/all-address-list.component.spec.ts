@@ -24,6 +24,8 @@ import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const ALL_ADDRESS_LIST_MODAL_CONTEXT = 'all-address-list';
 
+const PAGE_CHANGE_DEFER_MS = 100;
+
 describe('AllAddressListComponent', () => {
     let component: AllAddressListComponent;
     let fixture: ComponentFixture<AllAddressListComponent>;
@@ -309,6 +311,31 @@ describe('AllAddressListComponent', () => {
     describe('Pagination', () => {
         beforeEach(() => {
             fixture.detectChanges();
+        });
+
+        it('reads the requested page once the deferred page change runs', () => {
+            vi.useFakeTimers();
+            const readPage = vi.spyOn(component as any, 'readPage');
+            component.page = 1;
+
+            component.onPageChange(2);
+            vi.advanceTimersByTime(PAGE_CHANGE_DEFER_MS);
+
+            expect(readPage).toHaveBeenCalled();
+            vi.useRealTimers();
+        });
+
+        it('drops a pending page change when the list is destroyed, so nothing runs on a destroyed component', () => {
+            vi.useFakeTimers();
+            const readPage = vi.spyOn(component as any, 'readPage');
+            component.page = 1;
+
+            component.onPageChange(2);
+            fixture.destroy();
+            vi.advanceTimersByTime(PAGE_CHANGE_DEFER_MS);
+
+            expect(readPage).not.toHaveBeenCalled();
+            vi.useRealTimers();
         });
 
         it('should handle page change', () => {

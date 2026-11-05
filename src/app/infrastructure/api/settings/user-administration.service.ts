@@ -9,6 +9,7 @@ import { ChangeRole } from 'src/app/domain/models/change-role-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { credentialedRequestOptions } from '../../helpers/credentialed-request.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -67,7 +68,8 @@ export class UserAdministrationService {
     return this.httpClient
       .post<IPasswordChangeResult>(
         `${environment.baseUrl}Accounts/ChangePasswordUser/`,
-        value
+        value,
+        credentialedRequestOptions()
       )
       .pipe();
   }

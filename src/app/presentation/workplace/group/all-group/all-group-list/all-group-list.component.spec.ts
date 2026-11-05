@@ -20,6 +20,8 @@ import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.i
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
+const PAGE_CHANGE_DEFER_MS = 100;
+
 describe('AllGroupListComponent', () => {
     let component: AllGroupListComponent;
     let fixture: ComponentFixture<AllGroupListComponent>;
@@ -379,6 +381,31 @@ describe('AllGroupListComponent', () => {
     describe('Pagination', () => {
         beforeEach(() => {
             fixture.detectChanges();
+        });
+
+        it('reads the requested page once the deferred page change runs', () => {
+            vi.useFakeTimers();
+            const readPage = vi.spyOn(component as any, 'readPage');
+            component.page = 1;
+
+            component.onPageChange(2);
+            vi.advanceTimersByTime(PAGE_CHANGE_DEFER_MS);
+
+            expect(readPage).toHaveBeenCalled();
+            vi.useRealTimers();
+        });
+
+        it('drops a pending page change when the list is destroyed, so nothing runs on a destroyed component', () => {
+            vi.useFakeTimers();
+            const readPage = vi.spyOn(component as any, 'readPage');
+            component.page = 1;
+
+            component.onPageChange(2);
+            fixture.destroy();
+            vi.advanceTimersByTime(PAGE_CHANGE_DEFER_MS);
+
+            expect(readPage).not.toHaveBeenCalled();
+            vi.useRealTimers();
         });
 
         it('should handle page change', () => {

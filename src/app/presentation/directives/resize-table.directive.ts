@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // resize-table.directive.ts
 import {
+  DestroyRef,
   Directive,
   ElementRef,
   OnDestroy,
@@ -11,6 +12,7 @@ import {
   input,
   output
 } from '@angular/core';
+import { createDestroyAwareTimeout } from 'src/app/shared/helpers/destroy-aware-timeout.helper';
 import { RowSizePreferenceService } from 'src/app/domain/services/shared/row-size-preference.service';
 import { measureTableHeight } from 'src/app/presentation/helpers/tableResize';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -23,6 +25,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 export class ResizeTableDirective implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);
   private rowSizePreference = inject(RowSizePreferenceService);
+  private readonly deferWhileAlive = createDestroyAwareTimeout(inject(DestroyRef));
 
   readonly defaultItemsPerPage = input(5);
   readonly minItemsPerPage = input(5);
@@ -53,7 +56,7 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
     this.windowResizeListener = this.onWindowResize.bind(this);
     window.addEventListener('resize', this.windowResizeListener, true);
 
-    setTimeout(() => this.recalcHeight(), 100);
+    this.deferWhileAlive(() => this.recalcHeight(), 100);
   }
 
   ngOnDestroy(): void {
@@ -75,7 +78,7 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
       for (const entry of entries) {
         if (this.isMeasureTable) {
           this.isMeasureTable = false;
-          setTimeout(() => this.recalcHeight(true), 100);
+          this.deferWhileAlive(() => this.recalcHeight(true), 100);
         }
       }
     });
@@ -84,7 +87,7 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
   }
 
   private onWindowResize(): void {
-    setTimeout(() => this.recalcHeight(), 100);
+    this.deferWhileAlive(() => this.recalcHeight(), 100);
   }
 
   recalcHeight(isSecondRead = false): void {
@@ -128,7 +131,7 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
 
     if (value === -1) {
       localStorage.removeItem(DomainMessages.SELECTED_ROW_ORDER);
-      setTimeout(() => this.recalcHeight(), 100);
+      this.deferWhileAlive(() => this.recalcHeight(), 100);
     } else {
       localStorage.setItem(DomainMessages.SELECTED_ROW_ORDER, value.toString());
       this.itemsPerPageChange.emit(value);
