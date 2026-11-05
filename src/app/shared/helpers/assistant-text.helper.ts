@@ -21,6 +21,10 @@ const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 const TABLE_SEPARATOR_CELL_REGEX = /^:?-+:?$/;
 const HEADING_REGEX = /^(#{1,6})\s+(.+)$/;
 const LIST_ITEM_REGEX = /^[-*]\s+(.+)$/;
+const CODE_SPAN_REGEX = /`([^`\n<]+?)`/g;
+const CODE_PLACEHOLDER_OPEN = '\uE000';
+const CODE_PLACEHOLDER_CLOSE = '\uE001';
+const CODE_PLACEHOLDER_REGEX = /\uE000(\d+)\uE001/g;
 
 /**
  * Strips streaming/tool-call metadata markers (SUGGESTIONS, REPLIES, SCROLL, function_calls
@@ -92,7 +96,9 @@ function buildTableHtml(headerCells: string[], bodyRows: string[][]): string {
 
 /**
  * Renders raw assistant/user chat text as sanitized HTML: headings, hr rules, bullet lists,
- * pipe tables, links, bold/italic/code spans and line breaks. Shared by the chat component
+ * pipe tables, links, bold/italic/code spans and line breaks. Code spans are lifted out before the other
+ * inline rules run, so asterisks, links and underscores inside backticks (a cron expression such as
+ * 0 * * * *) stay literal. Shared by the chat component
  * (building formattedContent while streaming) and the chat-message component (its fallback
  * render), so both stay pixel-identical without duplicating the markdown-ish parser.
  * @param content - Raw message text, possibly still carrying streaming metadata markers
@@ -180,9 +186,15 @@ export function formatMessage(content: string): string {
   flushText();
   closeList();
 
-  return blocks.join('')
+  const codeSpans: string[] = [];
+  const withoutCode = blocks.join('').replace(CODE_SPAN_REGEX, (_match, code: string) => {
+    codeSpans.push(code);
+    return `${CODE_PLACEHOLDER_OPEN}${codeSpans.length - 1}${CODE_PLACEHOLDER_CLOSE}`;
+  });
+
+  return withoutCode
     .replace(MARKDOWN_LINK_REGEX, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
-    .replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+    .replace(CODE_PLACEHOLDER_REGEX, (_match, index: string) => `<code>${codeSpans[Number(index)]}</code>`);
 }
