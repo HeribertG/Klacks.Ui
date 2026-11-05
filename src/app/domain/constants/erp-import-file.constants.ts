@@ -5,6 +5,7 @@
  * interceptor's quiet caller-handled path), the polling cadence, the list caps, the i18n keys, the fixed failure
  * reasons the API stores and the fixed upload validation messages.
  * @param ERP_DROP_POINT_FILES_PATH - Backend path of listing, upload, retry and delete of drop-point files
+ * @param ERP_DROP_FOLDER_PATH - Backend path of the default drop point's folder (also a quiet caller-handled path)
  * @param ERP_IMPORT_POLLING - Backoff delays between polls (polls at 0, 2, 6, 14 s, then every 30 s: 44, 74, 104 s
  *   ...), the 10 minute cap, the consecutive failed polls that end a session, and the grace period after "run import
  *   now". The API only queues that run: TriggerErpImportRunCommandHandler sets the next run to now + 10 s
@@ -23,6 +24,8 @@
  */
 
 export const ERP_DROP_POINT_FILES_PATH = 'ErpDropPoints/files';
+
+export const ERP_DROP_FOLDER_PATH = 'ErpDropPoints/default/folder';
 
 export const ERP_IMPORT_POLLING = {
   BACKOFF_DELAYS_MS: [2000, 4000, 8000] as readonly number[],
@@ -137,7 +140,6 @@ export const ERP_DROP_FOLDER_INSTALLATIONS = {
 export const ERP_DROP_FOLDER_I18N = {
   LABEL: `${PAGE_KEY_PREFIX}folder.label`,
   COPY: `${PAGE_KEY_PREFIX}folder.copy`,
-  TOAST_SUCCESS_TITLE: 'TOAST_SUCCESS',
   COPIED: `${PAGE_KEY_PREFIX}folder.copied`,
   COPY_FAILED: `${PAGE_KEY_PREFIX}folder.copy-failed`,
   CONTAINER_PATH: `${PAGE_KEY_PREFIX}folder.container-path`,

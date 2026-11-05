@@ -51,10 +51,7 @@ export class ErpDropFolderPathComponent {
 
   onCopyPath(): void {
     if (this.clipboard.copy(this.folder().folderPath)) {
-      this.toastService.showSuccess(
-        this.translate.instant(ERP_DROP_FOLDER_I18N.COPIED),
-        this.translate.instant(ERP_DROP_FOLDER_I18N.TOAST_SUCCESS_TITLE),
-      );
+      this.toastService.showSuccess(this.translate.instant(ERP_DROP_FOLDER_I18N.COPIED), '');
       return;
     }
     this.toastService.showError(this.translate.instant(ERP_DROP_FOLDER_I18N.COPY_FAILED));

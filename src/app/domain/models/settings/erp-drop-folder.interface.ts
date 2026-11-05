@@ -5,6 +5,4 @@ export interface IErpDropFolder {
   folderPath: string;
   containerPath: string | null;
   isHostPath: boolean;
-  folderDropRequirement: string;
-  recommendedChannels: string[];
 }

@@ -63,6 +63,7 @@ const REASSIGN_WORK_URL = '/api/backend/Works/work-1/ReassignClient';
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const AUTOFILL_RUNS_ACTIVE_URL = '/api/backend/AutofillRuns/Active';
 const ERP_IMPORT_FILES_URL = '/api/backend/ErpDropPoints/files';
+const ERP_DROP_FOLDER_URL = '/api/backend/ErpDropPoints/default/folder';
 const ERP_IMPORT_FILE_RETRY_URL = '/api/backend/ErpDropPoints/files/3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b/retry';
 const SEAL_PERIOD_URL = '/api/backend/PeriodClosing/Seal';
 const CONFIRM_WORK_URL = '/api/backend/Works/3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b/Confirm';
@@ -992,6 +993,19 @@ describe('ResponseInterceptor', () => {
       // Assert
       expect(toastShowService.showError).not.toHaveBeenCalled();
       expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
+    it('leaves a failed folder load to the page, which reports it once itself', () => {
+      // Arrange
+      const captured = expectRequestToFail(ERP_DROP_FOLDER_URL);
+
+      // Act
+      httpMock.expectOne(ERP_DROP_FOLDER_URL).flush(null, SERVER_ERROR);
+
+      // Assert
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(toastShowService.showInfo).not.toHaveBeenCalled();
+      expect(captured.status).toBe(SERVER_ERROR.status);
     });
   });
 

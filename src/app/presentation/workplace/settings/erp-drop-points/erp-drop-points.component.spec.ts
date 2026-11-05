@@ -221,8 +221,6 @@ describe('ErpDropPointsComponent', () => {
       folderPath: '/var/klacks/erp-import/erp/orders/',
       containerPath: null,
       isHostPath: false,
-      folderDropRequirement: 'grant_write_access_on_folder',
-      recommendedChannels: ['folder_drop', 'https_push', 'admin_upload'],
     });
     fixture.detectChanges();
 

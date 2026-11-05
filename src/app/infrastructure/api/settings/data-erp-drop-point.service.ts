@@ -24,10 +24,9 @@ import { IErpDropFolder } from 'src/app/domain/models/settings/erp-drop-folder.i
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpOrderFileRetryResult } from 'src/app/domain/models/settings/erp-order-file-retry-result';
-import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
+import { ERP_DROP_FOLDER_PATH, ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 
 const DEFAULT_PATH_SEGMENT = 'default';
-const FOLDER_PATH_SEGMENT = 'folder';
 const RETRY_PATH_SEGMENT = 'retry';
 const RUN_PATH_SEGMENT = 'run';
 const UPLOAD_FORM_FIELD = 'file';
@@ -39,6 +38,7 @@ export class DataErpDropPointService {
   private httpClient = inject(HttpClient);
   private readonly apiUrl = `${environment.baseUrl}ErpDropPoints`;
   private readonly filesUrl = `${environment.baseUrl}${ERP_DROP_POINT_FILES_PATH}`;
+  private readonly folderUrl = `${environment.baseUrl}${ERP_DROP_FOLDER_PATH}`;
 
   getDefaultDropPoint(): Observable<IErpDropPoint> {
     return this.httpClient
@@ -48,7 +48,7 @@ export class DataErpDropPointService {
 
   getDefaultFolder(): Observable<IErpDropFolder> {
     return this.httpClient
-      .get<IErpDropFolder>(`${this.apiUrl}/${DEFAULT_PATH_SEGMENT}/${FOLDER_PATH_SEGMENT}`)
+      .get<IErpDropFolder>(this.folderUrl)
       .pipe(retry(3));
   }
 

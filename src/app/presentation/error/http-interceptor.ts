@@ -33,7 +33,7 @@ import { codedRefusalToast } from 'src/app/domain/helpers/coded-refusal-toast.he
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
-import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
+import { ERP_DROP_FOLDER_PATH, ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.constants';
 import { ACCOUNT_LOGOUT_PATH } from 'src/app/domain/constants/auth-request.constants';
@@ -82,6 +82,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     AUTOFILL_RUNS_ACTIVE_PATH,
     EXPLAIN_OFFERS_PATH,
     ERP_DROP_POINT_FILES_PATH,
+    ERP_DROP_FOLDER_PATH,
     PLAYGROUND_STATUS_PATH,
     ACCOUNT_LOGOUT_PATH,
   ];

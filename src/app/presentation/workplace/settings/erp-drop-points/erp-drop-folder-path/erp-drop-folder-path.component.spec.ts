@@ -15,8 +15,6 @@ const NATIVE_FOLDER: IErpDropFolder = {
   folderPath: 'C:\\ProgramData\\Klacks\\ErpImport\\erp\\orders\\',
   containerPath: null,
   isHostPath: false,
-  folderDropRequirement: 'grant_write_access_on_folder',
-  recommendedChannels: ['folder_drop', 'https_push', 'admin_upload'],
 };
 
 const DOCKER_HOST_FOLDER: IErpDropFolder = {
@@ -24,8 +22,6 @@ const DOCKER_HOST_FOLDER: IErpDropFolder = {
   folderPath: '/opt/klacks/erp-import/erp/orders',
   containerPath: '/app/ErpImport/erp/orders/',
   isHostPath: true,
-  folderDropRequirement: 'grant_write_access_on_host_folder',
-  recommendedChannels: ['folder_drop', 'https_push', 'admin_upload'],
 };
 
 const DOCKER_CONTAINER_FOLDER: IErpDropFolder = {
@@ -33,8 +29,6 @@ const DOCKER_CONTAINER_FOLDER: IErpDropFolder = {
   folderPath: '/app/ErpImport/erp/orders/',
   containerPath: '/app/ErpImport/erp/orders/',
   isHostPath: false,
-  folderDropRequirement: 'mount_host_folder',
-  recommendedChannels: ['https_push', 'admin_upload', 'folder_drop'],
 };
 
 describe('ErpDropFolderPathComponent', () => {
@@ -106,7 +100,7 @@ describe('ErpDropFolderPathComponent', () => {
     (element.querySelector('#erp-drop-points-copy-path-btn') as HTMLButtonElement).click();
 
     expect(clipboard.copy).toHaveBeenCalledWith(DOCKER_HOST_FOLDER.folderPath);
-    expect(toast.showSuccess).toHaveBeenCalledWith(`t:${ERP_DROP_FOLDER_I18N.COPIED}`, 't:TOAST_SUCCESS');
+    expect(toast.showSuccess).toHaveBeenCalledWith(`t:${ERP_DROP_FOLDER_I18N.COPIED}`, '');
     expect(toast.showError).not.toHaveBeenCalled();
   });
 
