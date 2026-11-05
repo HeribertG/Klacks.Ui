@@ -7,10 +7,11 @@ three transfer channels:
 </p>
 <ul>
   <li>
-    <strong>Drop point (pull):</strong> The ERP places the files in the drop point's
-    file store – depending on the installation a directory on the Klacks server
-    (default) or an S3-compatible object storage. Klacks collects the files
-    automatically according to the configured schedule.
+    <strong>Drop point (folder):</strong> The ERP places the XML files in a folder on
+    the Klacks server. Klacks collects them automatically according to the configured
+    schedule; a file is only picked up once it has been unchanged for 10&nbsp;seconds.
+    Klacksy tells you the exact path on request; which way suits which installation is
+    described in the section "Which way suits my installation?".
   </li>
   <li>
     <strong>Direct upload (push):</strong> The ERP sends the file via HTTP POST to
@@ -24,6 +25,35 @@ three transfer channels:
     <em>Import now</em> button triggers it again at any time.
   </li>
 </ul>
+
+<hr>
+
+<h3>Which way suits my installation?</h3>
+<ul>
+  <li>
+    <strong>Office PC (Windows installation):</strong> By default the folder is
+    <code>C:\ProgramData\Klacks\ErpImport\erp\orders</code>. It is protected: only SYSTEM and administrators may write there.
+    An administrator therefore has to grant the account the ERP export runs under the
+    <em>Modify</em> right on exactly the <code>erp\orders</code> folder – not on the whole
+    <code>ProgramData\Klacks</code> folder.
+  </li>
+  <li>
+    <strong>Own Docker server:</strong> The folder (<code>/app/ErpImport/erp/orders</code>)
+    lies inside the container in a named volume. An ERP on the server machine can only
+    reach it if the administrator mounts a folder of the server onto
+    <code>/app/ErpImport</code>. Push with an access token or the manual upload is simpler.
+  </li>
+  <li>
+    <strong>Installation hosted by us:</strong> There is no access to folders on the
+    server. The ERP delivers by push with an access token, or an administrator uploads
+    the file manually.
+  </li>
+</ul>
+<p>
+The access token for the push is only created on this page (Settings &gt; Import, expert
+mode). Only XML files in the <code>ErpOrderImport</code> format are imported; they arrive
+as unsealed order drafts that a planner seals.
+</p>
 
 <hr>
 

@@ -7,10 +7,12 @@ Sono disponibili tre canali di trasferimento:
 </p>
 <ul>
   <li>
-    <strong>Drop point (prelievo):</strong> l'ERP deposita i file nell'area di deposito
-    del drop point – a seconda dell'installazione una directory sul server Klacks
-    (impostazione predefinita) oppure un'archiviazione oggetti compatibile S3. Klacks
-    preleva i file automaticamente secondo la pianificazione configurata.
+    <strong>Drop point (cartella):</strong> l'ERP deposita i file XML in una cartella sul
+    server Klacks. Klacks li preleva automaticamente secondo la pianificazione
+    configurata; un file viene preso in carico solo dopo essere rimasto invariato per
+    10&nbsp;secondi. Klacksy indica il percorso esatto su richiesta; la sezione «Quale
+    via è adatta alla mia installazione?» spiega quale via si addice a quale
+    installazione.
   </li>
   <li>
     <strong>Caricamento diretto (push):</strong> l'ERP invia il file tramite HTTP POST a
@@ -25,6 +27,36 @@ Sono disponibili tre canali di trasferimento:
     riavvia in qualsiasi momento.
   </li>
 </ul>
+
+<hr>
+
+<h3>Quale via è adatta alla mia installazione?</h3>
+<ul>
+  <li>
+    <strong>PC d'ufficio (installazione Windows):</strong> per impostazione predefinita la
+    cartella si trova in <code>C:\ProgramData\Klacks\ErpImport\erp\orders</code>. È protetta: solo SYSTEM e gli amministratori
+    possono scriverci. Un amministratore deve quindi concedere all'account con cui gira
+    l'esportazione ERP il diritto <em>Modifica</em> esattamente sulla cartella
+    <code>erp\orders</code> – non sull'intera cartella <code>ProgramData\Klacks</code>.
+  </li>
+  <li>
+    <strong>Server Docker proprio:</strong> la cartella (<code>/app/ErpImport/erp/orders</code>)
+    si trova nel container, in un volume con nome. Un ERP sulla macchina server la
+    raggiunge solo se l'amministratore monta una cartella del server su
+    <code>/app/ErpImport</code>. Il push con token di accesso o il caricamento manuale è
+    più semplice.
+  </li>
+  <li>
+    <strong>Installazione ospitata da noi:</strong> non c'è accesso alle cartelle del
+    server. L'ERP consegna tramite push con token di accesso, oppure un amministratore
+    carica il file manualmente.
+  </li>
+</ul>
+<p>
+Il token di accesso per il push si crea solo in questa pagina (Impostazioni &gt; Import,
+modalità esperto). Vengono importati solo file XML nel formato <code>ErpOrderImport</code>;
+arrivano come bozze di ordini non sigillate che un pianificatore sigilla.
+</p>
 
 <hr>
 

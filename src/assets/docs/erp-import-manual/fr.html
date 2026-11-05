@@ -7,10 +7,12 @@ Les systèmes ERP externes livrent leurs commandes à Klacks sous forme de
 </p>
 <ul>
   <li>
-    <strong>Drop point (collecte) :</strong> l'ERP dépose les fichiers dans l'espace de
-    dépôt du drop point – selon l'installation, un répertoire sur le serveur Klacks
-    (par défaut) ou un stockage d'objets compatible S3. Klacks collecte les fichiers
-    automatiquement selon la planification configurée.
+    <strong>Drop point (dossier) :</strong> l'ERP dépose les fichiers XML dans un dossier
+    sur le serveur Klacks. Klacks les collecte automatiquement selon la planification
+    configurée ; un fichier n'est pris en compte qu'une fois resté inchangé pendant
+    10&nbsp;secondes. Klacksy indique le chemin exact sur demande ; la section « Quelle
+    voie convient à mon installation ? » explique quelle voie correspond à quelle
+    installation.
   </li>
   <li>
     <strong>Téléversement direct (push) :</strong> l'ERP envoie le fichier par HTTP POST
@@ -25,6 +27,36 @@ Les systèmes ERP externes livrent leurs commandes à Klacks sous forme de
     <em>Importer maintenant</em> permet de la relancer à tout moment.
   </li>
 </ul>
+
+<hr>
+
+<h3>Quelle voie convient à mon installation ?</h3>
+<ul>
+  <li>
+    <strong>PC de bureau (installation Windows) :</strong> par défaut, le dossier se trouve
+    dans <code>C:\ProgramData\Klacks\ErpImport\erp\orders</code>. Il est protégé : seuls SYSTEM et les administrateurs peuvent y
+    écrire. Un administrateur doit donc accorder au compte sous lequel s'exécute l'export
+    ERP le droit <em>Modification</em> précisément sur le dossier <code>erp\orders</code> –
+    pas sur tout le dossier <code>ProgramData\Klacks</code>.
+  </li>
+  <li>
+    <strong>Serveur Docker propre :</strong> le dossier (<code>/app/ErpImport/erp/orders</code>)
+    se trouve dans le conteneur, dans un volume nommé. Un ERP installé sur la machine
+    serveur ne l'atteint que si l'administrateur monte un dossier du serveur sur
+    <code>/app/ErpImport</code>. Le push avec jeton d'accès ou le téléversement manuel est
+    plus simple.
+  </li>
+  <li>
+    <strong>Installation hébergée par nous :</strong> il n'y a aucun accès aux dossiers du
+    serveur. L'ERP livre par push avec un jeton d'accès, ou un administrateur téléverse le
+    fichier manuellement.
+  </li>
+</ul>
+<p>
+Le jeton d'accès pour le push se crée uniquement sur cette page (Paramètres &gt; Import,
+mode expert). Seuls les fichiers XML au format <code>ErpOrderImport</code> sont importés ;
+ils arrivent sous forme de brouillons de commandes non scellés qu'un planificateur scelle.
+</p>
 
 <hr>
 

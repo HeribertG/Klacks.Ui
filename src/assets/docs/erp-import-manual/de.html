@@ -7,10 +7,12 @@ Für die Übertragung gibt es drei Wege:
 </p>
 <ul>
   <li>
-    <strong>Drop-Point (Abholung):</strong> Das ERP legt die Dateien in der
-    Dateiablage des Drop-Points ab – je nach Installation ein Verzeichnis auf dem
-    Klacks-Server (Standard) oder ein S3-kompatibler Objektspeicher. Klacks holt
-    die Dateien nach dem konfigurierten Zeitplan automatisch ab.
+    <strong>Drop-Point (Ordner):</strong> Das ERP legt die XML-Dateien in einem Ordner
+    auf dem Klacks-Server ab. Klacks holt sie nach dem konfigurierten Zeitplan
+    automatisch ab; eine Datei wird erst übernommen, wenn sie 10&nbsp;Sekunden
+    unverändert ist. Den genauen Pfad nennt Klacksy auf Nachfrage; welcher Weg zu
+    welcher Installation passt, steht im Abschnitt „Welcher Weg passt zu meiner
+    Installation?“.
   </li>
   <li>
     <strong>Direkter Upload (Push):</strong> Das ERP sendet die Datei per HTTP POST an
@@ -25,6 +27,36 @@ Für die Übertragung gibt es drei Wege:
     jederzeit zusätzlich an.
   </li>
 </ul>
+
+<hr>
+
+<h3>Welcher Weg passt zu meiner Installation?</h3>
+<ul>
+  <li>
+    <strong>Büro-PC (Windows-Installation):</strong> Der Ordner liegt standardmässig unter
+    <code>C:\ProgramData\Klacks\ErpImport\erp\orders</code>. Er ist geschützt: Nur SYSTEM und Administratoren dürfen dort
+    schreiben. Ein Administrator muss deshalb dem Konto, unter dem der ERP-Export läuft,
+    das Recht <em>Ändern</em> genau auf den Ordner <code>erp\orders</code> geben – nicht
+    auf den ganzen Ordner <code>ProgramData\Klacks</code>.
+  </li>
+  <li>
+    <strong>Eigener Docker-Server:</strong> Der Ordner (<code>/app/ErpImport/erp/orders</code>)
+    liegt im Container in einem benannten Volume. Ein ERP auf dem Server-Rechner erreicht
+    ihn nur, wenn der Administrator einen Ordner des Servers nach <code>/app/ErpImport</code>
+    einbindet. Einfacher ist der Push mit Zugriffstoken oder der manuelle Upload.
+  </li>
+  <li>
+    <strong>Von uns gehostete Installation:</strong> Auf Ordner des Servers besteht kein
+    Zugriff. Das ERP liefert per Push mit Zugriffstoken, oder ein Administrator lädt die
+    Datei manuell hoch.
+  </li>
+</ul>
+<p>
+Das Zugriffstoken für den Push wird nur auf dieser Seite erstellt (Einstellungen &gt;
+Import, Expertenmodus). Importiert werden ausschliesslich XML-Dateien im Format
+<code>ErpOrderImport</code>; sie entstehen als unversiegelte Bestellungs-Entwürfe, die ein
+Planer versiegelt.
+</p>
 
 <hr>
 
