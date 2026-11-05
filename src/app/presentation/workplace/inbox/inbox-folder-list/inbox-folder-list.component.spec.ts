@@ -9,6 +9,8 @@ import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { TranslateService } from '@ngx-translate/core';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
+import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
+import { EmailGroupNodeType } from 'src/app/domain/models/email/email-group-node-type.enum';
 
 describe('InboxFolderListComponent - isAdmin', () => {
   let held: Set<string>;
@@ -72,5 +74,56 @@ describe('InboxFolderListComponent - isAdmin', () => {
 
     expect(modalService.openModel).toHaveBeenCalled();
     expect(modalService.openModal).toHaveBeenCalled();
+  });
+});
+
+describe('InboxFolderListComponent - group tree selection', () => {
+  const backendNode = (type: number): IEmailGroupNode =>
+    JSON.parse(`{"id":"node-1","name":"Bern Objektschutz","type":${type},"emailCount":4,"unreadCount":4,"children":[]}`);
+
+  let inboxService: {
+    selectedFolder: () => undefined;
+    selectedGroupId: () => string | undefined;
+    selectedClientId: () => string | undefined;
+    selectGroupFolder: ReturnType<typeof vi.fn>;
+    selectClientFolder: ReturnType<typeof vi.fn>;
+  };
+
+  const createComponent = (): InboxFolderListComponent => {
+    inboxService = {
+      selectedFolder: () => undefined,
+      selectedGroupId: () => 'node-1',
+      selectedClientId: () => undefined,
+      selectGroupFolder: vi.fn(),
+      selectClientFolder: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [InboxFolderListComponent],
+      providers: [
+        { provide: InboxService, useValue: inboxService },
+        { provide: AuthorizationService, useValue: { hasPermission: () => false } },
+        { provide: ModalService, useValue: { resultEvent: of(null), openModel: vi.fn(), openModal: vi.fn() } },
+        { provide: TranslateService, useValue: { instant: (key: string) => key } },
+      ],
+    });
+    return TestBed.createComponent(InboxFolderListComponent).componentInstance;
+  };
+
+  it('loads the mails of a group for a group node as the backend sends it (type 0)', () => {
+    createComponent().onSelectGroupNode(backendNode(EmailGroupNodeType.Group));
+
+    expect(inboxService.selectGroupFolder).toHaveBeenCalledWith('node-1');
+    expect(inboxService.selectClientFolder).not.toHaveBeenCalled();
+  });
+
+  it('loads the mails of one person for a client node (type 1)', () => {
+    createComponent().onSelectGroupNode(backendNode(EmailGroupNodeType.Client));
+
+    expect(inboxService.selectClientFolder).toHaveBeenCalledWith('node-1');
+    expect(inboxService.selectGroupFolder).not.toHaveBeenCalled();
+  });
+
+  it('marks a selected group node as active by the group selection', () => {
+    expect(createComponent().isGroupActive('node-1', EmailGroupNodeType.Group)).toBe(true);
   });
 });

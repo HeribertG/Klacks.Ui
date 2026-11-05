@@ -10,6 +10,7 @@ import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
+import { EmailGroupNodeType } from 'src/app/domain/models/email/email-group-node-type.enum';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 import { SPECIAL_USE_CLIENT_ASSIGNED, SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_SENT, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
@@ -104,15 +105,15 @@ export class InboxFolderListComponent implements OnInit {
 
   expandedNodes = new Set<string>();
 
-  isGroupActive(nodeId: string, nodeType: string): boolean {
-    if (nodeType === 'group') {
+  isGroupActive(nodeId: string, nodeType: EmailGroupNodeType): boolean {
+    if (nodeType === EmailGroupNodeType.Group) {
       return this.inboxService.selectedGroupId() === nodeId;
     }
     return this.inboxService.selectedClientId() === nodeId;
   }
 
   onSelectGroupNode(node: IEmailGroupNode): void {
-    if (node.type === 'group') {
+    if (node.type === EmailGroupNodeType.Group) {
       this.inboxService.selectGroupFolder(node.id);
     } else {
       this.inboxService.selectClientFolder(node.id);
