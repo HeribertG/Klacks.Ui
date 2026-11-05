@@ -253,6 +253,10 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.clientAvailabilities;
   }
 
+  get clientBlockedRanges(): Map<string, Map<string, string>> {
+    return this.workScheduleLoader.clientBlockedRanges;
+  }
+
   get visibleStartDate(): Date | null {
     return this.workScheduleLoader.startDate ?? this._cachedStartDate;
   }
@@ -284,7 +288,7 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   get hasAvailabilityData(): boolean {
-    return this.workScheduleLoader.clientAvailabilities.size > 0;
+    return this.workScheduleLoader.clientAvailabilities.size > 0 || this.workScheduleLoader.clientBlockedRanges.size > 0;
   }
 
   get isLoadingMore(): boolean {

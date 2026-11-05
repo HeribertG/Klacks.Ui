@@ -54,6 +54,8 @@ export class GridColorService {
   surchargeColor = '#FFFF00';
   availableShiftsHeaderColor = 'red';
   availabilityHighlightColor = 'rgba(76, 175, 80, 0.15)';
+  availabilityBlockedHighlightColor = 'rgba(244, 67, 54, 0.15)';
+  availabilityBlockedColor = '#D32F2F';
   variantMarkerColor = SCENARIO_VARIANT_MARKER_FALLBACK_COLOR;
 
   private readonly colorSettingDefinitions: { key: string; property: keyof GridColorService & string }[] = [

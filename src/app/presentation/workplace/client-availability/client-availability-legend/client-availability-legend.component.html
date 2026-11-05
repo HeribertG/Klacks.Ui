@@ -1,0 +1,16 @@
+<div class="availability-legend" role="list">
+  @for (entry of entries(); track entry.labelKey) {
+    <span
+      class="legend-entry"
+      role="listitem"
+      placement="bottom"
+      container="body"
+      [ngbTooltip]="entry.tooltipKey | translate"
+    >
+      @if (entry.symbolUrl) {
+        <img class="legend-symbol" [src]="entry.symbolUrl" alt="" />
+      }
+      <span class="legend-label">{{ entry.labelKey | translate }}</span>
+    </span>
+  }
+</div>

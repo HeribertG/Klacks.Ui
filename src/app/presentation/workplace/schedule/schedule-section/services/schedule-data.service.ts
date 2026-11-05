@@ -51,10 +51,14 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { parseAvailabilityRanges } from 'src/app/shared/helpers/availability-range.helper';
-import { formatAvailabilityTooltip } from 'src/app/domain/helpers/availability-tooltip.helper';
+import { formatAvailabilityTooltipSections } from 'src/app/domain/helpers/availability-tooltip.helper';
 
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 const GROUP_PERIOD_RESTRICTED_COLOR = 'rgba(70, 130, 180, 0.25)';
+const AVAILABLE_TIMES_LABEL_KEY = 'schedule.availability.times';
+const BLOCKED_TIMES_LABEL_KEY = 'schedule.availability.blocked-times';
+
+type ClientDayRanges = Map<string, Map<string, string>>;
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -714,22 +718,32 @@ export class ScheduleDataService extends BaseDataService {
     if (!this.dataManagementSchedule.showAvailability()) {
       return undefined;
     }
-    const availability = this.getAvailabilityForCell(row, col);
-    if (!availability) return undefined;
-    return this.formatAvailabilityTooltip(availability);
+    return this.buildAvailabilityTooltip(row, col);
   }
 
   public getAvailabilityRangesForCell(
     row: number,
     col: number,
   ): { startMinutes: number; endMinutes: number }[] {
+    return this.getParsedRangesForCell(this.dataManagementSchedule.clientAvailabilities, row, col);
+  }
+
+  public getBlockedRangesForCell(
+    row: number,
+    col: number,
+  ): { startMinutes: number; endMinutes: number }[] {
+    return this.getParsedRangesForCell(this.dataManagementSchedule.clientBlockedRanges, row, col);
+  }
+
+  private getParsedRangesForCell(
+    source: ClientDayRanges,
+    row: number,
+    col: number,
+  ): { startMinutes: number; endMinutes: number }[] {
     if (!this.dataManagementSchedule.showAvailability()) {
       return [];
     }
-    const availability = this.getAvailabilityForCell(row, col);
-    if (!availability) return [];
-
-    return parseAvailabilityRanges(availability);
+    return parseAvailabilityRanges(this.getRangesForCell(source, row, col));
   }
 
   private applyAvailabilityHighlighting(
@@ -738,19 +752,35 @@ export class ScheduleDataService extends BaseDataService {
     col: number,
     isEmpty: boolean,
   ): void {
-    const availability = this.getAvailabilityForCell(row, col);
-    if (!availability) return;
+    const available = this.getRangesForCell(this.dataManagementSchedule.clientAvailabilities, row, col);
+    const blocked = this.getRangesForCell(this.dataManagementSchedule.clientBlockedRanges, row, col);
+    if (!available && !blocked) return;
 
     if (!cell.backgroundColor) {
-      cell.backgroundColor = this.gridColorService.availabilityHighlightColor;
+      cell.backgroundColor = available
+        ? this.gridColorService.availabilityHighlightColor
+        : this.gridColorService.availabilityBlockedHighlightColor;
     }
 
     if (isEmpty) {
-      cell.tooltip = this.formatAvailabilityTooltip(availability);
+      cell.tooltip = this.buildAvailabilityTooltip(row, col) ?? cell.tooltip;
     }
   }
 
-  private getAvailabilityForCell(row: number, col: number): string | undefined {
+  private buildAvailabilityTooltip(row: number, col: number): string | undefined {
+    return formatAvailabilityTooltipSections([
+      {
+        ranges: this.getRangesForCell(this.dataManagementSchedule.clientAvailabilities, row, col),
+        label: this.translateService.instant(AVAILABLE_TIMES_LABEL_KEY),
+      },
+      {
+        ranges: this.getRangesForCell(this.dataManagementSchedule.clientBlockedRanges, row, col),
+        label: this.translateService.instant(BLOCKED_TIMES_LABEL_KEY),
+      },
+    ]);
+  }
+
+  private getRangesForCell(source: ClientDayRanges, row: number, col: number): string | undefined {
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) return undefined;
 
@@ -760,12 +790,6 @@ export class ScheduleDataService extends BaseDataService {
     const date = this.getDateForColumn(col);
     if (!date) return undefined;
 
-    return this.dataManagementSchedule.clientAvailabilities
-      .get(client.id)
-      ?.get(formatDateOnly(date));
-  }
-
-  private formatAvailabilityTooltip(rangesString: string): string {
-    return formatAvailabilityTooltip(rangesString, this.translateService.instant('schedule.availability.times'));
+    return source.get(client.id)?.get(formatDateOnly(date));
   }
 }

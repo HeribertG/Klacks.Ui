@@ -638,18 +638,24 @@ describe('ScheduleDataService', () => {
 
     describe('availability', () => {
         const HIGHLIGHT_COLOR = '#available';
+        const BLOCKED_COLOR = '#blocked';
         const START = '2026-03-02';
         let availabilities: Map<string, Map<string, string>>;
+        let blockedRanges: Map<string, Map<string, string>>;
         let showAvailability: Mock;
 
         beforeEach(() => {
             const translate = TestBed.inject(TranslateService);
             vi.mocked(translate.instant).mockImplementation((key: string | string[]) => String(key));
-            Object.assign(TestBed.inject(GridColorService), { availabilityHighlightColor: HIGHLIGHT_COLOR });
+            Object.assign(TestBed.inject(GridColorService), {
+                availabilityHighlightColor: HIGHLIGHT_COLOR,
+                availabilityBlockedHighlightColor: BLOCKED_COLOR,
+            });
             Object.assign(TestBed.inject(EmptyCellFormatterService), { formatCell: () => new GridCell() });
             showAvailability = vi.fn().mockReturnValue(true);
             availabilities = new Map([['c1', new Map([['2026-03-03', '08:00-12:00, 22:00-06:00']])]]);
-            Object.assign(dataManagement, { showAvailability, clientAvailabilities: availabilities });
+            blockedRanges = new Map();
+            Object.assign(dataManagement, { showAvailability, clientAvailabilities: availabilities, clientBlockedRanges: blockedRanges });
             dataManagement.clients = [{ id: 'c1' }];
             service.rowGroupIndex = [0];
             service.startDate = parseCalendarDate(START) as Date;
@@ -701,6 +707,57 @@ describe('ScheduleDataService', () => {
 
             expect(cell.backgroundColor).toBe('#workchange');
             expect(cell.tooltip).toBe('workChange.tooltip.correction');
+        });
+
+        it('adds a "not available" section for blocked ranges after the available ones', () => {
+            blockedRanges.set('c1', new Map([['2026-03-03', '00:00-08:00,12:00-22:00']]));
+
+            expect(service.getAvailabilityTooltipForCell(0, 1)).toBe(
+                'schedule.availability.times:\n08:00 – 12:00\n22:00 – 06:00\n'
+                + 'schedule.availability.blocked-times:\n00:00 – 08:00\n12:00 – 22:00');
+        });
+
+        it('shows only the blocked section on a day with only blocked hours', () => {
+            blockedRanges.set('c1', new Map([['2026-03-04', '08:00-12:00']]));
+
+            expect(service.getAvailabilityTooltipForCell(0, 2))
+                .toBe('schedule.availability.blocked-times:\n08:00 – 12:00');
+        });
+
+        it('returns the parsed blocked minute ranges, including an end of 24:00', () => {
+            blockedRanges.set('c1', new Map([['2026-03-04', '00:00-08:00,20:00-24:00']]));
+
+            expect(service.getBlockedRangesForCell(0, 2)).toEqual([
+                { startMinutes: 0, endMinutes: 480 },
+                { startMinutes: 1200, endMinutes: 1440 },
+            ]);
+            showAvailability.mockReturnValue(false);
+            expect(service.getBlockedRangesForCell(0, 2)).toEqual([]);
+        });
+
+        it('tints an empty cell red on a day with only blocked hours', () => {
+            blockedRanges.set('c1', new Map([['2026-03-04', '08:00-12:00']]));
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(undefined);
+
+            const cell = service.getCell(0, 2);
+
+            expect(cell.backgroundColor).toBe(BLOCKED_COLOR);
+            expect(cell.tooltip).toBe('schedule.availability.blocked-times:\n08:00 – 12:00');
+        });
+
+        it('keeps the green tint on a day with available and blocked hours', () => {
+            blockedRanges.set('c1', new Map([['2026-03-03', '00:00-08:00']]));
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(undefined);
+
+            expect(service.getCell(0, 1).backgroundColor).toBe(HIGHLIGHT_COLOR);
+        });
+
+        it('does not tint blocked days while availability is hidden', () => {
+            blockedRanges.set('c1', new Map([['2026-03-04', '08:00-12:00']]));
+            showAvailability.mockReturnValue(false);
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(undefined);
+
+            expect(service.getCell(0, 2).backgroundColor).toBeUndefined();
         });
 
         it('leaves a cell untouched on a day without availability', () => {

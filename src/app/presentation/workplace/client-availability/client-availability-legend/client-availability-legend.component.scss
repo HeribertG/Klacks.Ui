@@ -1,0 +1,20 @@
+.availability-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--standartTextColor);
+}
+
+.legend-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: help;
+  white-space: nowrap;
+}
+
+.legend-symbol {
+  width: 16px;
+  height: 16px;
+}

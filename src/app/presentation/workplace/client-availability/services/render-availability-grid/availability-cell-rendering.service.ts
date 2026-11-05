@@ -1,10 +1,36 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/**
+ * Pre-renders one cell template per day type, display state and zebra parity and copies the matching
+ * template onto the availability grid canvas.
+ */
+
 import { Injectable, inject } from '@angular/core';
 import { AvailabilitySettingService } from '../availability-setting.service';
 import { CheckboxDrawingService } from './checkbox-drawing.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { AvailabilityDisplayState } from 'src/app/domain/models/client-availability/availability-display-state.enum';
+import { AvailabilityDayType } from 'src/app/domain/models/client-availability/availability-day-type.enum';
+import { availabilityTemplateKey, resolveAvailabilityDayType } from './availability-template-key.helper';
+
+const ALL_DAY_TYPES = [
+  AvailabilityDayType.Weekday,
+  AvailabilityDayType.Saturday,
+  AvailabilityDayType.Sunday,
+  AvailabilityDayType.Holiday,
+  AvailabilityDayType.OfficialHoliday,
+];
+
+const ALL_DISPLAY_STATES = [
+  AvailabilityDisplayState.Empty,
+  AvailabilityDisplayState.Available,
+  AvailabilityDisplayState.Blocked,
+  AvailabilityDisplayState.DerivedBlocked,
+  AvailabilityDisplayState.Mixed,
+];
+
+const CELL_BORDER_LINE_WIDTH = 0.5;
 
 @Injectable()
 export class AvailabilityCellRenderingService {
@@ -19,54 +45,29 @@ export class AvailabilityCellRenderingService {
   public initialize(): void {
     this.templates.clear();
 
-    const bgNormal = this.gridColors.backGroundColor;
-    const bgSaturday = this.gridColors.backGroundColorSaturday;
-    const bgSunday = this.gridColors.backGroundColorSunday;
-    const bgNormalOdd = DrawHelper.GetDarkColor(bgNormal, AvailabilityCellRenderingService.ZEBRA_DARK_STEP);
-    const bgSaturdayOdd = DrawHelper.GetDarkColor(bgSaturday, AvailabilityCellRenderingService.ZEBRA_DARK_STEP);
-    const bgSundayOdd = DrawHelper.GetDarkColor(bgSunday, AvailabilityCellRenderingService.ZEBRA_DARK_STEP);
-
-    this.createTemplate(0, bgNormal, false);
-    this.createTemplate(1, bgNormalOdd, false);
-    this.createTemplate(2, bgNormal, true);
-    this.createTemplate(3, bgNormalOdd, true);
-    this.createTemplate(4, bgSaturday, false);
-    this.createTemplate(5, bgSaturdayOdd, false);
-    this.createTemplate(6, bgSaturday, true);
-    this.createTemplate(7, bgSaturdayOdd, true);
-    this.createTemplate(8, bgSunday, false);
-    this.createTemplate(9, bgSundayOdd, false);
-    this.createTemplate(10, bgSunday, true);
-    this.createTemplate(11, bgSundayOdd, true);
-
-    const bgHoliday = this.gridColors.backGroundColorHolyday;
-    const bgOfficialHoliday = this.gridColors.backGroundColorOfficiallyHoliday;
-    const bgHolidayOdd = DrawHelper.GetDarkColor(bgHoliday, AvailabilityCellRenderingService.ZEBRA_DARK_STEP);
-    const bgOfficialHolidayOdd = DrawHelper.GetDarkColor(bgOfficialHoliday, AvailabilityCellRenderingService.ZEBRA_DARK_STEP);
-
-    this.createTemplate(12, bgHoliday, false);
-    this.createTemplate(13, bgHolidayOdd, false);
-    this.createTemplate(14, bgHoliday, true);
-    this.createTemplate(15, bgHolidayOdd, true);
-    this.createTemplate(16, bgOfficialHoliday, false);
-    this.createTemplate(17, bgOfficialHolidayOdd, false);
-    this.createTemplate(18, bgOfficialHoliday, true);
-    this.createTemplate(19, bgOfficialHolidayOdd, true);
+    for (const dayType of ALL_DAY_TYPES) {
+      const bgEven = this.backgroundFor(dayType);
+      const bgOdd = DrawHelper.GetDarkColor(bgEven, AvailabilityCellRenderingService.ZEBRA_DARK_STEP);
+      for (const state of ALL_DISPLAY_STATES) {
+        this.createTemplate(availabilityTemplateKey(dayType, state, false), bgEven, state);
+        this.createTemplate(availabilityTemplateKey(dayType, state, true), bgOdd, state);
+      }
+    }
   }
 
   public renderCell(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    isAvailable: boolean,
+    state: AvailabilityDisplayState,
     isOddSlot: boolean,
     isWeekend: boolean,
     isSunday: boolean,
     isHoliday: boolean,
     isOfficialHoliday: boolean
   ): void {
-    const key = this.templateKey(isAvailable, isOddSlot, isWeekend, isSunday, isHoliday, isOfficialHoliday);
-    const template = this.templates.get(key);
+    const dayType = resolveAvailabilityDayType(isWeekend, isSunday, isHoliday, isOfficialHoliday);
+    const template = this.templates.get(availabilityTemplateKey(dayType, state, isOddSlot));
     if (!template) return;
 
     const cellWidth = this.settings.cellWidth;
@@ -85,19 +86,22 @@ export class AvailabilityCellRenderingService {
     );
   }
 
-  private templateKey(
-    isAvailable: boolean,
-    isOddSlot: boolean,
-    isWeekend: boolean,
-    isSunday: boolean,
-    isHoliday: boolean,
-    isOfficialHoliday: boolean
-  ): number {
-    const dayOffset = isOfficialHoliday ? 16 : isHoliday ? 12 : isSunday ? 8 : isWeekend ? 4 : 0;
-    return dayOffset + (isAvailable ? 2 : 0) + (isOddSlot ? 1 : 0);
+  private backgroundFor(dayType: AvailabilityDayType): string {
+    switch (dayType) {
+      case AvailabilityDayType.Saturday:
+        return this.gridColors.backGroundColorSaturday;
+      case AvailabilityDayType.Sunday:
+        return this.gridColors.backGroundColorSunday;
+      case AvailabilityDayType.Holiday:
+        return this.gridColors.backGroundColorHolyday;
+      case AvailabilityDayType.OfficialHoliday:
+        return this.gridColors.backGroundColorOfficiallyHoliday;
+      default:
+        return this.gridColors.backGroundColor;
+    }
   }
 
-  private createTemplate(key: number, bgColor: string, isChecked: boolean): void {
+  private createTemplate(key: number, bgColor: string, state: AvailabilityDisplayState): void {
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
     const ratio = DrawHelper.pixelRatio();
@@ -112,12 +116,10 @@ export class AvailabilityCellRenderingService {
     ctx.fillRect(0, 0, cellWidth, cellHeight);
 
     ctx.strokeStyle = this.gridColors.borderColor;
-    ctx.lineWidth = 0.5;
+    ctx.lineWidth = CELL_BORDER_LINE_WIDTH;
     ctx.strokeRect(0, 0, cellWidth, cellHeight);
 
-    const checkboxCanvas = isChecked
-      ? this.checkboxDrawing.getCheckedCanvas()
-      : this.checkboxDrawing.getUncheckedCanvas();
+    const checkboxCanvas = this.checkboxDrawing.getCanvas(state);
 
     if (checkboxCanvas) {
       const cbSize = this.checkboxDrawing.checkboxSize;

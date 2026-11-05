@@ -35,6 +35,15 @@ describe('Availability Range Helper', () => {
         ]);
     });
 
+    it('should read an end of 24:00 as the end of the day', () => {
+        expect(parseAvailabilityRanges('20:00-24:00')).toEqual([
+            { startMinutes: 1200, endMinutes: 1440 },
+        ]);
+        expect(parseAvailabilityRanges('00:00-24:00')).toEqual([
+            { startMinutes: 0, endMinutes: 1440 },
+        ]);
+    });
+
     it('should tolerate seconds and surrounding whitespace', () => {
         expect(parseAvailabilityRanges(' 08:00:00-12:00:00 ')).toEqual([
             { startMinutes: 480, endMinutes: 720 },

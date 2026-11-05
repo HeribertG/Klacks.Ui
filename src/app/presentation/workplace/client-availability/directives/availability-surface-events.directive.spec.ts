@@ -38,7 +38,7 @@ describe('AvailabilitySurfaceEventsDirective - Ctrl+Click and context menu', () 
   beforeEach(async () => {
     dataManagement = {
       setHourRange: vi.fn(),
-      isGroupAvailable: vi.fn().mockReturnValue(false),
+      getNextGroupValue: vi.fn().mockReturnValue(true),
     };
     drawGrid = {
       drawGrid: vi.fn(),
@@ -91,11 +91,11 @@ describe('AvailabilitySurfaceEventsDirective - Ctrl+Click and context menu', () 
     expect(dataManagement.setHourRange).toHaveBeenCalledTimes(1);
   });
 
-  it('on non-Mac: Ctrl+Click keeps clearing the cell (value false)', () => {
+  it('on non-Mac: Ctrl+Click erases the cell back to no entry (value null)', () => {
     setPlatform('Win32');
     canvasEl.dispatchEvent(mouse('mousedown', { button: 0, buttons: 1, ctrlKey: true }));
 
-    expect(dataManagement.setHourRange).toHaveBeenCalledWith('c1', '2026-01-01', 0, 1, false);
+    expect(dataManagement.setHourRange).toHaveBeenCalledWith('c1', '2026-01-01', 0, 1, null);
   });
 
   it('prevents the native context menu without changing cells', () => {
@@ -138,7 +138,7 @@ describe('AvailabilitySurfaceEventsDirective - touch predicate and pan', () => {
         { provide: AvailabilityCanvasManagerService, useValue: {} },
         { provide: AvailabilityCalculationService, useValue: { totalColumns: 10, columnToDateHour: vi.fn().mockReturnValue({ dateString: '2026-01-01', startHour: 0, endHour: 1 }) } },
         { provide: RenderAvailabilityGridService, useValue: { getClients: vi.fn().mockReturnValue(Array.from({ length: 10 }, (_, index) => ({ id: `c${index}` }))) } },
-        { provide: DataManagementClientAvailabilityService, useValue: { setHourRange: vi.fn(), isGroupAvailable: vi.fn().mockReturnValue(false) } },
+        { provide: DataManagementClientAvailabilityService, useValue: { setHourRange: vi.fn(), getNextGroupValue: vi.fn().mockReturnValue(true) } },
         { provide: DrawAvailabilityGridService, useValue: drawGrid },
         { provide: AvailabilitySelectionService, useValue: selection },
         { provide: ClientAvailabilitySurfaceComponent, useValue: surface },
@@ -201,5 +201,99 @@ describe('AvailabilitySurfaceEventsDirective - touch predicate and pan', () => {
     directive.panBy(-5000, -5000);
 
     expect(drawGrid.moveGrid).toHaveBeenCalledWith(800, 800);
+  });
+});
+
+describe('AvailabilitySurfaceEventsDirective - drag painting', () => {
+  let fixture: ComponentFixture<HostComponent>;
+  let canvasEl: HTMLCanvasElement;
+  let dataManagement: any;
+  let coord: any;
+
+  const CENTER = 100;
+  const DRAG_COLUMNS = [2, 3, 4];
+
+  const mouse = (type: string, init: MouseEventInit = {}): MouseEvent =>
+    new MouseEvent(type, { bubbles: true, cancelable: true, clientX: CENTER, clientY: CENTER, ...init });
+
+  const dragAcrossColumns = (downInit: MouseEventInit): void => {
+    const [first, ...rest] = DRAG_COLUMNS;
+    coord.mouseToColumn.mockReturnValue(first);
+    canvasEl.dispatchEvent(mouse('mousedown', { button: 0, buttons: 1, ...downInit }));
+    for (const column of rest) {
+      coord.mouseToColumn.mockReturnValue(column);
+      canvasEl.dispatchEvent(mouse('mousemove', { buttons: 1 }));
+    }
+    canvasEl.dispatchEvent(mouse('mouseup'));
+  };
+
+  beforeEach(async () => {
+    vi.spyOn(navigator, 'platform', 'get').mockReturnValue('Win32');
+    dataManagement = {
+      setHourRange: vi.fn(),
+      getNextGroupValue: vi.fn().mockReturnValue(false),
+    };
+    coord = { mouseToColumn: vi.fn().mockReturnValue(DRAG_COLUMNS[0]) };
+
+    await TestBed.configureTestingModule({
+      imports: [HostComponent],
+      providers: [
+        { provide: AvailabilitySettingService, useValue: { cellHeaderHeight: 20, cellHeight: 20, cellWidth: 20 } },
+        { provide: AvailabilityCanvasManagerService, useValue: {} },
+        {
+          provide: AvailabilityCalculationService,
+          useValue: {
+            totalColumns: 10,
+            columnToDateHour: vi.fn((col: number) => ({ dateString: '2026-01-01', startHour: col * 2, endHour: col * 2 + 2 })),
+          },
+        },
+        { provide: RenderAvailabilityGridService, useValue: { getClients: vi.fn().mockReturnValue(Array.from({ length: 10 }, (_, index) => ({ id: `c${index}` }))) } },
+        { provide: DataManagementClientAvailabilityService, useValue: dataManagement },
+        { provide: DrawAvailabilityGridService, useValue: { drawGrid: vi.fn(), getScrollY: vi.fn().mockReturnValue(0), getScrollX: vi.fn().mockReturnValue(0) } },
+        { provide: AvailabilitySelectionService, useValue: { select: vi.fn() } },
+        { provide: ClientAvailabilitySurfaceComponent, useValue: {} },
+        { provide: AvailabilityCoordinateService, useValue: coord },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    canvasEl = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
+    vi.spyOn(canvasEl, 'getBoundingClientRect').mockReturnValue({
+      left: 0, top: 0, right: 200, bottom: 200, width: 200, height: 200, x: 0, y: 0, toJSON: () => ({}),
+    });
+    fixture.detectChanges();
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('Ctrl-drag erases every passed cell to no entry (null)', () => {
+    dragAcrossColumns({ ctrlKey: true });
+
+    expect(dataManagement.getNextGroupValue).not.toHaveBeenCalled();
+    expect(dataManagement.setHourRange.mock.calls).toEqual([
+      ['c4', '2026-01-01', 4, 6, null],
+      ['c4', '2026-01-01', 6, 8, null],
+      ['c4', '2026-01-01', 8, 10, null],
+    ]);
+  });
+
+  it('a normal drag paints the next state of the first cell onto every passed cell', () => {
+    dragAcrossColumns({});
+
+    expect(dataManagement.getNextGroupValue).toHaveBeenCalledTimes(1);
+    expect(dataManagement.getNextGroupValue).toHaveBeenCalledWith('c4', '2026-01-01', 4, 6);
+    expect(dataManagement.setHourRange.mock.calls).toEqual([
+      ['c4', '2026-01-01', 4, 6, false],
+      ['c4', '2026-01-01', 6, 8, false],
+      ['c4', '2026-01-01', 8, 10, false],
+    ]);
+  });
+
+  it('a normal drag can paint the erase step (null) when the first cell is the next one to clear', () => {
+    dataManagement.getNextGroupValue.mockReturnValue(null);
+
+    dragAcrossColumns({});
+
+    expect(dataManagement.setHourRange.mock.calls.map((call: unknown[]) => call[4])).toEqual([null, null, null]);
   });
 });

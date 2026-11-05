@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IClientAvailability } from './client-availability.interface';
+import { IClientAvailabilityBulkItem } from './client-availability-bulk-item.interface';
 
 export interface IClientAvailabilityBulkRequest {
-  items: IClientAvailability[];
+  items: IClientAvailabilityBulkItem[];
 }

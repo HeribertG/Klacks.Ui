@@ -2,7 +2,7 @@
 
 /**
  * Parses a client availability string into minute ranges within a single day.
- * A range whose end is not after its start runs past midnight and is split into two ranges,
+ * An end of "24:00" means the end of the day. A range whose end is not after its start runs past midnight and is split into two ranges,
  * because the consumer highlights cells of one day at a time. Equal bounds mean the whole day.
  *
  * @param availability - Comma-separated ranges, each "HH:mm-HH:mm" (seconds tolerated)
@@ -12,11 +12,13 @@
  * parseAvailabilityRanges('08:00-12:00')  // [{ startMinutes: 480, endMinutes: 720 }]
  * parseAvailabilityRanges('22:00-06:00')  // [{ 1320, 1440 }, { 0, 360 }]
  * parseAvailabilityRanges('06:00-06:00')  // [{ 0, 1440 }]
+ * parseAvailabilityRanges('20:00-24:00')  // [{ 1200, 1440 }]
  */
 
 import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 
 const MINUTES_PER_DAY = 24 * 60;
+const END_OF_DAY = '24:00';
 
 export function parseAvailabilityRanges(
   availability: string | undefined
@@ -31,7 +33,7 @@ export function parseAvailabilityRanges(
     if (!startStr || !endStr) continue;
 
     const start = timeToMinutes(startStr);
-    const end = timeToMinutes(endStr);
+    const end = endStr.startsWith(END_OF_DAY) ? MINUTES_PER_DAY : timeToMinutes(endStr);
 
     if (end === start) {
       ranges.push({ startMinutes: 0, endMinutes: MINUTES_PER_DAY });

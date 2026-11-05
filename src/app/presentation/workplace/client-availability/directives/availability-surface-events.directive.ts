@@ -34,7 +34,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
 
   private lastKeyTime = 0;
   private isDragging = false;
-  private dragValue = true;
+  private dragValue: boolean | null = true;
   private lastDragRow = -1;
   private lastDragCol = -1;
   private autoScrollTimer: ReturnType<typeof setInterval> | null = null;
@@ -58,16 +58,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     this.lastDragRow = cell.row;
     this.lastDragCol = cell.col;
 
-    if (event.ctrlKey) {
-      this.dragValue = false;
-    } else {
-      const client = this.renderGrid.getClients()[cell.row];
-      const dateHour = this.calculation.columnToDateHour(cell.col);
-      const isCurrentlyChecked = client
-        ? this.dataManagement.isGroupAvailable(client.id, dateHour.dateString, dateHour.startHour, dateHour.endHour)
-        : false;
-      this.dragValue = !isCurrentlyChecked;
-    }
+    this.dragValue = event.ctrlKey ? null : this.nextValueForCell(cell.row, cell.col);
 
     document.addEventListener('mouseup', this.documentMouseUpHandler, { once: true });
 
@@ -338,7 +329,14 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     return { row, col };
   }
 
-  private applyCellValue(row: number, col: number, value: boolean): void {
+  private nextValueForCell(row: number, col: number): boolean | null {
+    const client = this.renderGrid.getClients()[row];
+    if (!client) return null;
+    const dateHour = this.calculation.columnToDateHour(col);
+    return this.dataManagement.getNextGroupValue(client.id, dateHour.dateString, dateHour.startHour, dateHour.endHour);
+  }
+
+  private applyCellValue(row: number, col: number, value: boolean | null): void {
     const clients = this.renderGrid.getClients();
     const client = clients[row];
     if (!client) return;

@@ -88,6 +88,7 @@ function createResponse(entries: IScheduleCell[] = []): IWorkScheduleResponse {
     clients: [],
     periodHours: {},
     clientAvailabilities: {},
+    blockedRanges: {},
     totalClientCount: 0,
     startDate: RESPONSE_START,
     endDate: RESPONSE_END,

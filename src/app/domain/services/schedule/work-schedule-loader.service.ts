@@ -65,6 +65,7 @@ export class WorkScheduleLoaderService {
   public clients: IClientWork[] = [];
   public periodHours = new Map<string, IPeriodHours>();
   public clientAvailabilities = new Map<string, Map<string, string>>();
+  public clientBlockedRanges = new Map<string, Map<string, string>>();
   public startDate: Date | null = null;
   public endDate: Date | null = null;
 
@@ -145,7 +146,8 @@ export class WorkScheduleLoaderService {
         this.periodHours = new Map(
           Object.entries(response.periodHours ?? {}),
         );
-        this.mergeClientAvailabilities(response.clientAvailabilities);
+        this.mergeClientRanges(this.clientAvailabilities, response.clientAvailabilities);
+        this.mergeClientRanges(this.clientBlockedRanges, response.blockedRanges);
         this._totalAvailableClients = response.totalClientCount;
         this._initialPending.set(false);
         this.startDate = parseCalendarDate(response.startDate);
@@ -310,6 +312,7 @@ export class WorkScheduleLoaderService {
     this.clients = [];
     this.periodHours = new Map();
     this.clientAvailabilities = new Map();
+    this.clientBlockedRanges = new Map();
     this.startDate = null;
     this.endDate = null;
     this._autoLoadEnabled = true;
@@ -405,7 +408,8 @@ export class WorkScheduleLoaderService {
             this.periodHours.set(key, value);
           }
 
-          this.mergeClientAvailabilities(response.clientAvailabilities);
+          this.mergeClientRanges(this.clientAvailabilities, response.clientAvailabilities);
+          this.mergeClientRanges(this.clientBlockedRanges, response.blockedRanges);
 
           this.updateClientNeededRows();
           this.applyBreakPlaceholderRows();
@@ -649,16 +653,17 @@ export class WorkScheduleLoaderService {
     this.updateClientNeededRows();
   }
 
-  private mergeClientAvailabilities(
-    availabilities: Record<string, Record<string, string>> | null | undefined,
+  private mergeClientRanges(
+    target: Map<string, Map<string, string>>,
+    rangesByClient: Record<string, Record<string, string>> | null | undefined,
   ): void {
-    if (!availabilities) return;
+    if (!rangesByClient) return;
 
-    for (const [clientId, dates] of Object.entries(availabilities)) {
-      if (!this.clientAvailabilities.has(clientId)) {
-        this.clientAvailabilities.set(clientId, new Map());
+    for (const [clientId, dates] of Object.entries(rangesByClient)) {
+      if (!target.has(clientId)) {
+        target.set(clientId, new Map());
       }
-      const clientMap = this.clientAvailabilities.get(clientId)!;
+      const clientMap = target.get(clientId)!;
       for (const [dateKey, ranges] of Object.entries(dates)) {
         clientMap.set(dateKey, ranges);
       }

@@ -187,7 +187,7 @@ export class RenderAvailabilityGridService {
         const slotIdx = absCol % columnsPerDay;
         const day = dayInfos[dayIdx];
 
-        const isAvailable = this.dataManagement.isGroupAvailable(
+        const displayState = this.dataManagement.getGroupDisplayState(
           clientId,
           day.dateString,
           day.startHours[slotIdx],
@@ -198,7 +198,7 @@ export class RenderAvailabilityGridService {
           ctx,
           this.coord.cellX(col),
           y,
-          isAvailable,
+          displayState,
           absCol % columnsPerDay % 2 !== 0,
           day.isWeekend,
           day.isSunday,

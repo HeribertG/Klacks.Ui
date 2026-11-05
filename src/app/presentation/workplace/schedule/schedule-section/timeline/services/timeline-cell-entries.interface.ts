@@ -6,4 +6,5 @@ export interface TimelineCellEntries {
   todayEntries: IScheduleCell[];
   overflowEntries: IScheduleCell[];
   availabilityRanges: { startMinutes: number; endMinutes: number }[];
+  blockedRanges: { startMinutes: number; endMinutes: number }[];
 }

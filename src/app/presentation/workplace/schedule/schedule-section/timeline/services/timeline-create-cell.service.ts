@@ -84,7 +84,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       return baseCanvas;
     }
 
-    this.drawAvailability(ctx, entries.availabilityRanges, geometry);
+    this.drawAvailability(ctx, entries.availabilityRanges, this.gridColors.availabilityHighlightColor, geometry);
+    this.drawAvailability(ctx, entries.blockedRanges, this.gridColors.availabilityBlockedHighlightColor, geometry);
     this.drawTodayBlocks(ctx, entries.todayEntries, geometry);
     this.drawOverflowBlocks(ctx, entries.overflowEntries, geometry);
     this.drawCollisionOverlay(
@@ -110,14 +111,16 @@ export class TimelineCreateCellService extends BaseCreateCellService {
             .filter((e) => this.isTimelineEntry(e) && this.spansMidnight(e))
         : [];
     const availabilityRanges = this.scheduleData.getAvailabilityRangesForCell(row, col);
-    return { todayEntries, overflowEntries, availabilityRanges };
+    const blockedRanges = this.scheduleData.getBlockedRangesForCell(row, col);
+    return { todayEntries, overflowEntries, availabilityRanges, blockedRanges };
   }
 
   private hasNothingToRender(entries: TimelineCellEntries): boolean {
     return (
       entries.todayEntries.length === 0 &&
       entries.overflowEntries.length === 0 &&
-      entries.availabilityRanges.length === 0
+      entries.availabilityRanges.length === 0 &&
+      entries.blockedRanges.length === 0
     );
   }
 
@@ -138,15 +141,17 @@ export class TimelineCreateCellService extends BaseCreateCellService {
 
   private drawAvailability(
     ctx: CanvasRenderingContext2D,
-    availabilityRanges: { startMinutes: number; endMinutes: number }[],
+    ranges: { startMinutes: number; endMinutes: number }[],
+    color: string,
     geometry: TimelineCellGeometry,
   ): void {
-    if (availabilityRanges.length === 0) {
+    if (ranges.length === 0) {
       return;
     }
     this.drawAvailabilityOverlay(
       ctx,
-      availabilityRanges,
+      ranges,
+      color,
       geometry.width,
       geometry.pixelsPerMinute,
       geometry.displayFromMinutes,
@@ -444,12 +449,13 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private drawAvailabilityOverlay(
     ctx: CanvasRenderingContext2D,
     ranges: { startMinutes: number; endMinutes: number }[],
+    color: string,
     width: number,
     pixelsPerMinute: number,
     displayFromMinutes: number,
   ): void {
     ctx.save();
-    ctx.fillStyle = this.gridColors.availabilityHighlightColor;
+    ctx.fillStyle = color;
     for (const range of ranges) {
       const y = (range.startMinutes - displayFromMinutes) * pixelsPerMinute;
       const h = (range.endMinutes - range.startMinutes) * pixelsPerMinute;
