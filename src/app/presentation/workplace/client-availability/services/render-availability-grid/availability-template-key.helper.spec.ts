@@ -20,7 +20,6 @@ const STATES = [
   AvailabilityDisplayState.Empty,
   AvailabilityDisplayState.Available,
   AvailabilityDisplayState.Blocked,
-  AvailabilityDisplayState.DerivedBlocked,
   AvailabilityDisplayState.Mixed,
 ];
 
@@ -40,9 +39,9 @@ describe('availabilityTemplateKey', () => {
     expect(keys.size).toBe(AVAILABILITY_TEMPLATE_COUNT);
   });
 
-  it('separates the explicit cross from the derived cross', () => {
+  it('separates the cross from the mixed dash', () => {
     expect(availabilityTemplateKey(AvailabilityDayType.Weekday, AvailabilityDisplayState.Blocked, false)).not.toBe(
-      availabilityTemplateKey(AvailabilityDayType.Weekday, AvailabilityDisplayState.DerivedBlocked, false),
+      availabilityTemplateKey(AvailabilityDayType.Weekday, AvailabilityDisplayState.Mixed, false),
     );
   });
 });

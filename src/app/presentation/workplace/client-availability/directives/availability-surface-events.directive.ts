@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/**
+ * Mouse, keyboard and wheel handling of the availability canvas: click cycle and drag painting of cell groups,
+ * keyboard navigation, the Delete key clearing the selected client day, scrolling, and a tooltip listing the single
+ * hours of a cell group whose hours differ. Every write needs the edit right of AvailabilityEditService; without it
+ * a click only selects the cell. The tooltip shows only on mixed cells and hides on leave, scroll, click and drag.
+ */
+
 import { Directive, ElementRef, HostListener, inject, OnDestroy } from '@angular/core';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
 import { AvailabilityCanvasManagerService } from '../services/availability-canvas-manager.service';
@@ -11,6 +18,12 @@ import { AvailabilitySelectionService } from '../services/availability-selection
 import { ClientAvailabilitySurfaceComponent } from '../client-availability-surface/client-availability-surface.component';
 import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
+import { TranslateService } from '@ngx-translate/core';
+import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
+import { AvailabilityDisplayState } from 'src/app/domain/models/client-availability/availability-display-state.enum';
+import { AVAILABILITY_DISPLAY_STATE_LABEL_KEYS } from 'src/app/domain/constants/availability-display-state-labels.constants';
+import { formatGroupHourStates } from 'src/app/domain/helpers/availability-display-state.helper';
+import { AvailabilityEditService } from '../services/availability-edit.service';
 
 const REPEAT_DELAY_MS = 100;
 const EDGE_ZONE_PX = 30;
@@ -31,6 +44,9 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   private selection = inject(AvailabilitySelectionService);
   private surface = inject(ClientAvailabilitySurfaceComponent);
   private coord = inject(AvailabilityCoordinateService);
+  private tooltipService = inject(TooltipService);
+  private translate = inject(TranslateService);
+  private edit = inject(AvailabilityEditService);
 
   private lastKeyTime = 0;
   private isDragging = false;
@@ -40,19 +56,28 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   private autoScrollTimer: ReturnType<typeof setInterval> | null = null;
   private edgeDeltaX = 0;
   private edgeDeltaY = 0;
+  private isCellTooltipShown = false;
   private documentMouseUpHandler = () => this.endDrag();
 
   ngOnDestroy(): void {
+    this.hideCellTooltip();
     this.endDrag();
     document.removeEventListener('mouseup', this.documentMouseUpHandler);
   }
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
+    this.hideCellTooltip();
     if (event.button !== 0 || isMacContextClick(event)) return;
 
     const cell = this.getCellFromEvent(event);
     if (!cell) return;
+
+    if (!this.edit.canEditAvailability()) {
+      this.selection.select(cell.row, cell.col);
+      this.drawGrid.drawGrid();
+      return;
+    }
 
     this.isDragging = true;
     this.lastDragRow = cell.row;
@@ -69,6 +94,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   @HostListener('contextmenu', ['$event'])
   onContextMenu(event: MouseEvent): void {
     event.preventDefault();
+    this.hideCellTooltip();
     this.endDrag();
   }
 
@@ -80,8 +106,12 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     const localY = event.clientY - rect.top;
     canvas.style.cursor = (localY - this.settings.cellHeaderHeight) >= 0 ? 'pointer' : 'default';
 
-    if (!this.isDragging) return;
+    if (!this.isDragging) {
+      this.updateCellTooltip(event);
+      return;
+    }
 
+    this.hideCellTooltip();
     this.applyDragAtPosition(event);
     this.handleAutoScrollOnEdge(localX, localY, rect.width, rect.height);
   }
@@ -93,6 +123,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
 
   @HostListener('mouseleave')
   onMouseLeave(): void {
+    this.hideCellTooltip();
   }
 
   @HostListener('focus')
@@ -130,6 +161,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   }
 
   private scrollByPixels(deltaX: number, deltaY: number): void {
+    this.hideCellTooltip();
     const maxScrollX = Math.max(0, this.drawGrid.getMaxScrollX() - this.drawGrid.getVisibleWidth());
     const maxScrollY = Math.max(0, this.drawGrid.getMaxScrollY() - this.drawGrid.getVisibleHeight());
     const newScrollX = Math.min(maxScrollX, Math.max(0, this.drawGrid.getScrollX() + deltaX));
@@ -199,6 +231,11 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
       case 'Enter':
         this.toggleSelectedCell();
         event.preventDefault();
+        return;
+      case 'Delete':
+        if (this.edit.clearSelectedDay()) {
+          event.preventDefault();
+        }
         return;
       default:
         return;
@@ -329,6 +366,40 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     return { row, col };
   }
 
+  private updateCellTooltip(event: MouseEvent): void {
+    const text = this.mixedCellTooltipText(event);
+    if (!text) {
+      this.hideCellTooltip();
+      return;
+    }
+    this.tooltipService.show({ text, x: event.clientX, y: event.clientY });
+    this.isCellTooltipShown = true;
+  }
+
+  private mixedCellTooltipText(event: MouseEvent): string | null {
+    const cell = this.getCellFromEvent(event);
+    if (!cell) return null;
+    const client = this.renderGrid.getClients()[cell.row];
+    if (!client) return null;
+
+    const dateHour = this.calculation.columnToDateHour(cell.col);
+    const groupState = this.dataManagement.getGroupDisplayState(
+      client.id, dateHour.dateString, dateHour.startHour, dateHour.endHour
+    );
+    if (groupState !== AvailabilityDisplayState.Mixed) return null;
+
+    const hourStates = this.dataManagement.getGroupHourDisplayStates(
+      client.id, dateHour.dateString, dateHour.startHour, dateHour.endHour
+    );
+    return formatGroupHourStates(hourStates, (state) => this.translate.instant(AVAILABILITY_DISPLAY_STATE_LABEL_KEYS[state]));
+  }
+
+  private hideCellTooltip(): void {
+    if (!this.isCellTooltipShown) return;
+    this.isCellTooltipShown = false;
+    this.tooltipService.hide();
+  }
+
   private nextValueForCell(row: number, col: number): boolean | null {
     const client = this.renderGrid.getClients()[row];
     if (!client) return null;
@@ -387,12 +458,15 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     scrollY = Math.max(0, scrollY);
 
     if (scrollX !== this.drawGrid.getScrollX() || scrollY !== this.drawGrid.getScrollY()) {
+      this.hideCellTooltip();
       this.drawGrid.moveGrid(scrollX, scrollY);
       this.surface.notifyScrollChanged();
     }
   }
 
   private toggleSelectedCell(): void {
+    if (!this.edit.canEditAvailability()) return;
+
     const row = this.selection.selectedRow();
     const col = this.selection.selectedCol();
 

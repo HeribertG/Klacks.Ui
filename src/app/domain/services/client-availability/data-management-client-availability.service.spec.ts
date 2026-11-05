@@ -80,10 +80,11 @@ describe('DataManagementClientAvailabilityService', () => {
   });
 
   describe('display state', () => {
-    it('shows absent hours on a day with a true hour as derived blocked', async () => {
-      await load([row(8, true)]);
+    it('shows absent hours on a day with a true hour as blocked, like an explicit block', async () => {
+      await load([row(8, true), row(9, false)]);
 
-      expect(service.getGroupDisplayState(CLIENT, DAY, 10, 12)).toBe(AvailabilityDisplayState.DerivedBlocked);
+      expect(service.getGroupDisplayState(CLIENT, DAY, 10, 12)).toBe(AvailabilityDisplayState.Blocked);
+      expect(service.getGroupDisplayState(CLIENT, DAY, 9, 11)).toBe(AvailabilityDisplayState.Blocked);
       expect(service.getGroupDisplayState(CLIENT, DAY, 8, 9)).toBe(AvailabilityDisplayState.Available);
     });
 
@@ -94,44 +95,87 @@ describe('DataManagementClientAvailabilityService', () => {
       expect(service.getGroupDisplayState(CLIENT, DAY, 8, 9)).toBe(AvailabilityDisplayState.Blocked);
       expect(service.getGroupDisplayState(CLIENT, DAY, 8, 10)).toBe(AvailabilityDisplayState.Mixed);
     });
+
+    it('lists the display state of every hour of a mixed group under the day rule', async () => {
+      await load([row(7, true)]);
+
+      expect(service.getGroupDisplayState(CLIENT, DAY, 6, 8)).toBe(AvailabilityDisplayState.Mixed);
+      expect(service.getGroupHourDisplayStates(CLIENT, DAY, 6, 8)).toEqual([
+        { hour: 6, state: AvailabilityDisplayState.Blocked },
+        { hour: 7, state: AvailabilityDisplayState.Available },
+      ]);
+    });
   });
 
   describe('click cycle', () => {
-    it('cycles a 2h group empty -> available -> blocked -> empty', async () => {
+    const CLICKS = 4;
+
+    const displaysAfterClicks = (startHour: number, endHour: number): AvailabilityDisplayState[] => {
+      const displays = [service.getGroupDisplayState(CLIENT, DAY, startHour, endHour)];
+      for (let click = 0; click < CLICKS; click++) {
+        service.toggleAvailability(CLIENT, DAY, startHour, endHour);
+        displays.push(service.getGroupDisplayState(CLIENT, DAY, startHour, endHour));
+      }
+      return displays;
+    };
+
+    it('cycles a 2h group on a day without a check empty -> available -> blocked -> empty', async () => {
       await load([]);
 
-      const displays = [service.getGroupDisplayState(CLIENT, DAY, 10, 12)];
-      for (let click = 0; click < 3; click++) {
-        service.toggleAvailability(CLIENT, DAY, 10, 12);
-        displays.push(service.getGroupDisplayState(CLIENT, DAY, 10, 12));
-      }
-
-      expect(displays).toEqual([
+      expect(displaysAfterClicks(10, 12)).toEqual([
         AvailabilityDisplayState.Empty,
         AvailabilityDisplayState.Available,
         AvailabilityDisplayState.Blocked,
         AvailabilityDisplayState.Empty,
+        AvailabilityDisplayState.Available,
       ]);
-      expect(service.getStoredHour(CLIENT, DAY, 10)).toBeUndefined();
-      expect(service.getStoredHour(CLIENT, DAY, 11)).toBeUndefined();
+      expect(service.getStoredHour(CLIENT, DAY, 10)).toBe(true);
     });
 
-    it('changes the display on every click on a day with another check', async () => {
-      await load([row(6, true)]);
+    it('cycles a 1h cell on a day without a check empty -> available -> blocked -> empty', async () => {
+      await load([]);
 
-      const displays = [service.getGroupDisplayState(CLIENT, DAY, 10, 12)];
-      for (let click = 0; click < 3; click++) {
-        service.toggleAvailability(CLIENT, DAY, 10, 12);
-        displays.push(service.getGroupDisplayState(CLIENT, DAY, 10, 12));
-      }
-
-      expect(displays).toEqual([
-        AvailabilityDisplayState.DerivedBlocked,
+      expect(displaysAfterClicks(10, 11)).toEqual([
+        AvailabilityDisplayState.Empty,
         AvailabilityDisplayState.Available,
         AvailabilityDisplayState.Blocked,
-        AvailabilityDisplayState.DerivedBlocked,
+        AvailabilityDisplayState.Empty,
+        AvailabilityDisplayState.Available,
       ]);
     });
+
+    for (const [name, startHour, endHour] of [['1h cell', 10, 11], ['2h group', 10, 12]] as const) {
+      it(`switches a ${name} between blocked and available on a day with another check, clearing back to the day rule`, async () => {
+        await load([row(6, true)]);
+
+        expect(displaysAfterClicks(startHour, endHour)).toEqual([
+          AvailabilityDisplayState.Blocked,
+          AvailabilityDisplayState.Available,
+          AvailabilityDisplayState.Blocked,
+          AvailabilityDisplayState.Available,
+          AvailabilityDisplayState.Blocked,
+        ]);
+        expect(service.getStoredHour(CLIENT, DAY, startHour)).toBeUndefined();
+      });
+
+      it(`turns an explicitly blocked ${name} on a day with another check into available`, async () => {
+        await load([row(6, true), row(10, false), row(11, false)]);
+
+        service.toggleAvailability(CLIENT, DAY, startHour, endHour);
+
+        expect(service.getGroupDisplayState(CLIENT, DAY, startHour, endHour)).toBe(AvailabilityDisplayState.Available);
+      });
+
+      it(`stores false when the ${name} holds the last check of the day, so it turns blocked instead of empty`, async () => {
+        await load([]);
+        service.toggleAvailability(CLIENT, DAY, startHour, endHour);
+
+        service.toggleAvailability(CLIENT, DAY, startHour, endHour);
+
+        expect(service.getStoredHour(CLIENT, DAY, startHour)).toBe(false);
+        expect(service.getGroupDisplayState(CLIENT, DAY, startHour, endHour)).toBe(AvailabilityDisplayState.Blocked);
+      });
+    }
 
     it('sets a mixed group to true', async () => {
       await load([row(10, false)]);
@@ -140,6 +184,15 @@ describe('DataManagementClientAvailabilityService', () => {
 
       expect(service.getStoredHour(CLIENT, DAY, 10)).toBe(true);
       expect(service.getStoredHour(CLIENT, DAY, 11)).toBe(true);
+    });
+
+    it('turns a mixed group (check + day-rule block) into available', async () => {
+      await load([row(7, true)]);
+
+      expect(displaysAfterClicks(6, 8).slice(0, 2)).toEqual([
+        AvailabilityDisplayState.Mixed,
+        AvailabilityDisplayState.Available,
+      ]);
     });
   });
 

@@ -1,0 +1,17 @@
+<span
+  class="clear-day-wrapper"
+  placement="bottom"
+  container="body"
+  [ngbTooltip]="'client-availability.clear-day.tooltip' | translate"
+>
+  <button
+    id="client-availability-clear-day-button"
+    type="button"
+    class="btn btn-sm btn-outline-secondary clear-day-button"
+    [disabled]="!edit.canClearDay()"
+    [attr.aria-label]="'client-availability.clear-day.label' | translate"
+    (click)="onClick()"
+  >
+    {{ 'client-availability.clear-day.label' | translate }}
+  </button>
+</span>

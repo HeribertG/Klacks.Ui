@@ -26,7 +26,6 @@ const ALL_DISPLAY_STATES = [
   AvailabilityDisplayState.Empty,
   AvailabilityDisplayState.Available,
   AvailabilityDisplayState.Blocked,
-  AvailabilityDisplayState.DerivedBlocked,
   AvailabilityDisplayState.Mixed,
 ];
 

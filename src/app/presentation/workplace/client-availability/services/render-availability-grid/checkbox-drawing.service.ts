@@ -2,7 +2,7 @@
 
 /**
  * Pre-draws one small canvas per availability display state, which the cell templates copy:
- * empty box, checkmark (can work), strong cross (explicitly blocked), thin grey cross (blocked by the day rule)
+ * empty box, checkmark (can work), red cross (blocked, explicitly or by the day rule)
  * and a dash for a cell group whose hours differ. The same symbols are offered as data URLs for the legend.
  */
 
@@ -21,8 +21,6 @@ export class CheckboxDrawingService {
   private static readonly BORDER_LINE_WIDTH = 1;
   private static readonly CHECKMARK_LINE_WIDTH = 2;
   private static readonly STRONG_CROSS_LINE_WIDTH = 2;
-  private static readonly WEAK_CROSS_LINE_WIDTH = 1;
-  private static readonly WEAK_CROSS_ALPHA = 0.55;
   private static readonly CROSS_INSET = 4.5;
   private static readonly MIXED_DASH_INSET = 4.5;
   private static readonly MIXED_DASH_LINE_WIDTH = 2;
@@ -40,7 +38,6 @@ export class CheckboxDrawingService {
     this.canvases.set(AvailabilityDisplayState.Empty, this.createEmptyCanvas());
     this.canvases.set(AvailabilityDisplayState.Available, this.createCheckedCanvas());
     this.canvases.set(AvailabilityDisplayState.Blocked, this.createBlockedCanvas());
-    this.canvases.set(AvailabilityDisplayState.DerivedBlocked, this.createDerivedBlockedCanvas());
     this.canvases.set(AvailabilityDisplayState.Mixed, this.createMixedCanvas());
 
     const urls = new Map<AvailabilityDisplayState, string>();
@@ -77,14 +74,6 @@ export class CheckboxDrawingService {
     return this.createCanvas((ctx, size) => {
       this.fillBox(ctx, size, this.gridColors.availabilityBlockedColor);
       this.drawCross(ctx, size, CheckboxDrawingService.SYMBOL_ON_FILL_COLOR, CheckboxDrawingService.STRONG_CROSS_LINE_WIDTH);
-    });
-  }
-
-  private createDerivedBlockedCanvas(): HTMLCanvasElement {
-    return this.createCanvas((ctx, size) => {
-      this.strokeBox(ctx, size);
-      ctx.globalAlpha = CheckboxDrawingService.WEAK_CROSS_ALPHA;
-      this.drawCross(ctx, size, this.borderColor(), CheckboxDrawingService.WEAK_CROSS_LINE_WIDTH);
     });
   }
 

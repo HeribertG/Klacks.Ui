@@ -4,8 +4,7 @@ export enum AvailabilityDisplayState {
   Empty = 0,
   Available = 1,
   Blocked = 2,
-  DerivedBlocked = 3,
-  Mixed = 4,
+  Mixed = 3,
 }
 
-export const AVAILABILITY_DISPLAY_STATE_COUNT = 5;
+export const AVAILABILITY_DISPLAY_STATE_COUNT = 4;

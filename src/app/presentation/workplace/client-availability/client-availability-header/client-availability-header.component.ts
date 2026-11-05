@@ -32,6 +32,7 @@ import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { ClientAvailabilityLegendComponent } from '../client-availability-legend/client-availability-legend.component';
+import { ClientAvailabilityClearDayComponent } from '../client-availability-clear-day/client-availability-clear-day.component';
 
 const GROUPING_LABEL_KEYS = [
   'client-availability.grouping.1h',
@@ -59,6 +60,7 @@ const GROUPING_LABEL_KEYS = [
     IconAngleRightComponent,
     PdfIconComponent,
     ClientAvailabilityLegendComponent,
+    ClientAvailabilityClearDayComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

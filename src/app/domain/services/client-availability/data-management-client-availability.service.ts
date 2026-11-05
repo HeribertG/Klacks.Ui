@@ -16,7 +16,12 @@ import { AvailabilityDisplayState } from 'src/app/domain/models/client-availabil
 import { EMPTY_GUID } from 'src/app/domain/constants/empty-guid.constants';
 import { StoredAvailability } from 'src/app/domain/models/client-availability/stored-availability.type';
 import { IAvailabilityHourAddress } from 'src/app/domain/models/client-availability/availability-hour-address.interface';
-import { nextGroupStoredValue, resolveGroupDisplayState } from 'src/app/domain/helpers/availability-display-state.helper';
+import { IAvailabilityHourDisplayState } from 'src/app/domain/models/client-availability/availability-hour-display-state.interface';
+import {
+  nextGroupStoredValue,
+  resolveGroupDisplayState,
+  resolveGroupHourDisplayStates,
+} from 'src/app/domain/helpers/availability-display-state.helper';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 
 export const AVAILABILITY_AUTO_SAVE_DEBOUNCE_MS = 800;
@@ -92,13 +97,29 @@ export class DataManagementClientAvailabilityService {
     );
   }
 
+  getGroupHourDisplayStates(
+    clientId: string,
+    date: string,
+    startHour: number,
+    endHour: number
+  ): IAvailabilityHourDisplayState[] {
+    return resolveGroupHourDisplayStates(
+      startHour,
+      this.getGroupStoredStates(clientId, date, startHour, endHour),
+      this.dayHasAvailableHour(clientId, date)
+    );
+  }
+
   getNextGroupValue(
     clientId: string,
     date: string,
     startHour: number,
     endHour: number
   ): boolean | null {
-    return nextGroupStoredValue(this.getGroupStoredStates(clientId, date, startHour, endHour));
+    const storedStates = this.getGroupStoredStates(clientId, date, startHour, endHour);
+    const availableInGroup = storedStates.filter((stored) => stored === true).length;
+    const availableOnDay = this.availableCountByDay.get(DataManagementClientAvailabilityService.buildDayKey(clientId, date)) ?? 0;
+    return nextGroupStoredValue(storedStates, availableOnDay > availableInGroup);
   }
 
   setHourRange(

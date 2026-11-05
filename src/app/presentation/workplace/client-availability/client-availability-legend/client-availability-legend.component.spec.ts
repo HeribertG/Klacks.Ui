@@ -18,7 +18,7 @@ describe('ClientAvailabilityLegendComponent', () => {
     }).compileComponents();
   });
 
-  it('lists checkmark, explicit cross, derived cross and empty in that order', () => {
+  it('lists checkmark, cross, partly and empty in that order', () => {
     const fixture = TestBed.createComponent(ClientAvailabilityLegendComponent);
     fixture.detectChanges();
 
@@ -28,7 +28,7 @@ describe('ClientAvailabilityLegendComponent', () => {
     expect(labels).toEqual([
       'client-availability.legend.available',
       'client-availability.legend.blocked',
-      'client-availability.legend.derived-blocked',
+      'client-availability.legend.mixed',
       'client-availability.legend.empty',
     ]);
   });
@@ -41,20 +41,31 @@ describe('ClientAvailabilityLegendComponent', () => {
     symbolDataUrls.set(new Map([
       [AvailabilityDisplayState.Available, 'data:image/png;base64,QQ=='],
       [AvailabilityDisplayState.Blocked, 'data:image/png;base64,Qg=='],
-      [AvailabilityDisplayState.DerivedBlocked, 'data:image/png;base64,Qw=='],
+      [AvailabilityDisplayState.Mixed, 'data:image/png;base64,RQ=='],
       [AvailabilityDisplayState.Empty, 'data:image/png;base64,RA=='],
     ]));
     fixture.detectChanges();
 
     const sources = Array.from(fixture.nativeElement.querySelectorAll('img.legend-symbol') as NodeListOf<HTMLImageElement>)
       .map((image) => image.getAttribute('src'));
-    expect(sources).toEqual(['data:image/png;base64,QQ==', 'data:image/png;base64,Qg==', 'data:image/png;base64,Qw==', 'data:image/png;base64,RA==']);
+    expect(sources).toEqual(['data:image/png;base64,QQ==', 'data:image/png;base64,Qg==', 'data:image/png;base64,RQ==', 'data:image/png;base64,RA==']);
   });
 
-  it('explains the derived cross with the day rule tooltip', () => {
+  it('explains that the cross also covers the hours blocked by the day rule', () => {
     const fixture = TestBed.createComponent(ClientAvailabilityLegendComponent);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.entries()[2].tooltipKey).toBe('client-availability.legend.derived-blocked-tooltip');
+    expect(fixture.componentInstance.entries()[1].tooltipKey).toBe('client-availability.legend.blocked-tooltip');
+  });
+
+  it('renders the partly entry with the mixed dash symbol and its hover explanation', () => {
+    symbolDataUrls.set(new Map([[AvailabilityDisplayState.Mixed, 'data:image/png;base64,RQ==']]));
+    const fixture = TestBed.createComponent(ClientAvailabilityLegendComponent);
+    fixture.detectChanges();
+
+    const mixedEntry = (fixture.nativeElement.querySelectorAll('.legend-entry') as NodeListOf<HTMLElement>)[2];
+    expect(mixedEntry.querySelector('.legend-label')?.textContent?.trim()).toBe('client-availability.legend.mixed');
+    expect(mixedEntry.querySelector('img.legend-symbol')?.getAttribute('src')).toBe('data:image/png;base64,RQ==');
+    expect(fixture.componentInstance.entries()[2].tooltipKey).toBe('client-availability.legend.mixed-tooltip');
   });
 });
