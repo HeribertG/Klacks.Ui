@@ -40,10 +40,11 @@ Für die Übertragung gibt es drei Wege:
     auf den ganzen Ordner <code>ProgramData\Klacks</code>.
   </li>
   <li>
-    <strong>Eigener Docker-Server:</strong> Der Ordner (<code>/app/ErpImport/erp/orders</code>)
-    liegt im Container in einem benannten Volume. Ein ERP auf dem Server-Rechner erreicht
-    ihn nur, wenn der Administrator einen Ordner des Servers nach <code>/app/ErpImport</code>
-    einbindet. Einfacher ist der Push mit Zugriffstoken oder der manuelle Upload.
+    <strong>Eigener Docker-Server:</strong> Der Ordner ist ein normaler Ordner des Servers:
+    <code>erp-import/erp/orders</code> neben der Datei <code>docker-compose.yml</code>
+    (im Container <code>/app/ErpImport/erp/orders</code>). Das ERP auf dem Server schreibt direkt
+    dorthin; sein Konto braucht Schreibrecht auf diesen Ordner. Der genaue Pfad steht auf der
+    Karte Import-Zeitplan (Kopier-Knopf).
   </li>
   <li>
     <strong>Von uns gehostete Installation:</strong> Auf Ordner des Servers besteht kein

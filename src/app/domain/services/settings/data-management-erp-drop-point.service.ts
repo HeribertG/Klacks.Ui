@@ -10,6 +10,8 @@
  * re-announce a finished import. The import tokens of the drop point are forwarded to their API service, so the
  * settings card for the tokens stays on the same facade.
  * @param defaultDropPoint - Signal holding the automatically managed drop point, or null before loading
+ * @param dropFolder - Signal holding where the ERP writes its files (folder path, installation kind), or null before
+ *   loading or after a failed load
  * @param files - Signal holding the import ledger rows grouped into inbox, processed and failed
  * @param isLoading - Signal indicating whether the drop point is currently being (re)loaded
  * @param isLoadingFiles - Signal indicating whether the file listing is currently being (re)loaded
@@ -52,6 +54,7 @@ import { IErpImportToken } from 'src/app/domain/models/settings/erp-import-token
 import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
 import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropFolder } from 'src/app/domain/models/settings/erp-drop-folder.interface';
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
@@ -61,6 +64,7 @@ import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import {
+  ERP_DROP_FOLDER_I18N,
   ERP_DROP_POINT_I18N,
   ERP_IMPORT_FILES_I18N,
   ERP_IMPORT_LIST_LIMITS,
@@ -119,6 +123,7 @@ export class DataManagementErpDropPointService {
   private appliedRequestSequence = 0;
 
   public defaultDropPoint = signal<IErpDropPoint | null>(null);
+  public dropFolder = signal<IErpDropFolder | null>(null);
   public files = signal<IErpDropPointFiles>(EMPTY_FILES);
   public isLoading = signal(false);
   public isLoadingFiles = signal(false);
@@ -144,6 +149,19 @@ export class DataManagementErpDropPointService {
       return null;
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  async loadDefaultFolder(): Promise<IErpDropFolder | null> {
+    try {
+      const folder = await firstValueFrom(this.dataService.getDefaultFolder());
+      this.dropFolder.set(folder);
+      return folder;
+    } catch (error) {
+      console.error('Error loading ERP drop folder:', error);
+      this.dropFolder.set(null);
+      this.eventBus.emit(DomainEventType.ERROR, { message: ERP_DROP_FOLDER_I18N.ERROR_LOAD, code: ERROR_CODE, context: SERVICE_CONTEXT });
+      return null;
     }
   }
 

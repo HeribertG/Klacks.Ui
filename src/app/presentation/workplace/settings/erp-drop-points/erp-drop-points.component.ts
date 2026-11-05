@@ -2,7 +2,7 @@
 
 /**
  * Settings page for the automatically managed ERP drop point: the global import schedule with an
- * enable toggle and status line, an always-active upload drop zone, the import file list read from the
+ * enable toggle, status line and the folder the ERP writes into (with a copy button), an always-active upload drop zone, the import file list read from the
  * import ledger (inbox with progress, processed with per-file summary, failed with retry and delete) and the
  * push access token management, plus a manual tab with the import handbook and a sample XML download.
  * The page keeps the domain service's import polling subscribed for its lifetime and (re)starts it after an
@@ -66,6 +66,7 @@ import { ERP_DROP_POINTS_TAB_TARGETS, ErpDropPointsPageTab } from './erp-drop-po
 import { ErpImportFilesTab, erpImportFilesColumnCount } from './erp-import-files-tab';
 import { ErpImportScheduleFormModel } from './erp-import-schedule-form-model.interface';
 import { ErpImportFileRowComponent } from './erp-import-file-row/erp-import-file-row.component';
+import { ErpDropFolderPathComponent } from './erp-drop-folder-path/erp-drop-folder-path.component';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
 const SAMPLE_FILE_NAME = 'sample-erp-order-import.xml';
@@ -86,6 +87,7 @@ type IntlWithSupportedValues = typeof Intl & {
     CompanyDateTimePipe,
     ErpDropPointTokensComponent,
     ErpImportFileRowComponent,
+    ErpDropFolderPathComponent,
     ExpandableCardComponent,
     IconRefreshGreyComponent,
     DragDropFileUploadDirective,
@@ -178,6 +180,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     void this.initDropPointAndFiles();
+    void this.dropPointService.loadDefaultFolder();
     void this.initSchedule();
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))

@@ -1,0 +1,32 @@
+<div id="erp-drop-points-folder-row" class="row-line-modal-inline">
+  <div class="model-field">
+    <label for="erp-drop-points-folder-path">{{ i18n.LABEL | translate }}</label>
+    <div class="folder-path-group">
+      <input
+        id="erp-drop-points-folder-path"
+        data-testid="erp-drop-points-folder-path"
+        type="text"
+        class="form-control folder-path-value"
+        [value]="folder().folderPath"
+        readonly
+      />
+      <button
+        id="erp-drop-points-copy-path-btn"
+        data-testid="erp-drop-points-copy-path-btn"
+        type="button"
+        class="btn copy-btn"
+        [attr.aria-label]="i18n.COPY | translate"
+        [title]="i18n.COPY | translate"
+        (click)="onCopyPath()"
+      >
+        <app-icon-copy-grey />
+      </button>
+    </div>
+    @if (secondaryContainerPath(); as containerPath) {
+      <small id="erp-drop-points-folder-container-path" class="info-text">
+        {{ i18n.CONTAINER_PATH | translate }}: <code>{{ containerPath }}</code>
+      </small>
+    }
+    <small id="erp-drop-points-folder-hint" class="info-text">{{ hintKey() | translate }}</small>
+  </div>
+</div>

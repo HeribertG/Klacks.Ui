@@ -40,11 +40,11 @@ Sono disponibili tre canali di trasferimento:
     <code>erp\orders</code> – non sull'intera cartella <code>ProgramData\Klacks</code>.
   </li>
   <li>
-    <strong>Server Docker proprio:</strong> la cartella (<code>/app/ErpImport/erp/orders</code>)
-    si trova nel container, in un volume con nome. Un ERP sulla macchina server la
-    raggiunge solo se l'amministratore monta una cartella del server su
-    <code>/app/ErpImport</code>. Il push con token di accesso o il caricamento manuale è
-    più semplice.
+    <strong>Server Docker proprio:</strong> la cartella è una normale cartella del server:
+    <code>erp-import/erp/orders</code> accanto al file <code>docker-compose.yml</code>
+    (nel container <code>/app/ErpImport/erp/orders</code>). L'ERP sul server vi scrive
+    direttamente; il suo account ha bisogno del diritto di scrittura su questa cartella. Il
+    percorso esatto è indicato nella scheda Pianificazione dell'importazione (pulsante di copia).
   </li>
   <li>
     <strong>Installazione ospitata da noi:</strong> non c'è accesso alle cartelle del

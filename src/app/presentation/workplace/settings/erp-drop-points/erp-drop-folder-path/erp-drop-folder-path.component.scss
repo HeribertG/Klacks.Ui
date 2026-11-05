@@ -1,0 +1,28 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-card-modal.scss";
+
+:host {
+  display: block;
+}
+
+.folder-path-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .folder-path-value {
+    flex: 1;
+    font-family: var(--fontFamilyMono);
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--inputBorderColor);
+    color: var(--colorWorkplaceHeadline);
+  }
+}
+
+.info-text code {
+  font-family: var(--fontFamilyMono);
+}

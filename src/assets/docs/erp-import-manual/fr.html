@@ -40,11 +40,11 @@ Les systèmes ERP externes livrent leurs commandes à Klacks sous forme de
     pas sur tout le dossier <code>ProgramData\Klacks</code>.
   </li>
   <li>
-    <strong>Serveur Docker propre :</strong> le dossier (<code>/app/ErpImport/erp/orders</code>)
-    se trouve dans le conteneur, dans un volume nommé. Un ERP installé sur la machine
-    serveur ne l'atteint que si l'administrateur monte un dossier du serveur sur
-    <code>/app/ErpImport</code>. Le push avec jeton d'accès ou le téléversement manuel est
-    plus simple.
+    <strong>Serveur Docker propre :</strong> le dossier est un dossier normal du serveur :
+    <code>erp-import/erp/orders</code> à côté du fichier <code>docker-compose.yml</code>
+    (dans le conteneur <code>/app/ErpImport/erp/orders</code>). L'ERP installé sur le serveur y
+    écrit directement ; son compte a besoin du droit d'écriture sur ce dossier. Le chemin exact
+    figure sur la carte Planification de l'importation (bouton de copie).
   </li>
   <li>
     <strong>Installation hébergée par nous :</strong> il n'y a aucun accès aux dossiers du

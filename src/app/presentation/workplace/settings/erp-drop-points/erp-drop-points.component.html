@@ -126,6 +126,10 @@
     </div>
   }
 
+  @if (dropPointService.dropFolder(); as folder) {
+    <app-erp-drop-folder-path [folder]="folder" />
+  }
+
   <div id="erp-drop-points-schedule-actions" class="first schedule-actions">
     <button
       id="erp-drop-points-run-import-btn"

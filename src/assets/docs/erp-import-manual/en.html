@@ -38,10 +38,11 @@ three transfer channels:
     <code>ProgramData\Klacks</code> folder.
   </li>
   <li>
-    <strong>Own Docker server:</strong> The folder (<code>/app/ErpImport/erp/orders</code>)
-    lies inside the container in a named volume. An ERP on the server machine can only
-    reach it if the administrator mounts a folder of the server onto
-    <code>/app/ErpImport</code>. Push with an access token or the manual upload is simpler.
+    <strong>Own Docker server:</strong> The folder is a normal folder of the server:
+    <code>erp-import/erp/orders</code> next to the file <code>docker-compose.yml</code>
+    (inside the container <code>/app/ErpImport/erp/orders</code>). The ERP on the server writes
+    straight into it; its account needs write access to this folder. The exact path is shown on
+    the Import schedule card (copy button).
   </li>
   <li>
     <strong>Installation hosted by us:</strong> There is no access to folders on the

@@ -17,6 +17,7 @@ import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper'
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropFolder } from 'src/app/domain/models/settings/erp-drop-folder.interface';
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
@@ -74,6 +75,8 @@ describe('ErpDropPointsComponent', () => {
   let targetRequests: Subject<KlacksyTargetRequestedEvent>;
   let mockDropPointService: {
     defaultDropPoint: ReturnType<typeof signal<IErpDropPoint | null>>;
+    dropFolder: ReturnType<typeof signal<IErpDropFolder | null>>;
+    loadDefaultFolder: ReturnType<typeof vi.fn>;
     loadDefaultDropPoint: ReturnType<typeof vi.fn>;
     files: ReturnType<typeof signal<IErpDropPointFiles>>;
     loadFiles: ReturnType<typeof vi.fn>;
@@ -89,6 +92,8 @@ describe('ErpDropPointsComponent', () => {
   beforeEach(async () => {
     mockDropPointService = {
       defaultDropPoint: signal<IErpDropPoint | null>(null),
+      dropFolder: signal<IErpDropFolder | null>(null),
+      loadDefaultFolder: vi.fn().mockResolvedValue(null),
       files: signal<IErpDropPointFiles>(EMPTY_LISTING),
       isUploading: signal(false),
       isRetrying: signal(false),
@@ -204,6 +209,28 @@ describe('ErpDropPointsComponent', () => {
 
     expect(component.companyTimeZoneOptionLabel()).toContain('Asia/Kolkata');
   });
+  it('loads the drop folder on init and shows the folder row once it is known', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(mockDropPointService.loadDefaultFolder).toHaveBeenCalledTimes(1);
+    expect(fixture.nativeElement.querySelector('#erp-drop-points-folder-path')).toBeNull();
+
+    mockDropPointService.dropFolder.set({
+      installation: 'native',
+      folderPath: '/var/klacks/erp-import/erp/orders/',
+      containerPath: null,
+      isHostPath: false,
+      folderDropRequirement: 'grant_write_access_on_folder',
+      recommendedChannels: ['folder_drop', 'https_push', 'admin_upload'],
+    });
+    fixture.detectChanges();
+
+    const input = fixture.nativeElement.querySelector('#erp-drop-points-folder-path') as HTMLInputElement;
+    expect(input.value).toBe('/var/klacks/erp-import/erp/orders/');
+    expect(fixture.nativeElement.querySelector('#erp-drop-points-copy-path-btn')).not.toBeNull();
+  });
+
   it('switches to the import tab when Klacksy points at the upload zone from the handbook tab', () => {
     component.setTab('manual');
 

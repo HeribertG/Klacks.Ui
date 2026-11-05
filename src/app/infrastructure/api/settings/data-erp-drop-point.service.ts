@@ -3,6 +3,7 @@
 /**
  * HTTP service for the automatically managed ERP drop point and its file store.
  * @param getDefaultDropPoint - Loads the default drop point (the backend creates it on demand)
+ * @param getDefaultFolder - Loads where the ERP writes its files (native folder, Docker host or container path)
  * @param updateDropPoint - Updates the drop point, used to toggle the import on and off
  * @param uploadFile - Uploads an XML order file into the drop point and returns the storage key
  * @param getFiles - Loads the import ledger rows grouped by tab (inbox, processed, failed); no automatic retry,
@@ -19,12 +20,14 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropFolder } from 'src/app/domain/models/settings/erp-drop-folder.interface';
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpOrderFileRetryResult } from 'src/app/domain/models/settings/erp-order-file-retry-result';
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 
 const DEFAULT_PATH_SEGMENT = 'default';
+const FOLDER_PATH_SEGMENT = 'folder';
 const RETRY_PATH_SEGMENT = 'retry';
 const RUN_PATH_SEGMENT = 'run';
 const UPLOAD_FORM_FIELD = 'file';
@@ -40,6 +43,12 @@ export class DataErpDropPointService {
   getDefaultDropPoint(): Observable<IErpDropPoint> {
     return this.httpClient
       .get<IErpDropPoint>(`${this.apiUrl}/${DEFAULT_PATH_SEGMENT}`)
+      .pipe(retry(3));
+  }
+
+  getDefaultFolder(): Observable<IErpDropFolder> {
+    return this.httpClient
+      .get<IErpDropFolder>(`${this.apiUrl}/${DEFAULT_PATH_SEGMENT}/${FOLDER_PATH_SEGMENT}`)
       .pipe(retry(3));
   }
 

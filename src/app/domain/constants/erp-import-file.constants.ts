@@ -130,6 +130,23 @@ export const ERP_DROP_POINT_I18N = {
   SUCCESS_RUN_IMPORT: `${PAGE_KEY_PREFIX}success.run-import`,
 } as const;
 
+export const ERP_DROP_FOLDER_INSTALLATIONS = {
+  NATIVE: 'native',
+} as const;
+
+export const ERP_DROP_FOLDER_I18N = {
+  LABEL: `${PAGE_KEY_PREFIX}folder.label`,
+  COPY: `${PAGE_KEY_PREFIX}folder.copy`,
+  TOAST_SUCCESS_TITLE: 'TOAST_SUCCESS',
+  COPIED: `${PAGE_KEY_PREFIX}folder.copied`,
+  COPY_FAILED: `${PAGE_KEY_PREFIX}folder.copy-failed`,
+  CONTAINER_PATH: `${PAGE_KEY_PREFIX}folder.container-path`,
+  HINT_NATIVE: `${PAGE_KEY_PREFIX}folder.hint-native`,
+  HINT_DOCKER_HOST: `${PAGE_KEY_PREFIX}folder.hint-docker-host`,
+  HINT_DOCKER_CONTAINER: `${PAGE_KEY_PREFIX}folder.hint-docker-container`,
+  ERROR_LOAD: `${PAGE_KEY_PREFIX}folder.error-load`,
+} as const;
+
 export const ERP_ORDER_UPLOAD_VALIDATION_MESSAGES = {
   EmptyFile: 'File must not be empty.',
   EmptyFileName: 'File name must not be empty.',
