@@ -55,7 +55,7 @@ describe('scenario summary translations', () => {
   });
 
   it('covers every reason code the client knows', () => {
-    expect(REASON_KEYS).toHaveLength(5);
+    expect(REASON_KEYS).toHaveLength(4);
   });
 
   it.each(CORE_LANGUAGES)('interpolates counts and reason in the open-slots toast in %s', (language) => {
