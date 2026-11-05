@@ -10,6 +10,7 @@ import { IGroupTree } from 'src/app/domain/models/group/group-tree.interface';
 import { ITruncatedGroup } from 'src/app/domain/models/group/truncated-group.interface';
 import { companyToday, toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 import { defer, Observable } from 'rxjs';
+import { retryTransientHttpErrors } from '../../helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -89,8 +90,8 @@ export class DataGroupService {
 
   getRefreshTree(): Observable<void> {
     return this.httpClient
-      .get<void>(`${environment.baseUrl}Groups/refresh`)
-      .pipe(retry(3));
+      .post<void>(`${environment.baseUrl}Groups/refresh`, null)
+      .pipe(retryTransientHttpErrors());
   }
 
   private toWirePayload(value: IGroup) {

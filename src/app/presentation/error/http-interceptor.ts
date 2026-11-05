@@ -36,6 +36,7 @@ import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.cons
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.constants';
+import { ACCOUNT_LOGOUT_PATH } from 'src/app/domain/constants/auth-request.constants';
 import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
 import { STT_TRANSCRIBE_ENDPOINT } from 'src/app/domain/constants/stt-endpoints.constants';
@@ -82,6 +83,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     EXPLAIN_OFFERS_PATH,
     ERP_DROP_POINT_FILES_PATH,
     PLAYGROUND_STATUS_PATH,
+    ACCOUNT_LOGOUT_PATH,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
@@ -160,7 +162,8 @@ export class ResponseInterceptor implements HttpInterceptor {
   // toasts). Their error has nothing to do with whatever the user is editing elsewhere on the page, so it must not
   // clear the unsaved-changes flag or the spinner/save-state out from under them, nor add a generic toast. The
   // geo service proxies follow the same rule: an address search or route lookup may fail while an unsaved
-  // client form is open.
+  // client form is open. The server logout is best-effort cleanup (also sent from the login page without a session):
+  // its failure is never shown.
   private isQuietCallerHandledRequest(error: HttpErrorResponse): boolean {
     const url = error.url || '';
     return ResponseInterceptor.QUIET_CALLER_HANDLED_PATHS.some((path) => url.includes(path));

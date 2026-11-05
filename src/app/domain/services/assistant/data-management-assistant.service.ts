@@ -44,13 +44,13 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { TranslateService } from '@ngx-translate/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataAssistantStreamService } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { StreamCallbacks } from 'src/app/domain/models/assistant/stream-callbacks.interface';
 import { StreamMetadata } from 'src/app/domain/models/assistant/stream-metadata.interface';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
-import { decodeJwtPayload } from 'src/app/domain/helpers/jwt.helper';
 import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';
 import { IConversation } from './conversation.interface';
 import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
@@ -67,6 +67,7 @@ export class DataManagementAssistantService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
+  private sessionStore = inject(SessionStore);
   private conversations = new Map<string, IConversation>();
   private destroy$ = new Subject<void>();
 
@@ -463,17 +464,13 @@ export class DataManagementAssistantService {
   }
 
   private getUserContext(): IAssistantUserContext | null {
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
-    if (!token) return null;
-
-    const decoded = decodeJwtPayload(token);
-    if (!decoded) return null;
+    if (!this.sessionStore.hasSession()) return null;
 
     return {
-      userId: decoded.sub || decoded.userId,
-      userName: decoded.name || decoded.userName,
-      roles: decoded.roles || [],
-      permissions: decoded.permissions || [],
+      userId: this.sessionStore.userId() ?? undefined,
+      userName: this.sessionStore.userName() ?? undefined,
+      roles: [],
+      permissions: [],
     };
   }
 

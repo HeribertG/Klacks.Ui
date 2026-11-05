@@ -60,13 +60,17 @@ describe('AuthService', () => {
         return `header.${payload}.signature`;
     }
 
-    function issuedToken(jwt: string): MyToken {
+    function isoIn(secondsFromNow: number): string {
+        return new Date(Date.now() + secondsFromNow * 1000).toISOString();
+    }
+
+    function issuedToken(expSecondsFromNow = 900): MyToken {
         return {
-            token: jwt,
+            token: makeJwt(expSecondsFromNow),
             subject: 'subject',
             username: 'username',
             id: 'id',
-            expTime: new Date(),
+            expTime: isoIn(expSecondsFromNow) as unknown as Date,
             isAdmin: true,
             isAuthorised: true,
             permissions: [ROLE_ADMIN],
@@ -78,16 +82,26 @@ describe('AuthService', () => {
         };
     }
 
+    function signIn(expSecondsFromNow: number, withRights = true): void {
+        localStorage.setItem(StorageKeys.TOKEN_USERID, 'id');
+        localStorage.setItem(StorageKeys.TOKEN_USERNAME, 'username');
+        localStorage.setItem(StorageKeys.TOKEN_EXP, isoIn(expSecondsFromNow));
+        if (withRights) {
+            localStorage.setItem(StorageKeys.TOKEN_PERMISSIONS, JSON.stringify([ROLE_ADMIN]));
+        }
+    }
+
     const loginUrl = 'https://localhost:5001/api/backend/Accounts/LoginUser';
     const logoutUrl = 'https://localhost:5001/api/backend/Accounts/Logout';
     const refreshUrl = 'https://localhost:5001/api/backend/Accounts/RefreshToken';
+    const unauthorized = { status: 401, statusText: 'Unauthorized' };
 
     function expectCredentialed(req: TestRequest): void {
         expect(req.request.withCredentials).toBe(true);
         expect(req.request.headers.get(X_REQUESTED_WITH_HEADER)).toBe(X_REQUESTED_WITH_VALUE);
     }
 
-    it('should authenticate a user, store the access token and never store a refresh token on login', async () => {
+    it('should store the profile and expiry on login but never an access or refresh token', async () => {
         localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'legacy');
 
         const loginPromise = service.logIn('test@test.com', 'password');
@@ -95,86 +109,163 @@ describe('AuthService', () => {
         const req = httpMock.expectOne(loginUrl);
         expect(req.request.method).toBe('POST');
         expectCredentialed(req);
-        req.flush({ ...issuedToken('token'), refreshToken: 'must-not-be-stored' });
+        req.flush({ ...issuedToken(), refreshToken: 'must-not-be-stored' });
 
-        const result = await loginPromise;
-        expect(result).toBe(true);
-        expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual('token');
+        expect(await loginPromise).toBe(true);
+        expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBeNull();
         expect(localStorage.getItem(StorageKeys.TOKEN_REFRESHTOKEN)).toBeNull();
+        expect(localStorage.getItem(StorageKeys.TOKEN_USERID)).toBe('id');
+        expect(localStorage.getItem(StorageKeys.TOKEN_EXP)).not.toBeNull();
+        expect(service.authenticated()).toBe(true);
+    });
+
+    describe('session marker', () => {
+        it('should count a stored profile as signed in', () => {
+            signIn(900);
+
+            expect(service.authenticated()).toBe(true);
+        });
+
+        it('should count a session that only an older build stored (JWT_TOKEN, no profile) as signed in', () => {
+            localStorage.setItem(StorageKeys.LEGACY_ACCESS_TOKEN, makeJwt(900));
+
+            expect(service.authenticated()).toBe(true);
+        });
+
+        it('should not count an empty storage as signed in', () => {
+            expect(service.authenticated()).toBe(false);
+        });
     });
 
     describe('logout', () => {
         it('should call the server logout with credentials and clear the local session', () => {
-            localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+            signIn(900);
 
             service.logOut();
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+            expect(service.authenticated()).toBe(false);
+            expect(localStorage.getItem(StorageKeys.TOKEN_EXP)).toBeNull();
             const req = httpMock.expectOne(logoutUrl);
             expect(req.request.method).toBe('POST');
             expectCredentialed(req);
             req.flush(null);
         });
 
-        it('should still clear local tokens when the server-side logout call fails', () => {
-            localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        it('should still clear the local session when the server-side logout call fails', () => {
+            signIn(900);
 
             service.logOut();
 
-            httpMock.expectOne(logoutUrl).flush('Unauthorized', {
-                status: 401,
-                statusText: 'Unauthorized',
-            });
+            httpMock.expectOne(logoutUrl).flush('Unauthorized', unauthorized);
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+            expect(service.authenticated()).toBe(false);
         });
 
-        it('should skip the server-side logout call when there is no local session', () => {
+        it('should call the server logout also without a local session, so cookies a lost profile left are cleared', () => {
             service.logOut();
 
+            expectCredentialed(httpMock.expectOne(logoutUrl));
+        });
+
+        it('should repeat a server logout that failed transiently once and then give up', () => {
+            signIn(900);
+
+            service.logOut();
+
+            httpMock.expectOne(logoutUrl).flush(null, { status: 503, statusText: 'Service Unavailable' });
+            httpMock.expectOne(logoutUrl).flush(null, { status: 503, statusText: 'Service Unavailable' });
             httpMock.expectNone(logoutUrl);
+            expect(service.authenticated()).toBe(false);
         });
 
-        it('should drop a legacy refresh token on logout', () => {
-            localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        it('should send one server logout when logout paths run back to back', () => {
+            signIn(900);
+
+            service.logOut();
+            service.logOut();
+
+            httpMock.expectOne(logoutUrl).flush(null);
+        });
+
+        it('should send one server logout on entering the login page without a local session and not block it', () => {
+            service.checkIfTokenIsValid();
+
+            expect(service.authenticated()).toBe(false);
+            const req = httpMock.expectOne(logoutUrl);
+            expectCredentialed(req);
+            httpMock.expectNone(refreshUrl);
+            req.flush(null);
+        });
+
+        it('should wait for a server logout in flight before signing in, so it cannot clear the new cookies', async () => {
+            service.checkIfTokenIsValid();
+            const logoutReq = httpMock.expectOne(logoutUrl);
+
+            const loginPromise = service.logIn('test@test.com', 'password');
+            await Promise.resolve();
+            httpMock.expectNone(loginUrl);
+
+            logoutReq.flush(null);
+            await vi.waitFor(() => httpMock.expectOne(loginUrl).flush(issuedToken()));
+
+            expect(await loginPromise).toBe(true);
+        });
+
+        it('should not let a hanging server logout block the sign-in beyond the wait limit', async () => {
+            vi.useFakeTimers();
+            service.checkIfTokenIsValid();
+            httpMock.expectOne(logoutUrl);
+
+            const loginPromise = service.logIn('test@test.com', 'password');
+            await vi.advanceTimersByTimeAsync(SERVER_LOGOUT_WAIT_MS);
+            httpMock.expectOne(loginUrl).flush(issuedToken());
+
+            expect(await loginPromise).toBe(true);
+            vi.useRealTimers();
+        });
+
+        it('should drop the keys an older build left, also a still-valid access token, on logout', () => {
+            signIn(900);
+            localStorage.setItem(StorageKeys.LEGACY_ACCESS_TOKEN, makeJwt(900));
             localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'legacy');
 
             service.logOut();
             httpMock.expectOne(logoutUrl).flush(null);
 
+            expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBeNull();
             expect(localStorage.getItem(StorageKeys.TOKEN_REFRESHTOKEN)).toBeNull();
         });
 
         it('should finish the server logout before the SSO sign-out clears the session', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+            signIn(900);
 
             const logoutPromise = service.logOutWithSso();
             const req = httpMock.expectOne(logoutUrl);
             expectCredentialed(req);
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual('dummyToken');
+            expect(service.authenticated()).toBe(true);
 
             req.flush(null);
             await logoutPromise;
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+            expect(service.authenticated()).toBe(false);
         });
 
         it('should not let a hanging server logout block the SSO sign-out beyond the wait limit', async () => {
             vi.useFakeTimers();
-            localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+            signIn(900);
 
             const logoutPromise = service.logOutWithSso();
             httpMock.expectOne(logoutUrl);
             await vi.advanceTimersByTimeAsync(SERVER_LOGOUT_WAIT_MS);
             await logoutPromise;
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+            expect(service.authenticated()).toBe(false);
             vi.useRealTimers();
         });
     });
 
     describe('startup', () => {
-        it('should not refresh at startup when no token is stored, and drop a leftover legacy refresh token', async () => {
+        it('should not refresh at startup without a local session, and drop leftover legacy keys', async () => {
             localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'legacy');
 
             await service.ensureFreshTokenAtStartup();
@@ -183,9 +274,8 @@ describe('AuthService', () => {
             expect(localStorage.getItem(StorageKeys.TOKEN_REFRESHTOKEN)).toBeNull();
         });
 
-        it('should not refresh at startup when the access token is still valid and nothing needs repair', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
-            localStorage.setItem(StorageKeys.TOKEN_PERMISSIONS, JSON.stringify([ROLE_ADMIN]));
+        it('should not refresh at startup when the stored expiry is ahead and nothing needs repair', async () => {
+            signIn(3600);
 
             await service.ensureFreshTokenAtStartup();
 
@@ -193,98 +283,104 @@ describe('AuthService', () => {
         });
 
         it('should refresh a still-valid session that has no stored rights list, through the cookie', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
+            signIn(3600, false);
 
             const startupPromise = service.ensureFreshTokenAtStartup();
 
             const req = httpMock.expectOne(refreshUrl);
             expectCredentialed(req);
             expect(req.request.body).toEqual({});
-            req.flush(issuedToken(makeJwt(3600)));
+            req.flush(issuedToken());
             await startupPromise;
 
-            expect(localStorage.getItem(StorageKeys.TOKEN_PERMISSIONS)).toBe(
-                JSON.stringify([ROLE_ADMIN])
-            );
+            expect(localStorage.getItem(StorageKeys.TOKEN_PERMISSIONS)).toBe(JSON.stringify([ROLE_ADMIN]));
         });
 
-        it('should keep a still-valid session signed in when the rights-list repair fails', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
-
-            const startupPromise = service.ensureFreshTokenAtStartup();
-
-            httpMock.expectOne(refreshUrl).flush('Unauthorized', {
-                status: 401,
-                statusText: 'Unauthorized',
-            });
-            await startupPromise;
-
-            expect(localStorage.getItem(StorageKeys.TOKEN)).not.toBeNull();
-            httpMock.expectNone(logoutUrl);
-        });
-
-        it('should renew an expired session through the cookie even though no refresh token is stored', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        it('should renew an expired session through the cookie and record the new expiry', async () => {
+            signIn(-60);
 
             const startupPromise = service.ensureFreshTokenAtStartup();
 
             const req = httpMock.expectOne(refreshUrl);
             expectCredentialed(req);
             expect(req.request.body).toEqual({});
-            req.flush(issuedToken(makeJwt(900)));
+            req.flush(issuedToken(900));
             await startupPromise;
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(makeJwt(900));
+            expect(Date.parse(localStorage.getItem(StorageKeys.TOKEN_EXP)!)).toBeGreaterThan(Date.now());
+            expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBeNull();
             httpMock.expectNone(logoutUrl);
         });
 
         it('should log out at startup when the server rejects the refresh', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+            signIn(-60);
 
             const startupPromise = service.ensureFreshTokenAtStartup();
 
-            httpMock.expectOne(refreshUrl).flush('Unauthorized', {
-                status: 401,
-                statusText: 'Unauthorized',
-            });
+            httpMock.expectOne(refreshUrl).flush('Unauthorized', unauthorized);
             await startupPromise;
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+            expect(service.authenticated()).toBe(false);
             expectCredentialed(httpMock.expectOne(logoutUrl));
         });
 
         it('should keep the session at startup when the refresh attempt fails for an unrelated reason (backend unreachable)', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+            signIn(-60);
 
             const startupPromise = service.ensureFreshTokenAtStartup();
 
-            httpMock.expectOne(refreshUrl).flush('Bad Gateway', {
-                status: 502,
-                statusText: 'Bad Gateway',
-            });
+            httpMock.expectOne(refreshUrl).flush('Bad Gateway', { status: 502, statusText: 'Bad Gateway' });
             await startupPromise;
 
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(makeJwt(-60));
+            expect(service.authenticated()).toBe(true);
             httpMock.expectNone(logoutUrl);
         });
 
         it('should refresh only once when startup refresh is requested concurrently', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+            signIn(-60);
 
             const first = service.ensureFreshTokenAtStartup();
             const second = service.ensureFreshTokenAtStartup();
 
-            httpMock.expectOne(refreshUrl).flush(issuedToken(makeJwt(900)));
+            httpMock.expectOne(refreshUrl).flush(issuedToken());
 
             await Promise.all([first, second]);
             httpMock.expectNone(refreshUrl);
         });
     });
 
-    describe('migration of a refresh token left in localStorage by an older build', () => {
-        it('should move a still-valid session into the cookie with one refresh and drop the stored refresh token', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
+    describe('sessions an older build stored', () => {
+        it('should renew a session that only holds a still-valid JWT_TOKEN, keep that token for older tabs, and store the profile', async () => {
+            const legacyToken = makeJwt(3600);
+            localStorage.setItem(StorageKeys.LEGACY_ACCESS_TOKEN, legacyToken);
+            localStorage.setItem(StorageKeys.TOKEN_EXP, isoIn(3600));
             localStorage.setItem(StorageKeys.TOKEN_PERMISSIONS, JSON.stringify([ROLE_ADMIN]));
+
+            const startupPromise = service.ensureFreshTokenAtStartup();
+
+            const req = httpMock.expectOne(refreshUrl);
+            expectCredentialed(req);
+            req.flush(issuedToken());
+            await startupPromise;
+
+            expect(localStorage.getItem(StorageKeys.TOKEN_USERID)).toBe('id');
+            expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBe(legacyToken);
+            httpMock.expectNone(logoutUrl);
+        });
+
+        it('should drop an expired JWT_TOKEN at startup', async () => {
+            signIn(-60);
+            localStorage.setItem(StorageKeys.LEGACY_ACCESS_TOKEN, makeJwt(-60));
+
+            const startupPromise = service.ensureFreshTokenAtStartup();
+            expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBeNull();
+
+            httpMock.expectOne(refreshUrl).flush(issuedToken());
+            await startupPromise;
+        });
+
+        it('should move a refresh token from localStorage into the cookie with one body refresh and drop it', async () => {
+            signIn(3600);
             localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'legacy');
 
             const startupPromise = service.ensureFreshTokenAtStartup();
@@ -292,40 +388,26 @@ describe('AuthService', () => {
             const req = httpMock.expectOne(refreshUrl);
             expectCredentialed(req);
             expect(req.request.body).toEqual({ refreshToken: 'legacy' });
-            req.flush(issuedToken(makeJwt(900)));
+            req.flush(issuedToken());
             await startupPromise;
 
             expect(localStorage.getItem(StorageKeys.TOKEN_REFRESHTOKEN)).toBeNull();
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(makeJwt(900));
             httpMock.expectNone(refreshUrl);
         });
 
-        it('should migrate and backfill the rights list with a single refresh', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
-            localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'legacy');
-
-            const startupPromise = service.ensureFreshTokenAtStartup();
-
-            httpMock.expectOne(refreshUrl).flush(issuedToken(makeJwt(900)));
-            await startupPromise;
-
-            httpMock.expectNone(refreshUrl);
-            expect(localStorage.getItem(StorageKeys.TOKEN_PERMISSIONS)).toBe(JSON.stringify([ROLE_ADMIN]));
-        });
-
-        it('should log out when the server rejects the stored refresh token of an expired session', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        it('should log out when the server rejects the stored refresh token', async () => {
+            signIn(-60);
             localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'dead');
 
             const startupPromise = service.ensureFreshTokenAtStartup();
 
             httpMock
                 .expectOne((r) => r.url === refreshUrl && r.body?.refreshToken === 'dead')
-                .flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+                .flush('Unauthorized', unauthorized);
             await startupPromise;
 
             httpMock.expectNone(refreshUrl);
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+            expect(service.authenticated()).toBe(false);
             expect(localStorage.getItem(StorageKeys.TOKEN_REFRESHTOKEN)).toBeNull();
             httpMock.expectOne(logoutUrl).flush(null);
         });
@@ -339,21 +421,22 @@ describe('AuthService', () => {
             httpMock.expectNone(refreshUrl);
         });
 
-        it('should store the renewed access token and report success', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        it('should record the renewed expiry and report success without storing a token', async () => {
+            signIn(-60);
 
             const resultPromise = service.refreshToken();
-            httpMock.expectOne(refreshUrl).flush(issuedToken(makeJwt(900)));
+            httpMock.expectOne(refreshUrl).flush(issuedToken(900));
 
             expect(await resultPromise).toBe(true);
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(makeJwt(900));
+            expect(Date.parse(localStorage.getItem(StorageKeys.TOKEN_EXP)!)).toBeGreaterThan(Date.now());
+            expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBeNull();
         });
 
         it('should report failure when the server rejects the refresh', async () => {
-            localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+            signIn(-60);
 
             const resultPromise = service.refreshToken();
-            httpMock.expectOne(refreshUrl).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+            httpMock.expectOne(refreshUrl).flush('Unauthorized', unauthorized);
 
             expect(await resultPromise).toBe(false);
         });
@@ -363,20 +446,19 @@ describe('AuthService', () => {
             [503, 'Service Unavailable'],
             [429, 'Too Many Requests'],
         ])('should reject instead of reporting failure on a transient error (%s) and keep the session', async (status, statusText) => {
-            const token = makeJwt(-60);
-            localStorage.setItem(StorageKeys.TOKEN, token);
+            signIn(-60);
 
             const resultPromise = service.refreshToken();
             httpMock.expectOne(refreshUrl).flush(null, { status, statusText });
 
             await expect(resultPromise).rejects.toMatchObject({ status });
-            expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(token);
+            expect(service.authenticated()).toBe(true);
             httpMock.expectNone(logoutUrl);
         });
     });
 
     it('should invalidate the cached group tree on logout so the next user gets fresh scope-checked data', () => {
-        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        signIn(900);
         const dataDashboardService = TestBed.inject(DataDashboardService);
 
         dataDashboardService.getClientsOverviewData().subscribe();
@@ -435,7 +517,7 @@ describe('AuthService logout session cleanup', () => {
     });
 
     it('should stop the realtime connection and clear the session draft and instance id on logout', () => {
-        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
         sessionStorage.setItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID, 'instance-123');
 
         service.logOut();
@@ -450,7 +532,7 @@ describe('AuthService logout session cleanup', () => {
     });
 
     it('should forget the AutoWizard run of the previous user on logout', () => {
-        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
         sessionStorage.setItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB, '{"jobId":"job-1"}');
         sessionStorage.setItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO, '[]');
 
@@ -464,7 +546,7 @@ describe('AuthService logout session cleanup', () => {
     });
 
     it('should reset the company clock on logout', () => {
-        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
 
         service.logOut();
 
@@ -473,7 +555,9 @@ describe('AuthService logout session cleanup', () => {
     });
 
     it('should reset the company clock on a logout without an SSO provider', async () => {
-        await service.logOutWithSso();
+        const logoutPromise = service.logOutWithSso();
+        httpMock.expectOne(logoutUrl).flush(null);
+        await logoutPromise;
 
         expect(companyClockMock.reset).toHaveBeenCalledTimes(1);
     });

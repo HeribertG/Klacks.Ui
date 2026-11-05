@@ -67,7 +67,7 @@ describe('CompanyClockService', () => {
   });
 
   it('reload always re-fetches, bypassing the once-only guard', async () => {
-    mockLocalStorageService.get.mockReturnValue(StorageKeys.TOKEN && 'a-token');
+    mockLocalStorageService.get.mockReturnValue(StorageKeys.TOKEN_USERID && 'user-1');
 
     await service.loadIfAuthenticated();
     await service.reload();

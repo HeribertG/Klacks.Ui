@@ -11,6 +11,7 @@ import { DataAuthService } from './data-auth.service';
 import { environment } from 'src/environments/environment';
 import { MyToken } from 'src/app/domain/models/my-token-class';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { SessionRenewalOutcome } from 'src/app/domain/enums/session-renewal-outcome.enum';
 import { X_REQUESTED_WITH_HEADER, X_REQUESTED_WITH_VALUE } from 'src/app/domain/constants/auth-request.constants';
 
 const REFRESH_URL = `${environment.baseUrl}Accounts/RefreshToken`;
@@ -135,5 +136,89 @@ describe('DataAuthService', () => {
     expect(req.request.method).toBe('POST');
     expectCredentialed(req);
     req.flush(null);
+  });
+
+  describe('logout retry', () => {
+    const transientFailures = [
+      { status: 503, statusText: 'Service Unavailable' },
+      { status: 429, statusText: 'Too Many Requests' },
+    ];
+
+    for (const failure of transientFailures) {
+      it('repeats a logout that failed with ' + failure.status + ' exactly once', () => {
+        let failed = false;
+        service.logout().subscribe({ error: () => (failed = true) });
+
+        httpMock.expectOne(LOGOUT_URL).flush(null, failure);
+        httpMock.expectOne(LOGOUT_URL).flush(null, failure);
+
+        httpMock.expectNone(LOGOUT_URL);
+        expect(failed).toBe(true);
+      });
+    }
+
+    it('repeats a logout that hit a network error exactly once', () => {
+      let failed = false;
+      service.logout().subscribe({ error: () => (failed = true) });
+
+      httpMock.expectOne(LOGOUT_URL).error(new ProgressEvent('error'));
+      httpMock.expectOne(LOGOUT_URL).error(new ProgressEvent('error'));
+
+      httpMock.expectNone(LOGOUT_URL);
+      expect(failed).toBe(true);
+    });
+
+    it('succeeds when the repeated logout succeeds', () => {
+      let completed = false;
+      service.logout().subscribe({ complete: () => (completed = true) });
+
+      httpMock.expectOne(LOGOUT_URL).flush(null, { status: 502, statusText: 'Bad Gateway' });
+      httpMock.expectOne(LOGOUT_URL).flush(null);
+
+      expect(completed).toBe(true);
+    });
+
+    it('does not repeat a logout the server refused with 400 or 401', () => {
+      service.logout().subscribe({ error: () => undefined });
+      httpMock.expectOne(LOGOUT_URL).flush(null, { status: 401, statusText: 'Unauthorized' });
+      httpMock.expectNone(LOGOUT_URL);
+
+      service.logout().subscribe({ error: () => undefined });
+      httpMock.expectOne(LOGOUT_URL).flush(null, { status: 400, statusText: 'Bad Request' });
+      httpMock.expectNone(LOGOUT_URL);
+    });
+  });
+
+  describe('renewSession()', () => {
+    it('reports Rejected without a request when the tab holds no local session', async () => {
+      expect(await service.renewSession()).toBe(SessionRenewalOutcome.Rejected);
+      httpMock.expectNone(REFRESH_URL);
+    });
+
+    it('reports Renewed and records the new access-token expiry', async () => {
+      localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
+      const expiry = new Date(Date.now() + 900_000).toISOString();
+
+      const outcome = service.renewSession();
+      const req = httpMock.expectOne(REFRESH_URL);
+      expectCredentialed(req);
+      req.flush({ ...createToken('jwt'), expTime: expiry });
+
+      expect(await outcome).toBe(SessionRenewalOutcome.Renewed);
+      expect(localStorage.getItem(StorageKeys.TOKEN_EXP)).toBe(expiry);
+      expect(localStorage.getItem(StorageKeys.LEGACY_ACCESS_TOKEN)).toBeNull();
+    });
+
+    it('reports Rejected on 401 and Unavailable on a server error', async () => {
+      localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
+
+      const rejected = service.renewSession();
+      httpMock.expectOne(REFRESH_URL).flush(null, { status: 401, statusText: 'Unauthorized' });
+      expect(await rejected).toBe(SessionRenewalOutcome.Rejected);
+
+      const unavailable = service.renewSession();
+      httpMock.expectOne(REFRESH_URL).flush(null, { status: 503, statusText: 'Service Unavailable' });
+      expect(await unavailable).toBe(SessionRenewalOutcome.Unavailable);
+    });
   });
 });

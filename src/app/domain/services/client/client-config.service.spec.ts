@@ -24,14 +24,14 @@ describe('ClientConfigService', () => {
     httpMock.verify();
   });
 
-  it('should not fetch config data on construction when no auth token is stored', () => {
+  it('should not fetch config data on construction without a local session', () => {
     TestBed.inject(ClientConfigService);
 
     httpMock.expectNone(() => true);
   });
 
-  it('should fetch config data on construction when an auth token is stored', () => {
-    localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+  it('should fetch config data on construction with a local session', () => {
+    localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
 
     const service = TestBed.inject(ClientConfigService);
 
@@ -40,7 +40,7 @@ describe('ClientConfigService', () => {
   });
 
   it('should provide the state list ascending by state code', () => {
-    localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+    localStorage.setItem(StorageKeys.TOKEN_USERID, 'user-1');
 
     const service = TestBed.inject(ClientConfigService);
     const unsorted = ['BL', 'BS', 'FR', 'ZH', 'BE', 'AG'].map((state) => ({ state, country: 'CH' }));

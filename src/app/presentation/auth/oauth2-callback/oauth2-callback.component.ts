@@ -115,7 +115,7 @@ export class OAuth2CallbackComponent implements OnInit {
         })
       );
 
-      if (token && token.token) {
+      if (token?.success) {
         this.storeToken(token, state);
         this.signalRService.resetAuthFailure();
         this.signalRService.startConnection();

@@ -14,8 +14,7 @@ import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-e
 import { EMPTY, forkJoin, Subject, tap, catchError, retry, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { sortStateTokens } from 'src/app/domain/helpers/state-token-sort.helper';
 
@@ -26,7 +25,7 @@ export class ClientConfigService {
   private dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
-  private localStorageService = inject(LocalStorageService);
+  private sessionStore = inject(SessionStore);
   private localeProvider = inject(LOCALE_PROVIDER, { optional: true });
   private destroy$ = new Subject<void>();
 
@@ -51,7 +50,7 @@ export class ClientConfigService {
   public isInit = signal(false);
 
   constructor() {
-    if (this.localStorageService.get(StorageKeys.TOKEN)) {
+    if (this.sessionStore.hasSession()) {
       this.init();
     }
   }

@@ -5,8 +5,6 @@ import * as signalR from '@microsoft/signalr';
 import { SignalRConnectionHelper } from './signalr-connection.helper';
 import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.interface';
 import { SignalRTokenHelper } from './signalr-token.helper';
-import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const createdHubs: FakeHub[] = [];
 
@@ -56,13 +54,10 @@ describe('SignalRConnectionHelper - deliberate stop versus real close', () => {
       onClosed,
     };
     const tokenHelper = {
-      isTokenExpired: vi.fn().mockReturnValue(false),
-      attemptTokenRefresh: vi.fn().mockResolvedValue(undefined),
-      validateTokenWithBackend: vi.fn().mockResolvedValue('valid'),
+      hasSession: vi.fn().mockReturnValue(true),
+      isAccessExpired: vi.fn().mockReturnValue(false),
+      attemptTokenRefresh: vi.fn(),
     } as unknown as SignalRTokenHelper;
-    const localStorage = {
-      get: vi.fn((key: string) => (key === StorageKeys.TOKEN ? 'a-token' : null)),
-    } as unknown as LocalStorageService;
     fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true } as Response);
     buildSpy = vi.spyOn(signalR.HubConnectionBuilder.prototype, 'build').mockImplementation(() => {
       const hub = new FakeHub();
@@ -70,7 +65,7 @@ describe('SignalRConnectionHelper - deliberate stop versus real close', () => {
       return hub as unknown as signalR.HubConnection;
     });
 
-    helper = new SignalRConnectionHelper(tokenHelper, localStorage, 'wss://example.test/hub', {
+    helper = new SignalRConnectionHelper(tokenHelper, 'wss://example.test/hub', {
       onVisibilityDrift: async () => undefined,
       onWatchdogNeedsReconnect: async () => undefined,
     });

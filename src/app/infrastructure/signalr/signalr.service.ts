@@ -3,7 +3,7 @@
 /**
  * Facade service for SignalR: owns all event Subject streams and implements IScheduleSignalR.
  * Delegates connection lifecycle to SignalRConnectionHelper, group membership to SignalRGroupHelper
- * and token management to SignalRTokenHelper. Exposes telemetry and FSM state for diagnostics.
+ * and session handling to SignalRTokenHelper (the HttpOnly session cookie authenticates the hub; no token timer). Exposes telemetry and FSM state for diagnostics.
  * connected$ fires after every established connection (automatic reconnect, full reconnect after the connection
  * closed, connection refresh) once the schedule groups were joined again, so consumers re-read what pushes may have missed.
  */
@@ -11,8 +11,7 @@ import { inject, Injectable, OnDestroy, Signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DataAuthService } from '../api/data-auth.service';
-import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from '../constants/storage-keys';
+import { SessionStore } from '../storage/session-store.service';
 import { SignalRConstants } from './signalr.constants';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
 import { IWorksBulkCreatedNotification } from 'src/app/domain/interfaces/works-bulk-created-notification.interface';
@@ -42,20 +41,16 @@ import { SignalRTelemetry } from './signalr-telemetry.interface';
   providedIn: 'root',
 })
 export class SignalRService implements OnDestroy, IScheduleSignalR {
-  private readonly _localStorage = inject(LocalStorageService);
+  private readonly _sessionStore = inject(SessionStore);
   private readonly _dataAuthService = inject(DataAuthService);
 
   private readonly _tokenHelper: SignalRTokenHelper;
   private readonly _groupHelper: SignalRGroupHelper;
   private readonly _connectionHelper: SignalRConnectionHelper;
 
-  private reconnectAttemptWithExpiredToken = false;
-  private tokenRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private fullReconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private fullReconnectInFlight = false;
 
-  private static readonly TOKEN_REFRESH_CHECK_INTERVAL_MS = 60000;
-  private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
   private static readonly RECONNECT_DELAYS_MS: readonly number[] = [
     2000, 5000, 10000, 30000, 60000,
   ];
@@ -78,13 +73,12 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   public connected$ = new Subject<void>();
 
   constructor() {
-    this._tokenHelper = new SignalRTokenHelper(this._localStorage, this._dataAuthService);
+    this._tokenHelper = new SignalRTokenHelper(this._sessionStore, this._dataAuthService);
 
     const hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
 
     this._connectionHelper = new SignalRConnectionHelper(
       this._tokenHelper,
-      this._localStorage,
       hubUrl,
       {
         onVisibilityDrift: async () => await this.refreshConnection(),
@@ -119,7 +113,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       (hub) => this.registerEventHandlers(hub),
       {
         onConnected: async () => await this.onConnectionConnected(),
-        onReconnecting: async () => await this.onConnectionReconnecting(),
+        onReconnecting: async () => undefined,
         onReconnected: async (hub) => await this.onConnectionReconnected(hub),
         onClosed: () => this.onConnectionClosed(),
       },
@@ -131,39 +125,21 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   private async onConnectionConnected(): Promise<void> {
-    this.startProactiveTokenRefresh();
     this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
     await this._groupHelper.flush();
     this.connected$.next();
   }
 
-  private async onConnectionReconnecting(): Promise<void> {
-    const token = this._localStorage.get(StorageKeys.TOKEN);
-    if (token && this._tokenHelper.isTokenExpired(token)) {
-      this.reconnectAttemptWithExpiredToken = true;
-      await this._tokenHelper.attemptTokenRefresh();
-    }
-  }
-
   private async onConnectionReconnected(_hub: signalR.HubConnection): Promise<void> {
-    if (this.reconnectAttemptWithExpiredToken) {
-      const token = this._localStorage.get(StorageKeys.TOKEN);
-      if (token && this._tokenHelper.isTokenExpired(token)) {
-        this.scheduleConnectionRefresh();
-      }
-      this.reconnectAttemptWithExpiredToken = false;
-    }
     await this._groupHelper.flush();
     this.connected$.next();
   }
 
   private onConnectionClosed(): void {
-    this.reconnectAttemptWithExpiredToken = false;
     this.scheduleFullReconnect();
   }
 
   async stopConnection(): Promise<void> {
-    this.stopProactiveTokenRefresh();
     this.cancelFullReconnect();
     await this._connectionHelper.stopConnection();
   }
@@ -205,7 +181,6 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   async ngOnDestroy(): Promise<void> {
-    this.stopProactiveTokenRefresh();
     this.cancelFullReconnect();
     this._connectionHelper.dispose();
     try {
@@ -254,40 +229,6 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     hub.on(SignalRConstants.Events.AutofillRunEnded, onPush(this.autofillRunEnded$));
   }
 
-  private startProactiveTokenRefresh(): void {
-    this.stopProactiveTokenRefresh();
-    this.tokenRefreshTimer = setInterval(async () => {
-      const token = this._localStorage.get(StorageKeys.TOKEN);
-      if (token && this._tokenHelper.isTokenExpired(token)) {
-        await this._tokenHelper.attemptTokenRefresh();
-        const refreshedToken = this._localStorage.get(StorageKeys.TOKEN);
-        if (
-          refreshedToken &&
-          !this._tokenHelper.isTokenExpired(refreshedToken) &&
-          this._connectionHelper.isConnected()
-        ) {
-          await this.refreshConnection();
-        }
-      }
-    }, SignalRService.TOKEN_REFRESH_CHECK_INTERVAL_MS);
-  }
-
-  private stopProactiveTokenRefresh(): void {
-    if (this.tokenRefreshTimer) {
-      clearInterval(this.tokenRefreshTimer);
-      this.tokenRefreshTimer = null;
-    }
-  }
-
-  private scheduleConnectionRefresh(): void {
-    setTimeout(async () => {
-      const token = this._localStorage.get(StorageKeys.TOKEN);
-      if (token && !this._tokenHelper.isTokenExpired(token)) {
-        await this.refreshConnection();
-      }
-    }, SignalRService.CONNECTION_REFRESH_DELAY_MS);
-  }
-
   private scheduleFullReconnect(attempt = 0): void {
     if (this.fullReconnectTimer || this.fullReconnectInFlight) {
       return;
@@ -307,18 +248,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       this.fullReconnectInFlight = true;
 
       try {
-        let token = this._localStorage.get(StorageKeys.TOKEN);
-        if (!token) return;
-
-        if (this._tokenHelper.isTokenExpired(token)) {
-          await this._tokenHelper.attemptTokenRefresh();
-          token = this._localStorage.get(StorageKeys.TOKEN);
-          if (!token || this._tokenHelper.isTokenExpired(token)) {
-            this.fullReconnectInFlight = false;
-            this.scheduleFullReconnect(attempt + 1);
-            return;
-          }
-        }
+        if (!this._tokenHelper.hasSession()) return;
 
         try {
           await this.refreshConnection();

@@ -1,62 +1,35 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Token lifecycle helper for SignalR: expiry detection, backend validation and silent refresh.
- * @param localStorage - Reads and writes the access token and its expiry in local storage
+ * Session helper for the SignalR hubs. The hubs authenticate negotiate and the WebSocket upgrade with the HttpOnly
+ * session cookie, so there is no token to hand over: the helper only tells whether this tab holds a local session,
+ * whether the stored access-token expiry has passed, and renews the session through the shared single-flight refresh.
+ * @param sessionStore - Local session marker and access-token expiry hint
  * @param dataAuthService - Performs the cookie-based refresh through the shared single-flight endpoint
  */
-import { firstValueFrom } from 'rxjs';
-import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from '../constants/storage-keys';
-import { environment } from 'src/environments/environment';
+import { SessionRenewalOutcome } from 'src/app/domain/enums/session-renewal-outcome.enum';
+import { SessionStore } from '../storage/session-store.service';
 import { DataAuthService } from '../api/data-auth.service';
-import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
 
 export class SignalRTokenHelper {
   constructor(
-    private readonly localStorage: LocalStorageService,
+    private readonly sessionStore: SessionStore,
     private readonly dataAuthService: DataAuthService,
   ) {}
 
-  isTokenExpired(token: string): boolean {
-    return isJwtExpired(token);
+  hasSession(): boolean {
+    return this.sessionStore.hasSession();
   }
 
-  async attemptTokenRefresh(): Promise<void> {
-    try {
-      if (!this.localStorage.get(StorageKeys.TOKEN)) {
-        console.warn('[SignalR] no session in storage - cannot refresh');
-        return;
-      }
-
-      const token = await firstValueFrom(this.dataAuthService.refreshToken());
-
-      if (!token?.token) {
-        console.warn('[SignalR] refresh response missing token field');
-        return;
-      }
-
-      this.localStorage.set(StorageKeys.TOKEN, token.token);
-      this.localStorage.set(StorageKeys.TOKEN_EXP, token.expTime.toString());
-    } catch (error) {
-      console.warn('[SignalR] token refresh failed', error);
-    }
+  isAccessExpired(): boolean {
+    return this.sessionStore.isAccessExpired();
   }
 
-  async validateTokenWithBackend(token: string): Promise<TokenValidationResult> {
-    try {
-      const validateUrl = environment.baseUrl + 'Accounts/ValidateToken';
-      const response = await fetch(validateUrl, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) return 'valid';
-      if (response.status === 401 || response.status === 403) return 'rejected';
-      return 'unreachable';
-    } catch {
-      return 'unreachable';
+  async attemptTokenRefresh(): Promise<SessionRenewalOutcome> {
+    const outcome = await this.dataAuthService.renewSession();
+    if (outcome !== SessionRenewalOutcome.Renewed) {
+      console.warn('[SignalR] session renewal ' + outcome);
     }
+    return outcome;
   }
 }
-
-export type TokenValidationResult = 'valid' | 'rejected' | 'unreachable';

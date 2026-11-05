@@ -8,7 +8,7 @@
  */
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { CredentialedFetchService } from 'src/app/domain/services/auth/credentialed-fetch.service';
 import { PlaygroundStatusGateService } from 'src/app/domain/services/playground/playground-status-gate.service';
 import { PlaygroundSpeechOverrideService } from 'src/app/domain/services/speech/playground-speech-override.service';
 
@@ -22,6 +22,7 @@ export class TextToSpeechService implements OnDestroy {
 
   private readonly settings = inject(PlaygroundSpeechOverrideService);
   private readonly statusGate = inject(PlaygroundStatusGateService);
+  private readonly credentialedFetch = inject(CredentialedFetchService);
   private audio: HTMLAudioElement | null = null;
   private objectUrl: string | null = null;
   private abortController: AbortController | null = null;
@@ -46,15 +47,13 @@ export class TextToSpeechService implements OnDestroy {
         return;
       }
 
-      const token = localStorage.getItem(StorageKeys.TOKEN);
       const speechSettings = this.settings.speechSettings();
 
-      const response = await fetch(`${this.baseUrl}${TTS_ENDPOINT}`, {
+      const response = await this.credentialedFetch.fetch(`${this.baseUrl}${TTS_ENDPOINT}`, {
         method: 'POST',
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           text,

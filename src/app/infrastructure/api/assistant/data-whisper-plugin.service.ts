@@ -4,12 +4,12 @@
  * HTTP client for the self-hosted Whisper STT plugin admin endpoints (status, install, uninstall).
  * @param modelAlias - The Whisper model alias to install ('small' or 'large-v3-turbo')
  */
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { WhisperPluginStatus } from '../../../domain/models/assistant/whisper-plugin-status.interface';
 import { WhisperOperationResult } from '../../../domain/models/assistant/whisper-operation-result.interface';
 import { WhisperModelAlias } from '../../../domain/models/assistant/whisper-model-alias.type';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { CredentialedFetchService } from 'src/app/domain/services/auth/credentialed-fetch.service';
 
 const WHISPER_STATUS_ENDPOINT = 'stt/whisper-plugin/status';
 const WHISPER_INSTALL_ENDPOINT = 'stt/whisper-plugin/install';
@@ -20,16 +20,12 @@ const NETWORK_ERROR_REASON = 'Network error';
 @Injectable({ providedIn: 'root' })
 export class DataWhisperPluginService {
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
+  private readonly credentialedFetch = inject(CredentialedFetchService);
 
   async getStatus(): Promise<WhisperPluginStatus | null> {
-    const token = localStorage.getItem(StorageKeys.TOKEN);
-
     try {
-      const response = await fetch(`${this.baseUrl}${WHISPER_STATUS_ENDPOINT}`, {
+      const response = await this.credentialedFetch.fetch(`${this.baseUrl}${WHISPER_STATUS_ENDPOINT}`, {
         method: 'GET',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
       });
 
       if (!response.ok) return null;
@@ -51,14 +47,11 @@ export class DataWhisperPluginService {
     endpoint: string,
     body: { modelAlias: WhisperModelAlias } | null,
   ): Promise<WhisperOperationResult> {
-    const token = localStorage.getItem(StorageKeys.TOKEN);
-
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await this.credentialedFetch.fetch(`${this.baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': JSON_CONTENT_TYPE,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         ...(body ? { body: JSON.stringify(body) } : {}),
       });

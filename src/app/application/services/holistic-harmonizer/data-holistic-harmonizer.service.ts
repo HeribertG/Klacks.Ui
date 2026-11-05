@@ -15,8 +15,8 @@ import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
+import { HUB_SESSION_COOKIE_OPTIONS } from 'src/app/infrastructure/signalr/signalr-hub-request.constants';
 import { HolisticHarmonizerSignalRConstants } from 'src/app/infrastructure/signalr/signalr.constants';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
@@ -50,7 +50,7 @@ export class DataHolisticHarmonizerService implements OnDestroy {
   private static readonly APPLY_TIMEOUT_MS = 120000;
 
   private readonly http = inject(HttpClient);
-  private readonly localStorage = inject(LocalStorageService);
+  private readonly sessionStore = inject(SessionStore);
 
   readonly progress = signal<HolisticHarmonizerProgress | null>(null);
   readonly result = signal<HolisticHarmonizerRunResponse | null>(null);
@@ -210,14 +210,13 @@ export class DataHolisticHarmonizerService implements OnDestroy {
       staleConnection.stop().catch(() => undefined);
     }
 
-    const token = this.localStorage.get(StorageKeys.TOKEN);
-    if (!token) {
-      throw new Error('Missing auth token; cannot connect to holistic harmonizer hub.');
+    if (!this.sessionStore.hasSession()) {
+      throw new Error('No signed-in session; cannot connect to holistic harmonizer hub.');
     }
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
-        accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
+        ...HUB_SESSION_COOKIE_OPTIONS,
       })
       .withAutomaticReconnect()
       .build();

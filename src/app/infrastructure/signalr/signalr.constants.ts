@@ -38,10 +38,6 @@ export const SignalRConstants = {
     client: (clientId: string): string =>
       `client_${clientId}`,
   },
-
-  QueryParams: {
-    AccessToken: 'access_token',
-  },
 } as const;
 
 export const EmailSignalRConstants = {
@@ -50,10 +46,6 @@ export const EmailSignalRConstants = {
   Events: {
     NewEmailsReceived: 'NewEmailsReceived',
     EmailReadStateChanged: 'EmailReadStateChanged',
-  },
-
-  QueryParams: {
-    AccessToken: 'access_token',
   },
 } as const;
 
@@ -71,10 +63,6 @@ export const WizardSignalRConstants = {
     JoinJob: 'JoinJob',
     LeaveJob: 'LeaveJob',
   },
-
-  QueryParams: {
-    AccessToken: 'access_token',
-  },
 } as const;
 
 export const HarmonizerSignalRConstants = {
@@ -90,10 +78,6 @@ export const HarmonizerSignalRConstants = {
   HubMethods: {
     JoinJob: 'JoinJob',
     LeaveJob: 'LeaveJob',
-  },
-
-  QueryParams: {
-    AccessToken: 'access_token',
   },
 } as const;
 
@@ -111,10 +95,6 @@ export const HolisticHarmonizerSignalRConstants = {
     JoinJob: 'JoinJob',
     LeaveJob: 'LeaveJob',
   },
-
-  QueryParams: {
-    AccessToken: 'access_token',
-  },
 } as const;
 
 export const AutoWizardSignalRConstants = {
@@ -128,10 +108,6 @@ export const AutoWizardSignalRConstants = {
   HubMethods: {
     JoinJob: 'JoinJob',
     LeaveJob: 'LeaveJob',
-  },
-
-  QueryParams: {
-    AccessToken: 'access_token',
   },
 } as const;
 
@@ -148,9 +124,5 @@ export const AssistantSignalRConstants = {
 
   HubMethods: {
     GetConnectionId: 'GetConnectionId',
-  },
-
-  QueryParams: {
-    AccessToken: 'access_token',
   },
 } as const;

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * SSE streaming service for LLM chat using native fetch API.
+ * SSE streaming service for LLM chat using native fetch API (with the session cookies, see CredentialedFetchService).
  * Handles Server-Sent Events parsing and dispatches typed callbacks.
  * @param baseUrl - Backend assistant API URL from environment configuration
  */
@@ -11,7 +11,7 @@ import { PlaygroundDeviceService } from 'src/app/domain/services/playground/play
 import { playgroundErrorI18nKey, playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { environment } from 'src/environments/environment';
 import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { CredentialedFetchService } from 'src/app/domain/services/auth/credentialed-fetch.service';
 import { StreamCallbacks } from '../../../domain/models/assistant/stream-callbacks.interface';
 import { StreamMetadata } from '../../../domain/models/assistant/stream-metadata.interface';
 import { SseEvent } from '../../../domain/models/assistant/sse-event.interface';
@@ -22,6 +22,7 @@ import { INSTANCE_ID_HEADER, readInstanceId } from 'src/app/domain/helpers/insta
 export class DataAssistantStreamService {
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
   private readonly playground = inject(PlaygroundDeviceService);
+  private readonly credentialedFetch = inject(CredentialedFetchService);
 
   chatStream(request: IAssistantChatRequest, callbacks: StreamCallbacks): AbortController {
     const controller = new AbortController();
@@ -35,14 +36,12 @@ export class DataAssistantStreamService {
     signal: AbortSignal,
   ): Promise<void> {
     try {
-      const token = localStorage.getItem(StorageKeys.TOKEN);
       const instanceId = readInstanceId();
 
-      const response = await fetch(`${this.baseUrl}chat/stream`, {
+      const response = await this.credentialedFetch.fetch(`${this.baseUrl}chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...(instanceId ? { [INSTANCE_ID_HEADER]: instanceId } : {}),
           ...this.playground.deviceHeaders(),
         },

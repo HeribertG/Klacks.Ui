@@ -5,16 +5,19 @@
  * Owns the connection FSM (Idle/Connecting/Connected/Reconnecting/Failed) and exposes telemetry counters
  * for diagnostics. Health check and watchdog notify the facade via callbacks so reconnect orchestration
  * stays in the facade.
- * @param tokenHelper - Token refresh and expiry logic
- * @param localStorage - Reads JWT token for the access token factory
+ * The HttpOnly session cookie authenticates negotiate and the WebSocket upgrade; a 401 on connect renews the session
+ * once, and only a refresh the server rejected (400/401) ends in AuthFailed. When a 401 persists right after a
+ * successful renewal, renewing again cannot help: for PERSISTENT_UNAUTHORIZED_RENEWAL_PAUSE_MS a 401 is retried with
+ * the normal backoff only, so the watchdog never turns it into one renewal per restart. A connect or a stop ends the pause.
+ * @param tokenHelper - Local session marker, expiry hint and session renewal
  * @param hubUrl - WebSocket hub endpoint URL
  * @param options - Callbacks fired on visibility drift and watchdog-triggered reconnect need
  */
 import * as signalR from '@microsoft/signalr';
 import { computed, signal, Signal } from '@angular/core';
-import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from '../constants/storage-keys';
+import { SessionRenewalOutcome } from 'src/app/domain/enums/session-renewal-outcome.enum';
 import { SignalRConstants } from './signalr.constants';
+import { HUB_SESSION_COOKIE_OPTIONS } from './signalr-hub-request.constants';
 import { environment } from 'src/environments/environment';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRConnectionOptions } from './signalr-connection-options.interface';
@@ -24,6 +27,7 @@ import { SignalRTelemetry } from './signalr-telemetry.interface';
 
 const RETRY_DELAYS_MS: readonly number[] = [0, 1000, 2000, 5000, 10000];
 const BACKEND_PROBE_TIMEOUT_MS = 2000;
+const PERSISTENT_UNAUTHORIZED_RENEWAL_PAUSE_MS = 300000;
 
 export class SignalRConnectionHelper {
   private readonly _state = signal<SignalRConnectionState>('Idle');
@@ -40,6 +44,7 @@ export class SignalRConnectionHelper {
   private _hubConnection: signalR.HubConnection | null = null;
   private _pendingStart: Promise<void> | null = null;
   private _disconnectSamples = 0;
+  private _renewalPausedUntil = 0;
 
   readonly state: Signal<SignalRConnectionState> = this._state.asReadonly();
   readonly isConnected: Signal<boolean> = this._isConnectedDerived;
@@ -86,7 +91,6 @@ export class SignalRConnectionHelper {
 
   constructor(
     private readonly tokenHelper: SignalRTokenHelper,
-    private readonly localStorage: LocalStorageService,
     private readonly hubUrl: string,
     private readonly options: SignalRConnectionOptions,
   ) {
@@ -125,6 +129,7 @@ export class SignalRConnectionHelper {
   }
 
   async stopConnection(): Promise<void> {
+    this._renewalPausedUntil = 0;
     this.stopHealthCheck();
     this.stopWatchdog();
     const hub = this._hubConnection;
@@ -193,11 +198,9 @@ export class SignalRConnectionHelper {
       const state = this._state();
       if (state === 'Connected' || state === 'Connecting' || state === 'AuthFailed') return;
 
-      const token = this.localStorage.get(StorageKeys.TOKEN);
-      if (!token) return;
-      if (this.tokenHelper.isTokenExpired(token)) return;
+      if (!this.tokenHelper.hasSession()) return;
 
-      console.warn('[SignalR] watchdog: state=' + state + ' with usable token - attempting reconnect');
+      console.warn('[SignalR] watchdog: state=' + state + ' with a local session - attempting reconnect');
       void this.options.onWatchdogNeedsReconnect();
     }, SignalRConnectionHelper.WATCHDOG_INTERVAL_MS);
   }
@@ -218,50 +221,13 @@ export class SignalRConnectionHelper {
     registerHandlers: (hub: signalR.HubConnection) => void,
     callbacks: SignalRConnectionCallbacks,
   ): Promise<void> {
-    let token = this.localStorage.get(StorageKeys.TOKEN);
-    if (!token) {
-      console.warn('[SignalR] no token available, aborting startConnection');
+    if (!this.tokenHelper.hasSession()) {
+      console.warn('[SignalR] no local session, aborting startConnection');
       this.transitionTo('Idle');
       return;
     }
 
-    if (this.tokenHelper.isTokenExpired(token)) {
-      console.warn('[SignalR] token expired at startup, attempting refresh before connecting');
-      await this.tokenHelper.attemptTokenRefresh();
-      token = this.localStorage.get(StorageKeys.TOKEN);
-      if (!token || this.tokenHelper.isTokenExpired(token)) {
-        console.warn('[SignalR] token refresh did not yield a valid token, aborting startConnection');
-        this.transitionTo('Failed');
-        return;
-      }
-    }
-
-    const [initialValidation, backendReady] = await Promise.all([
-      this.tokenHelper.validateTokenWithBackend(token),
-      this.probeBackend(),
-    ]);
-
-    let validation = initialValidation;
-    if (validation === 'rejected') {
-      // A stale-but-refreshable token also validates as 'rejected' here, so one refresh
-      // attempt is given before treating this as a genuinely revoked session - otherwise a
-      // single transient rejection forces AuthFailed (and, via app.component's watcher, a
-      // full logout) even though a plain refresh would have recovered it.
-      console.warn('[SignalR] token rejected by backend - attempting refresh before giving up');
-      await this.tokenHelper.attemptTokenRefresh();
-      const refreshedToken = this.localStorage.get(StorageKeys.TOKEN);
-      validation = refreshedToken
-        ? await this.tokenHelper.validateTokenWithBackend(refreshedToken)
-        : 'rejected';
-    }
-
-    if (validation === 'rejected') {
-      console.warn('[SignalR] token rejected by backend after refresh - stale credentials, giving up until re-login');
-      this.stopWatchdog();
-      this.transitionTo('AuthFailed');
-      return;
-    }
-    if (validation === 'unreachable' || !backendReady) {
+    if (!(await this.probeBackend())) {
       console.warn('[SignalR] backend not reachable - watchdog will retry');
       this.transitionTo('Failed');
       return;
@@ -269,7 +235,7 @@ export class SignalRConnectionHelper {
 
     const hub = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
-        accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
+        ...HUB_SESSION_COOKIE_OPTIONS,
         transport:
           signalR.HttpTransportType.WebSockets |
           signalR.HttpTransportType.LongPolling,
@@ -306,7 +272,8 @@ export class SignalRConnectionHelper {
     hub: signalR.HubConnection,
     onConnected: () => Promise<void>,
   ): Promise<void> {
-    let tokenRefreshAttempted = false;
+    let sessionRenewalAttempted = false;
+    let sessionRenewed = false;
 
     for (let attempt = 0; attempt < RETRY_DELAYS_MS.length; attempt++) {
       if (this._hubConnection !== hub) {
@@ -323,6 +290,7 @@ export class SignalRConnectionHelper {
           SignalRConstants.HubMethods.GetConnectionId,
         );
         this._connectionId.set(connectionId);
+        this._renewalPausedUntil = 0;
         this.recordReconnectIfNeeded();
         this.transitionTo('Connected');
         await onConnected();
@@ -334,17 +302,32 @@ export class SignalRConnectionHelper {
 
         if (errorMessage.includes('401')) {
           this._authErrorCount.update((v) => v + 1);
-          if (!tokenRefreshAttempted) {
-            tokenRefreshAttempted = true;
-            console.warn('[SignalR] 401 on connect - refreshing token and retrying once');
-            await this.tokenHelper.attemptTokenRefresh();
-            continue;
+          if (this.isRenewalPaused()) {
+            console.warn('[SignalR] 401 on connect while renewals are paused - retrying with backoff only');
+          } else if (!sessionRenewalAttempted) {
+            sessionRenewalAttempted = true;
+            console.warn('[SignalR] 401 on connect - renewing the session and retrying once');
+            const outcome = await this.tokenHelper.attemptTokenRefresh();
+            if (outcome === SessionRenewalOutcome.Rejected) {
+              console.warn('[SignalR] session renewal rejected - giving up until re-login');
+              this.stopWatchdog();
+              await this.disposeHub(hub);
+              this.transitionTo('AuthFailed');
+              return;
+            }
+            if (outcome === SessionRenewalOutcome.Renewed) {
+              sessionRenewed = true;
+              continue;
+            }
+          } else {
+            console.warn('[SignalR] 401 persisted after a session renewal attempt - watchdog will retry');
+            if (sessionRenewed) {
+              this._renewalPausedUntil = Date.now() + PERSISTENT_UNAUTHORIZED_RENEWAL_PAUSE_MS;
+            }
+            await this.disposeHub(hub);
+            this.transitionTo('Failed');
+            return;
           }
-          console.warn('[SignalR] 401 persisted after token refresh - stale credentials, giving up until re-login');
-          this.stopWatchdog();
-          await this.disposeHub(hub);
-          this.transitionTo('AuthFailed');
-          return;
         }
 
         if (attempt < RETRY_DELAYS_MS.length - 1) {
@@ -357,6 +340,10 @@ export class SignalRConnectionHelper {
     }
   }
 
+  private isRenewalPaused(): boolean {
+    return Date.now() < this._renewalPausedUntil;
+  }
+
   private registerConnectionEvents(
     hub: signalR.HubConnection,
     callbacks: SignalRConnectionCallbacks,
@@ -364,6 +351,9 @@ export class SignalRConnectionHelper {
     hub.onreconnecting(async () => {
       if (this._hubConnection !== hub) return;
       this.transitionTo('Reconnecting');
+      if (this.tokenHelper.hasSession() && this.tokenHelper.isAccessExpired()) {
+        void this.tokenHelper.attemptTokenRefresh();
+      }
       await callbacks.onReconnecting();
     });
 

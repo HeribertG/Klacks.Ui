@@ -23,7 +23,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/auth/oauth2-callback/oauth2-callback.component.ts': ['infrastructure'],
   'presentation/auth/setup/setup.component.ts': ['infrastructure'],
   'presentation/auth/sync-notification-toast.service.ts': ['infrastructure'],
-  'presentation/auth/token-refresh.interceptor.ts': ['infrastructure'],
   'presentation/search/search-client/search-client.component.ts': ['infrastructure'],
   'presentation/search/search-strategy.service.ts': ['infrastructure'],
   'presentation/services/draft-recovery.service.ts': ['infrastructure'],

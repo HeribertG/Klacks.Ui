@@ -7,7 +7,6 @@ import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.inter
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { DataAuthService } from '../api/data-auth.service';
-import { StorageKeys } from '../constants/storage-keys';
 
 const FIRST_RECONNECT_WINDOW_MS = 3000;
 
@@ -25,13 +24,13 @@ describe('SignalRService - full reconnect after a closed connection', () => {
         capturedCallbacks = callbacks;
       });
     vi.spyOn(SignalRConnectionHelper.prototype, 'stopConnection').mockResolvedValue(undefined);
-    vi.spyOn(SignalRTokenHelper.prototype, 'isTokenExpired').mockReturnValue(false);
+    vi.spyOn(SignalRTokenHelper.prototype, 'hasSession').mockReturnValue(true);
 
     TestBed.configureTestingModule({
       providers: [
         {
           provide: LocalStorageService,
-          useValue: { get: vi.fn((key: string) => (key === StorageKeys.TOKEN ? 'a-token' : null)) },
+          useValue: { get: vi.fn().mockReturnValue('user-1') },
         },
         { provide: DataAuthService, useValue: {} },
       ],
@@ -65,6 +64,18 @@ describe('SignalRService - full reconnect after a closed connection', () => {
     // Act
     await service.stopConnection();
     await vi.advanceTimersByTimeAsync(FIRST_RECONNECT_WINDOW_MS);
+
+    // Assert
+    expect(startSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reconnect the hub on a timer after the connection came up', async () => {
+    // Arrange
+    await service.startConnection();
+    await capturedCallbacks!.onConnected();
+
+    // Act
+    await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
 
     // Assert
     expect(startSpy).toHaveBeenCalledTimes(1);

@@ -18,8 +18,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataCompanyClockService } from 'src/app/infrastructure/api/settings/data-company-clock.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { CompanyClockSource } from 'src/app/domain/models/settings/company-clock-source.type';
 
@@ -30,7 +29,7 @@ const COMPANY_CLOCK_LOAD_WARNING = 'CompanyClockService: failed to load company 
 })
 export class CompanyClockService {
   private dataCompanyClockService = inject(DataCompanyClockService);
-  private localStorageService = inject(LocalStorageService);
+  private sessionStore = inject(SessionStore);
 
   public source = signal<CompanyClockSource | null>(null);
 
@@ -63,7 +62,7 @@ export class CompanyClockService {
   }
 
   private hasToken(): boolean {
-    return this.localStorageService.get(StorageKeys.TOKEN) !== null;
+    return this.sessionStore.hasSession();
   }
 
   private startLoad(): Promise<void> {

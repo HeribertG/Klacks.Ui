@@ -10,6 +10,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
 import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
@@ -27,6 +28,7 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   public userAdministrationService = inject(UserAdministrationService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private localStorageService = inject(LocalStorageService);
+  private sessionStore = inject(SessionStore);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -88,20 +90,19 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   }
 
   /**
-   * A successful password change revokes every refresh token of the account on the server, returns a fresh access
-   * token for this session and sets the new refresh token as HttpOnly cookie. Storing the access token keeps the
-   * session alive; a refresh token an older build left in localStorage is now revoked and is dropped so it can never
-   * override the cookie. The format of the expiry matches what the login stores.
-   * @param result - Response of the password change with the fresh access token and its expiry
+   * A successful password change revokes every refresh token of the account on the server and sets fresh access and
+   * refresh cookies for this session, so the session goes on. Only the new access-token expiry is recorded (the token
+   * itself stays in the cookie); a refresh token an older build left in localStorage is now revoked and is dropped so
+   * it can never override the cookie.
+   * @param result - Response of the password change with the expiry of the fresh access token
    */
   private adoptRenewedSession(result: IPasswordChangeResult): void {
-    if (!result || !result.token) {
+    if (!result || !result.expires) {
       return;
     }
 
-    this.localStorageService.set(StorageKeys.TOKEN, result.token);
-    this.localStorageService.set(StorageKeys.TOKEN_EXP, result.expires);
-    this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
+    this.sessionStore.storeAccessExpiry(result.expires);
+    this.sessionStore.forgetLegacyRefreshToken();
   }
 
   /* #endregion  ChangePassword */

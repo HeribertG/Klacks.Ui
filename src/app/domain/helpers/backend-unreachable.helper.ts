@@ -9,25 +9,10 @@
  */
 
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { isInternalApiUrl } from './internal-api-url.helper';
 
 const NO_ANSWER_STATUS = 0;
-const API_PATH_PREFIX = '/api/';
 const GATEWAY_FAILURE_STATUS_CODES: readonly number[] = [HttpStatusCode.BadGateway, HttpStatusCode.GatewayTimeout];
-
-function isOwnApiUrl(url: string, apiBaseUrl: string, pageOrigin: string): boolean {
-  if (!url) {
-    return false;
-  }
-  if (url.startsWith(apiBaseUrl)) {
-    return true;
-  }
-  try {
-    const target = new URL(url, pageOrigin);
-    return target.origin === pageOrigin && target.pathname.startsWith(API_PATH_PREFIX);
-  } catch {
-    return false;
-  }
-}
 
 export function isBackendUnreachableError(
   error: unknown,
@@ -40,6 +25,6 @@ export function isBackendUnreachableError(
 
   return (
     error.status === NO_ANSWER_STATUS ||
-    (GATEWAY_FAILURE_STATUS_CODES.includes(error.status) && isOwnApiUrl(error.url ?? '', apiBaseUrl, pageOrigin))
+    (GATEWAY_FAILURE_STATUS_CODES.includes(error.status) && isInternalApiUrl(error.url ?? '', apiBaseUrl, pageOrigin))
   );
 }

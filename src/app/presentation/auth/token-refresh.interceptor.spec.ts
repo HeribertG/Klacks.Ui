@@ -2,57 +2,43 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController, } from '@angular/common/http/testing';
-import { HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse, } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { TokenRefreshInterceptor } from './token-refresh.interceptor';
 import { AuthService } from './auth.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
 import { DraftRecoveryService } from '../services/draft-recovery.service';
+import { X_REQUESTED_WITH_HEADER, X_REQUESTED_WITH_VALUE } from 'src/app/domain/constants/auth-request.constants';
+
+const TEST_URL = '/api/backend/test';
+const UNAUTHORIZED = { status: 401, statusText: 'Unauthorized' };
+const SESSION_ENDPOINTS = ['Accounts/LoginUser', 'Accounts/RefreshToken', 'Accounts/Logout', 'OAuth2/callback'];
+const tick = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('TokenRefreshInterceptor', () => {
     let httpClient: HttpClient;
     let httpMock: HttpTestingController;
     let authService: any;
-    let localStorageService: any;
     let navigationService: any;
     let draftRecoveryService: any;
 
     beforeEach(() => {
-        const authServiceSpy = {
-            refreshToken: vi.fn(),
-            logOut: vi.fn()
-        };
-        const localStorageServiceSpy = {
-            get: vi.fn()
-        };
-        const navigationServiceSpy = {
-            navigateToRoot: vi.fn(),
-            redirectToLogin: vi.fn()
-        };
-        const draftRecoveryServiceSpy = {
-            capture: vi.fn()
-        };
-
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
             providers: [
+                { provide: HTTP_INTERCEPTORS, useClass: TokenRefreshInterceptor, multi: true },
                 {
-                    provide: HTTP_INTERCEPTORS,
-                    useClass: TokenRefreshInterceptor,
-                    multi: true,
+                    provide: AuthService,
+                    useValue: { refreshToken: vi.fn(), logOut: vi.fn(), authenticated: vi.fn().mockReturnValue(true) },
                 },
-                { provide: AuthService, useValue: authServiceSpy },
-                { provide: LocalStorageService, useValue: localStorageServiceSpy },
-                { provide: NavigationService, useValue: navigationServiceSpy },
-                { provide: DraftRecoveryService, useValue: draftRecoveryServiceSpy },
+                { provide: NavigationService, useValue: { navigateToRoot: vi.fn(), redirectToLogin: vi.fn() } },
+                { provide: DraftRecoveryService, useValue: { capture: vi.fn() } },
             ],
         });
 
         httpClient = TestBed.inject(HttpClient);
         httpMock = TestBed.inject(HttpTestingController);
         authService = TestBed.inject(AuthService) as any;
-        localStorageService = TestBed.inject(LocalStorageService) as any;
         navigationService = TestBed.inject(NavigationService) as any;
         draftRecoveryService = TestBed.inject(DraftRecoveryService) as any;
     });
@@ -61,368 +47,225 @@ describe('TokenRefreshInterceptor', () => {
         httpMock.verify();
     });
 
-    it('should be created', () => {
-        expect(true).toBeTruthy();
-    });
-
-    it('should intercept 401 error and attempt token refresh', async () => {
-        const testUrl = '/api/test';
-        const testData = { data: 'test' };
-
-        localStorageService.get.mockReturnValue('old-token');
-        let resolveRefresh: (value: boolean) => void;
-        const refreshPromise = new Promise<boolean>(resolve => {
-            resolveRefresh = resolve;
-        });
-        authService.refreshToken.mockReturnValue(refreshPromise);
-
+    it('refreshes once on a 401 and replays the request without an Authorization header', async () => {
+        authService.refreshToken.mockResolvedValue(true);
         let responseData: any = null;
-        httpClient
-            .get(testUrl, {
-            headers: { Authorization: 'Bearer old-token' },
-        })
-            .subscribe({
-            next: (data) => {
-                responseData = data;
-            },
-            error: () => {
-                throw new Error('Should not error after successful token refresh');
-            },
-        });
 
-        const req = httpMock.expectOne(testUrl);
-        expect(req.request.headers.has('Authorization')).toBe(true);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+        httpClient.get(TEST_URL).subscribe({ next: (data) => (responseData = data) });
 
-        resolveRefresh!(true);
-        await refreshPromise;
-        await new Promise(resolve => setTimeout(resolve, 0));
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick();
 
-        const retryReq = httpMock.expectOne(testUrl);
-        expect(authService.refreshToken).toHaveBeenCalled();
-        retryReq.flush(testData);
+        const retry = httpMock.expectOne(TEST_URL);
+        expect(retry.request.headers.has('Authorization')).toBe(false);
+        expect(authService.refreshToken).toHaveBeenCalledTimes(1);
+        retry.flush({ data: 'test' });
+        await tick();
 
-        await new Promise(resolve => setTimeout(resolve, 0));
-        expect(responseData).toEqual(testData);
+        expect(responseData).toEqual({ data: 'test' });
     });
 
-    it('should logout and navigate to root when refresh token fails', async () => {
-        const testUrl = '/api/test';
+    it('keeps credentials and the CSRF header on the replayed request', async () => {
+        authService.refreshToken.mockResolvedValue(true);
+
+        httpClient
+            .post(TEST_URL, null, {
+                withCredentials: true,
+                headers: new HttpHeaders({ [X_REQUESTED_WITH_HEADER]: X_REQUESTED_WITH_VALUE }),
+            })
+            .subscribe();
+
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick();
+
+        const retry = httpMock.expectOne(TEST_URL);
+        expect(retry.request.withCredentials).toBe(true);
+        expect(retry.request.headers.get(X_REQUESTED_WITH_HEADER)).toBe(X_REQUESTED_WITH_VALUE);
+        retry.flush({});
+    });
+
+    it('logs out and redirects to login when the server rejects the refresh', async () => {
+        authService.refreshToken.mockResolvedValue(false);
         let completed = false;
 
-        localStorageService.get.mockReturnValue('old-token');
-        authService.refreshToken.mockReturnValue(Promise.resolve(false));
-
-        httpClient
-            .get(testUrl, {
-            headers: { Authorization: 'Bearer old-token' },
-        })
-            .subscribe({
+        httpClient.get(TEST_URL).subscribe({
             next: () => {
                 throw new Error('Should not succeed when refresh token fails');
             },
             error: () => {
                 throw new Error('Should complete without error');
             },
-            complete: () => {
-                completed = true;
-            },
+            complete: () => (completed = true),
         });
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick(10);
 
-        await new Promise(resolve => setTimeout(resolve, 10));
-
-        expect(authService.refreshToken).toHaveBeenCalled();
         expect(draftRecoveryService.capture).toHaveBeenCalled();
         expect(authService.logOut).toHaveBeenCalled();
         expect(navigationService.redirectToLogin).toHaveBeenCalled();
         expect(completed).toBe(true);
     });
 
-    it('should keep the session and fail the request with its 401 when the refresh fails transiently', async () => {
-        const testUrl = '/api/test';
-        let failedStatus: number | undefined;
-
-        localStorageService.get.mockReturnValue('old-token');
+    it('keeps the session and fails the request with its 401 when the refresh fails transiently', async () => {
         authService.refreshToken.mockReturnValue(
             Promise.reject(new HttpErrorResponse({ status: 503, statusText: 'Service Unavailable' }))
         );
+        let failedStatus: number | undefined;
 
-        httpClient
-            .get(testUrl, {
-            headers: { Authorization: 'Bearer old-token' },
-        })
-            .subscribe({
-            next: () => {
-                throw new Error('Should not succeed when the refresh failed');
-            },
-            error: (error: HttpErrorResponse) => {
-                failedStatus = error.status;
-            },
-        });
+        httpClient.get(TEST_URL).subscribe({ error: (error: HttpErrorResponse) => (failedStatus = error.status) });
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick(10);
 
-        await new Promise(resolve => setTimeout(resolve, 10));
-
-        expect(authService.refreshToken).toHaveBeenCalled();
         expect(failedStatus).toBe(401);
         expect(authService.logOut).not.toHaveBeenCalled();
-        expect(draftRecoveryService.capture).not.toHaveBeenCalled();
         expect(navigationService.redirectToLogin).not.toHaveBeenCalled();
     });
 
-    it('should fail all parallel waiters without logging out when the refresh fails transiently', async () => {
-        const testUrl = '/api/test';
+    it('fails all parallel waiters without logging out when the refresh fails transiently', async () => {
+        authService.refreshToken.mockReturnValue(Promise.reject(new HttpErrorResponse({ status: 0 })));
         const failures: number[] = [];
 
-        localStorageService.get.mockReturnValue('old-token');
-        authService.refreshToken.mockReturnValue(Promise.reject(new HttpErrorResponse({ status: 0 })));
+        httpClient.get(TEST_URL).subscribe({ error: (error: HttpErrorResponse) => failures.push(error.status) });
+        httpClient.get(TEST_URL).subscribe({ error: (error: HttpErrorResponse) => failures.push(error.status) });
 
-        const subscribe = () =>
-            httpClient
-                .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
-                .subscribe({ error: (error: HttpErrorResponse) => failures.push(error.status) });
-
-        subscribe();
-        subscribe();
-
-        const requests = httpMock.match(testUrl);
-        expect(requests.length).toBe(2);
-        requests.forEach((r) => r.flush(null, { status: 401, statusText: 'Unauthorized' }));
-
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        httpMock.match(TEST_URL).forEach((r) => r.flush(null, UNAUTHORIZED));
+        await tick(10);
 
         expect(authService.refreshToken).toHaveBeenCalledTimes(1);
         expect(failures).toEqual([401, 401]);
         expect(authService.logOut).not.toHaveBeenCalled();
     });
 
-    it('should release all parallel waiting requests when refresh fails (no spinner leak)', async () => {
-        const testUrl = '/api/test';
-        let completedA = false;
-        let completedB = false;
+    it('releases all parallel waiting requests when the refresh is rejected (no spinner leak)', async () => {
+        authService.refreshToken.mockResolvedValue(false);
+        const completed: boolean[] = [];
 
-        localStorageService.get.mockReturnValue('old-token');
-        authService.refreshToken.mockReturnValue(Promise.resolve(false));
+        httpClient.get(TEST_URL).subscribe({ complete: () => completed.push(true) });
+        httpClient.get(TEST_URL).subscribe({ complete: () => completed.push(true) });
 
-        const subscribe = (onComplete: () => void) =>
-            httpClient
-                .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
-                .subscribe({
-                    next: () => {
-                        throw new Error('Should not succeed when refresh fails');
-                    },
-                    error: () => {
-                        throw new Error('Should complete without error');
-                    },
-                    complete: onComplete,
-                });
-
-        subscribe(() => (completedA = true));
-        subscribe(() => (completedB = true));
-
-        const requests = httpMock.match(testUrl);
-        expect(requests.length).toBe(2);
-        requests.forEach((r) =>
-            r.flush(null, { status: 401, statusText: 'Unauthorized' })
-        );
-
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        httpMock.match(TEST_URL).forEach((r) => r.flush(null, UNAUTHORIZED));
+        await tick(10);
 
         expect(authService.refreshToken).toHaveBeenCalledTimes(1);
         expect(authService.logOut).toHaveBeenCalledTimes(1);
-        expect(completedA).toBe(true);
-        expect(completedB).toBe(true);
+        expect(completed).toEqual([true, true]);
     });
 
-    it('should replay all parallel waiters with a single refresh on success', async () => {
-        const testUrl = '/api/test';
-        const payload = { ok: true };
+    it('replays all parallel waiters with a single refresh on success', async () => {
+        let resolveRefresh: (value: boolean) => void = () => undefined;
+        authService.refreshToken.mockReturnValue(new Promise<boolean>((resolve) => (resolveRefresh = resolve)));
         const received: any[] = [];
 
-        localStorageService.get.mockReturnValue('old-token');
-        let resolveRefresh: (value: boolean) => void;
-        const refreshPromise = new Promise<boolean>((resolve) => {
-            resolveRefresh = resolve;
-        });
-        authService.refreshToken.mockReturnValue(refreshPromise);
+        httpClient.get(TEST_URL).subscribe({ next: (d) => received.push(d) });
+        httpClient.get(TEST_URL).subscribe({ next: (d) => received.push(d) });
 
-        httpClient
-            .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
-            .subscribe({ next: (d) => received.push(d) });
-        httpClient
-            .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
-            .subscribe({ next: (d) => received.push(d) });
+        httpMock.match(TEST_URL).forEach((r) => r.flush(null, UNAUTHORIZED));
+        resolveRefresh(true);
+        await tick();
 
-        const requests = httpMock.match(testUrl);
-        expect(requests.length).toBe(2);
-        requests.forEach((r) =>
-            r.flush(null, { status: 401, statusText: 'Unauthorized' })
-        );
-
-        resolveRefresh!(true);
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        const retries = httpMock.match(testUrl);
+        const retries = httpMock.match(TEST_URL);
         expect(retries.length).toBe(2);
         expect(authService.refreshToken).toHaveBeenCalledTimes(1);
-        retries.forEach((r) => r.flush(payload));
+        retries.forEach((r) => r.flush({ ok: true }));
+        await tick();
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(received).toEqual([payload, payload]);
-        expect(authService.logOut).not.toHaveBeenCalled();
+        expect(received).toEqual([{ ok: true }, { ok: true }]);
     });
 
-    it('should retry with the rotated token instead of refreshing again', async () => {
-        const testUrl = '/api/test';
-        const testData = { data: 'test' };
-        let responseData: any = null;
+    it('replays a request sent before the last successful refresh without refreshing again', async () => {
+        const lateUrl = TEST_URL + '/late';
+        authService.refreshToken.mockResolvedValue(true);
 
-        localStorageService.get.mockReturnValue('new-token');
+        httpClient.get(TEST_URL).subscribe();
+        httpClient.get(lateUrl).subscribe();
+        await tick(2);
 
-        httpClient
-            .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
-            .subscribe({
-                next: (data) => {
-                    responseData = data;
-                },
-                error: () => {
-                    throw new Error('Should not error after retrying with rotated token');
-                },
-            });
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick(2);
+        httpMock.expectOne(TEST_URL).flush({});
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+        httpMock.expectOne(lateUrl).flush(null, UNAUTHORIZED);
+        await tick();
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        const retryReq = httpMock.expectOne(testUrl);
-        expect(retryReq.request.headers.get('Authorization')).toBe('Bearer new-token');
-        expect(authService.refreshToken).not.toHaveBeenCalled();
-        retryReq.flush(testData);
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(responseData).toEqual(testData);
+        httpMock.expectOne(lateUrl).flush({});
+        expect(authService.refreshToken).toHaveBeenCalledTimes(1);
     });
 
-    it('should not refresh again when a retried request fails with 401', async () => {
-        const testUrl = '/api/test';
+    it('does not refresh again when a replayed request fails with 401', async () => {
+        authService.refreshToken.mockResolvedValue(true);
         let erroredStatus = 0;
 
-        localStorageService.get.mockReturnValue('new-token');
+        httpClient.get(TEST_URL).subscribe({ error: (error: HttpErrorResponse) => (erroredStatus = error.status) });
 
-        httpClient
-            .get(testUrl, { headers: { Authorization: 'Bearer old-token' } })
-            .subscribe({
-                next: () => {
-                    throw new Error('Should not succeed');
-                },
-                error: (error: HttpErrorResponse) => {
-                    erroredStatus = error.status;
-                },
-            });
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick();
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick();
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        const retryReq = httpMock.expectOne(testUrl);
-        retryReq.flush(null, { status: 401, statusText: 'Unauthorized' });
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        expect(authService.refreshToken).not.toHaveBeenCalled();
+        expect(authService.refreshToken).toHaveBeenCalledTimes(1);
         expect(erroredStatus).toBe(401);
     });
 
-    it('should not attempt refresh for LoginUser endpoint', async () => {
-        const testUrl = '/api/LoginUser';
+    for (const endpoint of SESSION_ENDPOINTS) {
+        it('does not attempt a refresh for ' + endpoint, async () => {
+            const url = '/api/backend/' + endpoint;
+            let status = 0;
 
-        httpClient.get(testUrl).subscribe({
-            next: () => {
-                throw new Error('Should error without refresh');
-            },
-            error: (error: HttpErrorResponse) => {
-                expect(error.status).toBe(401);
-                expect(authService.refreshToken).not.toHaveBeenCalled();
-            },
+            httpClient.get(url).subscribe({ error: (error: HttpErrorResponse) => (status = error.status) });
+            httpMock.expectOne(url).flush(null, UNAUTHORIZED);
+            await tick();
+
+            expect(status).toBe(401);
+            expect(authService.refreshToken).not.toHaveBeenCalled();
         });
+    }
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+    it('does not attempt a refresh in a tab without a local session', async () => {
+        authService.authenticated.mockReturnValue(false);
+        let status = 0;
+
+        httpClient.get(TEST_URL).subscribe({ error: (error: HttpErrorResponse) => (status = error.status) });
+        httpMock.expectOne(TEST_URL).flush(null, UNAUTHORIZED);
+        await tick();
+
+        expect(status).toBe(401);
+        expect(authService.refreshToken).not.toHaveBeenCalled();
     });
 
-    it('should not attempt refresh for RefreshToken endpoint', async () => {
-        const testUrl = '/api/RefreshToken';
+    it('does not attempt a refresh for a request outside the API', async () => {
+        const url = 'https://tiles.example.test/1/2/3.png';
+        let status = 0;
 
-        httpClient.get(testUrl).subscribe({
-            next: () => {
-                throw new Error('Should error without refresh');
-            },
-            error: (error: HttpErrorResponse) => {
-                expect(error.status).toBe(401);
-                expect(authService.refreshToken).not.toHaveBeenCalled();
-            },
-        });
+        httpClient.get(url).subscribe({ error: (error: HttpErrorResponse) => (status = error.status) });
+        httpMock.expectOne(url).flush(null, UNAUTHORIZED);
+        await tick();
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+        expect(status).toBe(401);
+        expect(authService.refreshToken).not.toHaveBeenCalled();
     });
 
-    it('should not attempt refresh for Logout endpoint', async () => {
-        const testUrl = '/api/Logout';
+    it('does not attempt a refresh for a foreign host whose path contains /api/', async () => {
+        const url = 'https://foreign.example.test/api/backend/test';
+        let status = 0;
 
-        httpClient.get(testUrl).subscribe({
-            next: () => {
-                throw new Error('Should error without refresh');
-            },
-            error: (error: HttpErrorResponse) => {
-                expect(error.status).toBe(401);
-                expect(authService.refreshToken).not.toHaveBeenCalled();
-            },
-        });
+        httpClient.get(url).subscribe({ error: (error: HttpErrorResponse) => (status = error.status) });
+        httpMock.expectOne(url).flush(null, UNAUTHORIZED);
+        await tick();
 
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+        expect(status).toBe(401);
+        expect(authService.refreshToken).not.toHaveBeenCalled();
     });
 
-    it('should not attempt refresh when no Authorization header present', async () => {
-        const testUrl = '/api/test';
+    it('passes through non-401 errors', async () => {
+        let status = 0;
 
-        httpClient.get(testUrl).subscribe({
-            next: () => {
-                throw new Error('Should error without refresh');
-            },
-            error: (error: HttpErrorResponse) => {
-                expect(error.status).toBe(401);
-                expect(authService.refreshToken).not.toHaveBeenCalled();
-            },
-        });
+        httpClient.get(TEST_URL).subscribe({ error: (error: HttpErrorResponse) => (status = error.status) });
+        httpMock.expectOne(TEST_URL).flush(null, { status: 500, statusText: 'Internal Server Error' });
+        await tick();
 
-        const req = httpMock.expectOne(testUrl);
-        expect(req.request.headers.has('Authorization')).toBe(false);
-        req.flush(null, { status: 401, statusText: 'Unauthorized' });
-    });
-
-    it('should pass through non-401 errors', async () => {
-        const testUrl = '/api/test';
-
-        httpClient.get(testUrl).subscribe({
-            next: () => {
-                throw new Error('Should error');
-            },
-            error: (error: HttpErrorResponse) => {
-                expect(error.status).toBe(500);
-                expect(authService.refreshToken).not.toHaveBeenCalled();
-            },
-        });
-
-        const req = httpMock.expectOne(testUrl);
-        req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+        expect(status).toBe(500);
+        expect(authService.refreshToken).not.toHaveBeenCalled();
     });
 });

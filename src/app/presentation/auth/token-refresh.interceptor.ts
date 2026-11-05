@@ -7,57 +7,59 @@ import {
   HttpHandler,
   HttpEvent,
   HttpErrorResponse,
+  HttpStatusCode,
 } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject, from, EMPTY } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TOKEN_REFRESH_RETRIED } from 'src/app/domain/constants/http-context.constants';
 import { NavigationService } from '../services/navigation.service';
 import { DraftRecoveryService } from '../services/draft-recovery.service';
+import { isInternalApiUrl } from 'src/app/domain/helpers/internal-api-url.helper';
+import { environment } from 'src/environments/environment';
 
 const REFRESH_SUCCEEDED = 'succeeded';
 const REFRESH_FAILED = 'failed';
 const REFRESH_UNAVAILABLE = 'unavailable';
+const SESSION_ENDPOINTS: readonly string[] = ['LoginUser', 'RefreshToken', 'Logout', 'OAuth2/callback'];
 
 /**
- * Refreshes an expired access token on a 401 and replays the failed request.
- * Serialises concurrent 401s so only one refresh runs: the first request
- * performs the refresh, all others wait for its outcome. On success the waiters
- * replay with the new token. When the server rejects the refresh (400/401) they
- * are released (so their observables complete and the loading spinner is not
- * leaked) and the user is logged out; completing without an error is deliberate
- * and covered by tests: the user is redirected to the login page anyway, so error
- * handlers would only produce noise for components that are about to be destroyed.
- * When the refresh fails transiently (network, 5xx, 429) the session stays: the
- * original requests fail with their 401 and the next request tries again.
- * A per-request retry flag (`TOKEN_REFRESH_RETRIED`) prevents infinite refresh
- * loops, and a token-comparison shortcut replays a request with the token another
- * caller already renewed instead of refreshing a second time.
+ * Renews the session cookies on a 401 of a request to the own API (isInternalApiUrl, the same rule AuthInterceptor
+ * uses) and replays the failed request once. The access token is an HttpOnly cookie, so the replay is a plain clone:
+ * the browser sends the renewed cookie, and the credentials and CSRF header that AuthInterceptor (which runs before
+ * this interceptor) set stay on the request.
+ * Serialises concurrent 401s so only one refresh runs: the first request performs the refresh, all others wait for
+ * its outcome. A 401 of a request that was sent before the last successful refresh finished is replayed without a
+ * second refresh. When the server rejects the refresh (400/401) the waiters are released (so their observables
+ * complete and the loading spinner is not leaked) and the user is logged out; completing without an error is
+ * deliberate: the user is redirected to the login page anyway. When the refresh fails transiently (network, 5xx,
+ * 429) the session stays: the original requests fail with their 401 and the next request tries again. A per-request
+ * retry flag (`TOKEN_REFRESH_RETRIED`) prevents infinite refresh loops. Only requests of a tab with a local session
+ * are refreshed, so a leftover cookie never revives a signed-out tab.
  */
 @Injectable()
 export class TokenRefreshInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
-  private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
   private draftRecoveryService = inject(DraftRecoveryService);
 
   private isRefreshing = false;
+  private lastRefreshSucceededAt = 0;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
   intercept(
     req: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
+    const sentAt = Date.now();
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (
-          error.status === 401 &&
+          error.status === HttpStatusCode.Unauthorized &&
           this.shouldRefreshToken(req) &&
           !req.context.get(TOKEN_REFRESH_RETRIED)
         ) {
-          return this.handle401Error(req, next, error);
+          return this.handle401Error(req, next, error, sentAt);
         }
         return throwError(() => error);
       })
@@ -67,18 +69,11 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
   private handle401Error(
     req: HttpRequest<unknown>,
     next: HttpHandler,
-    unauthorized: HttpErrorResponse
+    unauthorized: HttpErrorResponse,
+    sentAt: number
   ): Observable<HttpEvent<unknown>> {
-    const requestToken = this.extractBearerToken(req);
-    const currentToken = this.localStorageService.get(StorageKeys.TOKEN);
-
-    if (
-      !this.isRefreshing &&
-      currentToken &&
-      requestToken &&
-      currentToken !== requestToken
-    ) {
-      return next.handle(this.addAuthHeader(req));
+    if (!this.isRefreshing && this.lastRefreshSucceededAt > sentAt) {
+      return next.handle(this.markRetried(req));
     }
 
     if (!this.isRefreshing) {
@@ -89,8 +84,9 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
         switchMap((success: boolean) => {
           this.isRefreshing = false;
           if (success) {
+            this.lastRefreshSucceededAt = Date.now();
             this.refreshTokenSubject.next(REFRESH_SUCCEEDED);
-            return next.handle(this.addAuthHeader(req));
+            return next.handle(this.markRetried(req));
           }
           this.refreshTokenSubject.next(REFRESH_FAILED);
           this.handleAuthFailure();
@@ -114,7 +110,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
         if (status === REFRESH_UNAVAILABLE) {
           return throwError(() => unauthorized);
         }
-        return next.handle(this.addAuthHeader(req));
+        return next.handle(this.markRetried(req));
       })
     );
   }
@@ -127,30 +123,13 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
 
   private shouldRefreshToken(req: HttpRequest<unknown>): boolean {
     return (
-      !req.url.includes('LoginUser') &&
-      !req.url.includes('RefreshToken') &&
-      !req.url.includes('Logout') &&
-      req.headers.has('Authorization')
+      isInternalApiUrl(req.url, environment.baseUrl) &&
+      !SESSION_ENDPOINTS.some((endpoint) => req.url.includes(endpoint)) &&
+      this.authService.authenticated()
     );
   }
 
-  private extractBearerToken(req: HttpRequest<unknown>): string | null {
-    const header = req.headers.get('Authorization');
-    if (header && header.startsWith('Bearer ')) {
-      return header.substring('Bearer '.length);
-    }
-    return null;
-  }
-
-  private addAuthHeader(req: HttpRequest<unknown>): HttpRequest<unknown> {
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
-    const context = req.context.set(TOKEN_REFRESH_RETRIED, true);
-    if (token) {
-      return req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`),
-        context,
-      });
-    }
-    return req.clone({ context });
+  private markRetried(req: HttpRequest<unknown>): HttpRequest<unknown> {
+    return req.clone({ context: req.context.set(TOKEN_REFRESH_RETRIED, true) });
   }
 }

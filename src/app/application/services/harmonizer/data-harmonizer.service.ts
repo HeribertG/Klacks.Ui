@@ -15,8 +15,8 @@ import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
+import { HUB_SESSION_COOKIE_OPTIONS } from 'src/app/infrastructure/signalr/signalr-hub-request.constants';
 import { HarmonizerSignalRConstants } from 'src/app/infrastructure/signalr/signalr.constants';
 import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
 import { CancelHarmonizerResponse } from 'src/app/domain/models/harmonizer/cancel-harmonizer-response.interface';
@@ -34,7 +34,7 @@ export class DataHarmonizerService implements OnDestroy {
   private static readonly HUB_START_TIMEOUT_MS = 20000;
 
   private readonly http = inject(HttpClient);
-  private readonly localStorage = inject(LocalStorageService);
+  private readonly sessionStore = inject(SessionStore);
 
   readonly progress = signal<HarmonizerProgress | null>(null);
   readonly result = signal<HarmonizerResult | null>(null);
@@ -184,14 +184,13 @@ export class DataHarmonizerService implements OnDestroy {
       staleConnection.stop().catch(() => undefined);
     }
 
-    const token = this.localStorage.get(StorageKeys.TOKEN);
-    if (!token) {
-      throw new Error('Missing auth token; cannot connect to harmonizer hub.');
+    if (!this.sessionStore.hasSession()) {
+      throw new Error('No signed-in session; cannot connect to harmonizer hub.');
     }
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
-        accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
+        ...HUB_SESSION_COOKIE_OPTIONS,
       })
       .withAutomaticReconnect()
       .build();

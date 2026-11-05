@@ -18,6 +18,7 @@ describe('OAuth2CallbackTokenStorageService', () => {
         {
           provide: LocalStorageService,
           useValue: {
+            get: (key: string): string | null => store[key] ?? null,
             set: (key: string, value: string): void => {
               store[key] = value;
             },
@@ -35,19 +36,28 @@ describe('OAuth2CallbackTokenStorageService', () => {
     return { token: 'jwt', username: 'fallback-name', id: 'user-1', ...overrides } as OAuth2Token;
   }
 
-  it('stores the session and the provider id taken from the state prefix', () => {
-    const expires = new Date(Date.UTC(2026, 9, 22, 12, 0, 0));
+  it('stores the profile, expiry and provider id but never the access token', () => {
+    const expTime = new Date(Date.UTC(2026, 9, 22, 12, 0, 0));
 
     store[StorageKeys.TOKEN_REFRESHTOKEN] = 'legacy-refresh';
 
-    service.store(token({ userName: 'Display Name', expires }), 'google_nonce');
+    service.store(token({ userName: 'Display Name', expTime }), 'google_nonce');
 
-    expect(store[StorageKeys.TOKEN]).toBe('jwt');
+    expect(StorageKeys.LEGACY_ACCESS_TOKEN in store).toBe(false);
     expect(store[StorageKeys.TOKEN_USERNAME]).toBe('Display Name');
     expect(store[StorageKeys.TOKEN_USERID]).toBe('user-1');
-    expect(store[StorageKeys.TOKEN_EXP]).toBe(expires.toString());
+    expect(store[StorageKeys.TOKEN_EXP]).toBe(expTime.toString());
     expect(StorageKeys.TOKEN_REFRESHTOKEN in store).toBe(false);
     expect(store[StorageKeys.OAUTH2_PROVIDER_ID]).toBe('google');
+  });
+
+  it('reads the expiry only from expTime, the field the OAuth2 callback endpoint sends', () => {
+    const expTime = new Date(Date.UTC(2026, 10, 5, 9, 30, 0));
+    const wireToken = { ...token({ expTime }), expires: new Date(Date.UTC(2030, 0, 1)) };
+
+    service.store(wireToken, 'google_nonce');
+
+    expect(store[StorageKeys.TOKEN_EXP]).toBe(expTime.toString());
   });
 
   it('falls back to username and empty expiry and skips a missing provider id', () => {

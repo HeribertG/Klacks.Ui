@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 export class StorageKeys {
-  public static readonly TOKEN = 'JWT_TOKEN';
+  /** Access token that builds before the cookie-only session stored; read only by SessionStore to migrate and drop it. */
+  public static readonly LEGACY_ACCESS_TOKEN = 'JWT_TOKEN';
   public static readonly TOKEN_EXP = 'JWT_TOKEN_EXP';
   public static readonly TOKEN_SUBJECT = 'JWT_TOKEN_SUBJECT';
   public static readonly TOKEN_USERNAME = 'JWT_TOKEN_USERNAME';

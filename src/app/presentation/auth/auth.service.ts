@@ -1,19 +1,16 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
 /* eslint-disable no-prototype-builtins */
 import { inject, Injectable, Injector, ProviderToken } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { timeout } from 'rxjs/operators';
 import { SERVER_LOGOUT_WAIT_MS } from 'src/app/domain/constants/auth-request.constants';
 import { MyToken } from 'src/app/domain/models/my-token-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
-import { EqualDate } from 'src/app/domain/helpers/date.helper';
-import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
 import { isRefreshTokenRejection } from 'src/app/domain/helpers/refresh-token-rejection.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { DataAuthService } from '../../infrastructure/api/data-auth.service';
@@ -55,19 +52,29 @@ const REALTIME_CONNECTION_SERVICES: ProviderToken<{
 export class AuthService {
 
   private startupRefreshPromise: Promise<void> | null = null;
+  private pendingServerLogout: Promise<void> | null = null;
 
   public toastShowService = inject(ToastShowService);
   private dataAuthService = inject(DataAuthService);
   private dataOAuth2Service = inject(DataOAuth2Service);
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
+  private sessionStore = inject(SessionStore);
   private dataLoadFileService = inject(DataLoadFileService);
   private authorizationService = inject(AuthorizationService);
   private spinnerService = inject(SpinnerService);
   private dataDashboardService = inject(DataDashboardService);
   private injector = inject(Injector);
 
+  /**
+   * Signs in with user name and password. A server logout still in flight (for example the cleanup the login page
+   * sends on entry) is awaited first, bounded by SERVER_LOGOUT_WAIT_MS, so its answer can never clear the cookies of the
+   * new session.
+   */
   async logIn(userName: string, password: string): Promise<boolean> {
+    if (this.pendingServerLogout) {
+      await this.awaitWithinLogoutWait(this.pendingServerLogout);
+    }
     return await firstValueFrom(
       this.dataAuthService.login({ email: userName, password })
     ).then((tok) => {
@@ -102,15 +109,15 @@ export class AuthService {
   }
 
   /**
-   * Logs this device out. Revokes the refresh token in the cookie on the server and clears the cookie first
+   * Logs this device out. Revokes the refresh token in the cookie on the server and clears the cookies first
    * (fire-and-forget, so a failure never blocks the client-side logout), then clears all locally stored session
    * state, tears down every realtime hub connection and drops the session-scoped draft and instance id. The server
-   * call is skipped when there is no local token - there is no local session to end. Realtime connections are stopped
-   * only after removeToken(), because a deliberate hub stop schedules a reconnect that is short-circuited by the
-   * now-missing token.
+   * call is sent also without a local session: the endpoint is idempotent and anonymous, and cookies can outlive the
+   * local profile. Realtime connections are stopped only after removeToken(), because a deliberate hub stop schedules
+   * a reconnect that is short-circuited by the now-missing session.
    */
   logOut() {
-    this.requestServerLogout();
+    void this.requestServerLogout();
 
     this.removeToken();
     this.removeStateValue();
@@ -163,14 +170,19 @@ export class AuthService {
     }
   }
 
-  private requestServerLogout(): void {
-    if (!this.localStorageService.get(StorageKeys.TOKEN)) {
-      return;
+  /**
+   * Sends the server logout (DataAuthService repeats a transient failure once). Single-flight: a logout already in
+   * flight is reused, so logout paths that run back to back send one request. Never rejects.
+   */
+  private requestServerLogout(): Promise<void> {
+    if (!this.pendingServerLogout) {
+      this.pendingServerLogout = firstValueFrom(this.dataAuthService.logout(), { defaultValue: undefined })
+        .catch(() => undefined)
+        .finally(() => {
+          this.pendingServerLogout = null;
+        });
     }
-    this.dataAuthService.logout().subscribe({
-      next: () => undefined,
-      error: () => undefined,
-    });
+    return this.pendingServerLogout;
   }
 
   /**
@@ -178,15 +190,18 @@ export class AuthService {
    * and cleared in time. Bounded by SERVER_LOGOUT_WAIT_MS; a failure or timeout never blocks the sign-out.
    */
   private async awaitServerLogout(): Promise<void> {
-    if (!this.localStorageService.get(StorageKeys.TOKEN)) {
-      return;
-    }
+    await this.awaitWithinLogoutWait(this.requestServerLogout());
+  }
+
+  private async awaitWithinLogoutWait(pending: Promise<void>): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const waitLimit = new Promise<void>((resolve) => {
+      timer = setTimeout(resolve, SERVER_LOGOUT_WAIT_MS);
+    });
     try {
-      await firstValueFrom(this.dataAuthService.logout().pipe(timeout(SERVER_LOGOUT_WAIT_MS)), {
-        defaultValue: undefined,
-      });
-    } catch {
-      // Server logout failed or timed out - the local sign-out continues.
+      await Promise.race([pending, waitLimit]);
+    } finally {
+      clearTimeout(timer);
     }
   }
 
@@ -244,58 +259,45 @@ export class AuthService {
   }
 
   authenticated(): boolean {
-    const res = this.localStorageService.get(StorageKeys.TOKEN) !== null;
-    return res;
+    return this.sessionStore.hasSession();
   }
 
+  /**
+   * Login page entry: a tab that still holds a local session renews it through the cookie and continues into the
+   * app only when the renewal succeeded; a rejected renewal ends the session, a transient failure leaves the user on
+   * the login page with the session intact. Without a local session everything local is cleared and one server logout
+   * clears cookies a lost profile left behind; it runs in the background and never blocks the page.
+   */
   checkIfTokenIsValid(): void {
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
-    if (token !== null) {
-      const currentDate = new Date();
-      const tokenDate = new Date(
-        this.localStorageService.get(StorageKeys.TOKEN_EXP)!
-      );
-
-      const res = EqualDate(currentDate, tokenDate);
-      if (res <= 0) {
-        try {
-          this.refreshToken().then(
-            (x) => {
-              if (x! === true) {
-                this.navigationService.navigateAfterLogin();
-              } else {
-                this.logOut();
-              }
-            },
-            () => undefined
-          );
-        } catch {
-          this.navigationService.navigateToRoot();
-          this.toastShowService.showInfo(DomainMessages.EXPIRED_TOKEN);
-        }
-      } else {
-        this.navigationService.navigateAfterLogin();
-      }
-    } else {
+    if (!this.sessionStore.hasSession()) {
       this.logOut();
+      return;
     }
+
+    this.refreshToken().then(
+      (renewed) => {
+        if (renewed) {
+          this.navigationService.navigateAfterLogin();
+        } else {
+          this.logOut();
+        }
+      },
+      () => undefined
+    );
   }
 
-  private storeToken(token: MyToken, isRefresh?: boolean): void {
-    this.removeToken(isRefresh);
+  private storeToken(token: MyToken, isRefresh = false): void {
+    if (!isRefresh) {
+      this.removeToken();
+    }
 
-    this.localStorageService.set(StorageKeys.TOKEN, token.token);
-    this.localStorageService.set(StorageKeys.TOKEN_SUBJECT, token.subject);
-    this.localStorageService.set(StorageKeys.TOKEN_USERNAME, token.username);
-    this.localStorageService.set(StorageKeys.TOKEN_USERID, token.id);
-    this.localStorageService.set(
-      StorageKeys.TOKEN_EXP,
-      token.expTime!.toString()
-    );
-    this.localStorageService.set(
-      StorageKeys.TOKEN_APPVERSION,
-      token.version
-    );
+    this.sessionStore.storeProfile({
+      id: token.id,
+      username: token.username,
+      subject: token.subject,
+      version: token.version,
+      expTime: token.expTime,
+    });
 
     this.authorizationService.store(token.permissions);
     this.loadCompanyClockIfAuthenticated();
@@ -315,80 +317,26 @@ export class AuthService {
     }
   }
 
-  private removeToken(isRefresh?: boolean) {
+  private removeToken() {
     try {
-      this.localStorageService.remove(StorageKeys.TOKEN);
-      this.localStorageService.remove(StorageKeys.TOKEN_EXP);
-      this.localStorageService.remove(StorageKeys.TOKEN_USERNAME);
-      this.localStorageService.remove(StorageKeys.TOKEN_USERID);
-      this.localStorageService.remove(StorageKeys.TOKEN_APPVERSION);
-      this.localStorageService.remove(StorageKeys.TOKEN_SUBJECT);
-      this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
+      this.sessionStore.clear();
       this.authorizationService.clear();
-
-      if (!isRefresh) {
-        this.removeStateValue();
-      }
+      this.removeStateValue();
     } catch {
       // Token removal error - ignored
-    }
-  }
-
-  errorMessage(error: string, message?: string) {
-
-    switch (error) {
-      case 'Unknown Error':
-        this.navigationService.navigateToError();
-        this.toastShowService.showError(DomainMessages.SERVER_NOT_VALID);
-
-        break;
-
-      case '200':
-        this.toastShowService.showInfo(message!);
-        break;
-
-      case '204':
-        this.toastShowService.showInfo(DomainMessages.HTTP204);
-        break;
-
-      case '400':
-        this.toastShowService.showError(DomainMessages.HTTP400);
-
-        break;
-
-      case '401':
-        this.logOut();
-        this.navigationService.redirectToLogin();
-        this.toastShowService.showError(DomainMessages.HTTP401);
-
-        break;
-
-      case '403':
-        this.toastShowService.showError(DomainMessages.HTTP403);
-
-        break;
-
-      case '404':
-        this.navigationService.navigateToError();
-        this.toastShowService.showError(DomainMessages.HTTP404);
-
-        break;
-
-      default:
-        this.navigationService.navigateToError();
-        this.toastShowService.showError(DomainMessages.UNKNOWN_ERROR);
     }
   }
 
   /**
    * Prepares the stored session during app bootstrap, before any component or config initializer fires its first
    * authenticated request. Single-flight: concurrent callers share one run. Without a local session nothing is
-   * refreshed and a leftover legacy refresh token is dropped. A still-valid session is renewed once only when it still
-   * holds a refresh token from an older build (migration into the HttpOnly cookie) or lacks the rights list
-   * (backfill); a failure there is swallowed and the session stays. An expired session is renewed through the cookie;
-   * it is only cleared when the server actually rejected the refresh (400/401) - a network/server error is left to the
-   * normal 401/login flow so a still-recoverable session is never dropped just because the backend was briefly
-   * unreachable at boot.
+   * refreshed and keys older builds left are cleared. A session is renewed once through the cookie when the stored
+   * access-token expiry has passed, when an older build stored it (its JWT_TOKEN/JWT_REFRESH: the access cookie may
+   * not exist yet, and a legacy refresh token has to move into the cookie) or when it lacks the rights list. The
+   * session is only cleared when the server actually rejected the refresh (400/401) - a network/server error is left
+   * to the normal 401 flow so a still-recoverable session is never dropped just because the backend was briefly
+   * unreachable at boot. An access token an older build left is dropped once it expired, never while still valid: a
+   * tab with the older bundle may still be open and reads it.
    */
   ensureFreshTokenAtStartup(): Promise<void> {
     if (!this.startupRefreshPromise) {
@@ -398,45 +346,24 @@ export class AuthService {
   }
 
   private async performStartupRefresh(): Promise<void> {
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
-    if (!token) {
-      this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
+    if (!this.sessionStore.hasSession()) {
+      this.sessionStore.clear();
       return;
     }
 
-    if (!this.isAccessTokenExpired(token)) {
+    const needsRenewal =
+      this.sessionStore.isAccessExpired() ||
+      this.sessionStore.hasLegacyCredentials() ||
+      !this.authorizationService.hasStoredPermissions();
+    this.sessionStore.dropExpiredLegacyAccessToken();
+
+    if (!needsRenewal) {
       this.loadCompanyClockIfAuthenticated();
-      if (this.needsSessionRepair()) {
-        await this.renewSessionQuietly();
-      }
       return;
     }
 
     if (await this.isRefreshRejected()) {
       this.logOut();
-    }
-  }
-
-  /**
-   * A still-valid session needs one renewal when an older build left its refresh token in localStorage (it has to be
-   * moved into the cookie before the access token expires) or when the session was opened before the backend sent
-   * the rights list (nothing in storage says what the user may do).
-   */
-  private needsSessionRepair(): boolean {
-    return (
-      this.localStorageService.get(StorageKeys.TOKEN_REFRESHTOKEN) !== null ||
-      !this.authorizationService.hasStoredPermissions()
-    );
-  }
-
-  private async renewSessionQuietly(): Promise<void> {
-    try {
-      const response = await firstValueFrom(this.dataAuthService.refreshToken());
-      if (response) {
-        this.storeToken(response, true);
-      }
-    } catch {
-      // Repair failed - the session stays as it is.
     }
   }
 
@@ -456,18 +383,14 @@ export class AuthService {
     }
   }
 
-  private isAccessTokenExpired(token: string): boolean {
-    return isJwtExpired(token);
-  }
-
   /**
-   * Renews the access token through the refresh-token cookie. Only a tab that still holds a local session refreshes,
-   * so a leftover cookie never revives a signed-out tab.
+   * Renews the session cookies. Only a tab that still holds a local session refreshes, so a leftover cookie never
+   * revives a signed-out tab.
    * @returns true when renewed, false when there is no session or the server rejected the refresh (400/401) - the
    * session is dead. A transient failure (network, 5xx, 429) rejects the promise instead, so callers keep the session.
    */
   async refreshToken(): Promise<boolean> {
-    if (!this.localStorageService.get(StorageKeys.TOKEN)) {
+    if (!this.sessionStore.hasSession()) {
       return false;
     }
 
