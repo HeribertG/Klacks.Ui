@@ -4977,6 +4977,7 @@
   "autoWizard.softAlternative.keepStrict": "Garder le plan strict",
   "autoWizard.softAlternative.openAlternative": "Ouvrir l'alternative",
   "autoWizard.softAlternative.notBetter": "Un essai avec des souhaits assouplis n'a pas pourvu plus de services. Le plan strict est conservé.",
+  "autoWizard.softAlternative.promoted": "Un second essai a pourvu plus de services sans enfreindre aucun souhait. Il est affiché comme résultat.",
   "autoWizard.softAlternative.failed": "L'essai avec des souhaits assouplis n'a pas pu aboutir. Le plan strict est conservé.",
   "autoWizard.softAlternative.keptForGroup": "Pour le groupe {{group}}, il existe aussi l'alternative {{scenario}} : elle pourvoit {{count}} service(s) de plus en ne respectant pas certains souhaits. Dès que tu ouvres ce groupe, Klacks te présente les deux plans côte à côte."
 }

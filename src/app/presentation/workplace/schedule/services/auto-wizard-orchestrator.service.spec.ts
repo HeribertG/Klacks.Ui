@@ -500,6 +500,38 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     );
   });
 
+  it('opens a promoted soft run as the normal result without offering an alternative', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+
+    // Act
+    h.wizard.result.set({
+      jobId: 'job-1',
+      finalScenarioId: 'scenario-soft',
+      finalScenarioToken: 'token-soft',
+      finalScenarioName: 'Auto Plan',
+      elapsedMs: 1,
+      softKeywordRetryOutcome: 'Promoted',
+      softAlternative: null,
+    });
+    h.wizard.status.set('completed');
+    TestBed.tick();
+
+    // Assert
+    expect(h.openCreatedScenario).toHaveBeenCalledWith('scenario-soft');
+    expect(h.showInfo).toHaveBeenCalledWith('autoWizard.toast.completed', 'auto-wizard', '', expect.anything());
+    expect(h.showInfo).toHaveBeenCalledWith(
+      'autoWizard.softAlternative.promoted',
+      'auto-wizard-soft-alternative',
+      '',
+      expect.anything(),
+    );
+    const softAlternative = TestBed.inject(AutoWizardSoftAlternativeService);
+    expect(softAlternative.offer()).toBeNull();
+    expect(softAlternative.pendingOffers()).toHaveLength(0);
+  });
+
   it('warns once about skipped invalid planning rules, apart from the completion notice', async () => {
     // Arrange
     const h = setup();

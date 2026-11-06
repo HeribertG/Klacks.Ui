@@ -142,6 +142,31 @@ describe('AutoWizardSoftAlternativeService', () => {
     expect(service.offer()).toBeNull();
   });
 
+  it('treats a promoted soft run as the plain result: neutral hint, no alternative', () => {
+    // Arrange / Act
+    present(AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.Promoted);
+    TestBed.tick();
+
+    // Assert
+    expect(showInfo).toHaveBeenCalledTimes(1);
+    expect(showInfo).toHaveBeenCalledWith('autoWizard.softAlternative.promoted', expect.any(String), '', expect.anything());
+    expect(service.offer()).toBeNull();
+    expect(service.pendingOffers()).toHaveLength(0);
+    expect(showScenario).not.toHaveBeenCalled();
+  });
+
+  it('drops a waiting offer of an earlier run for the group when the next run is promoted', () => {
+    // Arrange
+    present(AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.Kept, false);
+
+    // Act
+    present(AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.Promoted, false);
+
+    // Assert
+    expect(service.pendingOffers()).toHaveLength(0);
+    expect(service.offer()).toBeNull();
+  });
+
   it.each([AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.NotRequested, AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.NotNeeded, undefined])(
     'stays silent for %s',
     (outcome) => {

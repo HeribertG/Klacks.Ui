@@ -4985,6 +4985,7 @@
   "autoWizard.softAlternative.keepStrict": "Keep strict plan",
   "autoWizard.softAlternative.openAlternative": "Open alternative",
   "autoWizard.softAlternative.notBetter": "A run with relaxed wishes did not fill more shifts. The strict plan stays.",
+  "autoWizard.softAlternative.promoted": "A second run filled more shifts without breaking any wish. It is shown as the result.",
   "autoWizard.softAlternative.failed": "The run with relaxed wishes could not be completed. The strict plan stays.",
   "autoWizard.softAlternative.keptForGroup": "For group {{group}} there is also the alternative {{scenario}}: it fills {{count}} more shift(s) and breaks wishes to do so. As soon as you open that group, Klacks shows you both plans side by side."
 }

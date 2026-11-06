@@ -46,6 +46,7 @@ export const AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME = {
   NotNeeded: 'NotNeeded',
   Kept: 'Kept',
   NotBetter: 'NotBetter',
+  Promoted: 'Promoted',
   Failed: 'Failed',
 } as const;
 

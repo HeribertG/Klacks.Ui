@@ -5,8 +5,10 @@
  * shifts it is offered next to the strict plan: at once when the run's group and period are shown, otherwise a toast
  * names it and the offer waits (newest one per group, in memory only, because it carries employee names) until the
  * planner shows that group and period. When the retry was not better or failed, a short neutral hint is shown and a
- * waiting offer of an earlier run for that group is dropped. Opening the alternative goes through the same path as
- * the strict scenario, so accepting it later uses the scenario banner. A page reload drops the waiting offers.
+ * waiting offer of an earlier run for that group is dropped. When the backend promoted the soft run to the final result
+ * (more shifts filled, no restricting wish broken), no alternative is offered and a short neutral hint says so.
+ * Opening the alternative goes through the same path as the strict scenario, so accepting it later uses the scenario
+ * banner. A page reload drops the waiting offers.
  * @param offer - The offer to show now, null when there is none
  * @param pendingOffers - Offers waiting for their group and period to be shown
  * @param run - What the finished run reported: retry outcome, soft alternative, strict scenario name and summary,
@@ -25,6 +27,7 @@ import { AutoWizardSoftAlternativeRun } from './auto-wizard-soft-alternative-run
 
 const TOAST_CONTEXT = 'auto-wizard-soft-alternative';
 const NOT_BETTER_KEY = 'autoWizard.softAlternative.notBetter';
+const PROMOTED_KEY = 'autoWizard.softAlternative.promoted';
 const FAILED_KEY = 'autoWizard.softAlternative.failed';
 const KEPT_FOR_GROUP_KEY = 'autoWizard.softAlternative.keptForGroup';
 
@@ -66,6 +69,9 @@ export class AutoWizardSoftAlternativeService {
         return;
       case AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.NotBetter:
         this.showHint(this.translateService.instant(NOT_BETTER_KEY));
+        return;
+      case AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.Promoted:
+        this.showHint(this.translateService.instant(PROMOTED_KEY));
         return;
       case AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.Failed:
         this.showHint(this.translateService.instant(FAILED_KEY));
