@@ -4,11 +4,13 @@
  * Modal dialog that shows how completely a what-if scenario covers the demanded shift slots: the total, the coverage
  * per shift and why slots stayed open. For a scenario with variants (keys) it adds a section per key: filled of demanded
  * slots, open slots, the worst day with its open slots and a warning when the key holds copies of existing shifts; the
- * section is left out when the summary has no keys. The
+ * section is left out when the summary has no keys. A compact section lists the schedule-command wishes the scenario
+ * misses (counts per tier and the single wishes with the employee's name); it is left out when nothing is missed. The
  * summary is loaded live from the backend each time the dialog opens.
  * @param scenario - The scenario to summarise, passed via open()
  * @param summary - The loaded summary, null until it arrived or when it is unavailable
  * @param loadState - Whether the summary is loading, loaded, unknown to the backend (404) or failed to load
+ * @param wishRows - The missed wishes of the loaded summary with the employees' display names
  */
 
 import {
@@ -31,6 +33,11 @@ import { scenarioOpenSlotReasonKey } from 'src/app/domain/helpers/scenario-summa
 import { SCENARIO_VARIANT_SUMMARY_COPIED_SHIFTS_KEYS } from 'src/app/domain/constants/scenario-variant.constants';
 import { scenarioVariantCountKey } from 'src/app/domain/helpers/scenario-variant-count-key.helper';
 import { CalendarDateToStringShort, CalendarPeriodToStringShort } from 'src/app/domain/helpers/date.helper';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { KEYWORD_WISH_UNKNOWN_EMPLOYEE_KEY } from 'src/app/domain/constants/keyword-wish.constants';
+import { hasKeywordWishes, toKeywordWishRows } from 'src/app/domain/helpers/keyword-wish.helper';
+import { KeywordWishRow } from 'src/app/domain/models/schedule/keyword-wish-row.interface';
+import { KeywordWishReportComponent } from '../../shared/keyword-wish-report/keyword-wish-report.component';
 
 export const SCENARIO_SUMMARY_LOAD_STATE = {
   Loading: 'loading',
@@ -49,7 +56,7 @@ const SHIFT_NAME_SEPARATOR = ', ';
   templateUrl: './scenario-summary-dialog.component.html',
   styleUrls: ['./scenario-summary-dialog.component.scss'],
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, KeywordWishReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScenarioSummaryDialogComponent {
@@ -58,6 +65,7 @@ export class ScenarioSummaryDialogComponent {
   private ngbModal = inject(NgbModal);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private translate = inject(TranslateService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
   private modalRef: NgbModalRef | null = null;
   private request: Subscription | null = null;
 
@@ -70,6 +78,18 @@ export class ScenarioSummaryDialogComponent {
     const summary = this.summary();
     if (!summary) return '';
     return CalendarPeriodToStringShort(summary.fromDate, summary.untilDate, this.translate.currentLang);
+  });
+
+  readonly hasWishes = computed(() => hasKeywordWishes(this.summary()?.keywordWishes));
+
+  readonly wishRows = computed<KeywordWishRow[]>(() => {
+    const items = this.summary()?.keywordWishes?.items ?? [];
+    if (items.length === 0) return [];
+    return toKeywordWishRows(
+      items,
+      this.dataManagementSchedule.clients,
+      this.translate.instant(KEYWORD_WISH_UNKNOWN_EMPLOYEE_KEY),
+    );
   });
 
   open(scenario: IAnalyseScenario): void {

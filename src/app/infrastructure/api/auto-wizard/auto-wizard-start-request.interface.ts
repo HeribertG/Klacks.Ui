@@ -9,4 +9,5 @@ export interface AutoWizardStartRequest {
   analyseToken: string | null;
   language: string | null;
   agentOrderIsUserDefined: boolean;
+  softKeywordRetry: boolean;
 }

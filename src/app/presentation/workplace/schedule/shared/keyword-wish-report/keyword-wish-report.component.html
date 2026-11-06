@@ -1,0 +1,35 @@
+@if (hasContent()) {
+  <div class="keyword-wish-report">
+    @if (tierCounts().length > 0) {
+      <ul class="keyword-wish-counts">
+        @for (tier of tierCounts(); track tier.key) {
+          <li class="keyword-wish-count">{{ tier.key | translate: { count: tier.count } }}</li>
+        }
+      </ul>
+    }
+    @if (displayRows().length > 0) {
+      <div class="keyword-wish-list">
+        <table class="keyword-wish-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'keywordWishes.col.employee' | translate }}</th>
+              <th scope="col">{{ 'keywordWishes.col.date' | translate }}</th>
+              <th scope="col">{{ 'keywordWishes.col.wish' | translate }}</th>
+              <th scope="col">{{ 'keywordWishes.col.kind' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of displayRows(); track $index) {
+              <tr class="keyword-wish-row">
+                <td>{{ row.clientName }}</td>
+                <td class="keyword-wish-date">{{ row.dateText }}</td>
+                <td class="keyword-wish-keyword">{{ row.keywordLabel }}</td>
+                <td>{{ row.outcomeKey | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

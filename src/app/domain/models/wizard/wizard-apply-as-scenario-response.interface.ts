@@ -2,6 +2,7 @@
 
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
+import { KeywordWishes } from 'src/app/domain/models/schedule/keyword-wishes.interface';
 
 export interface WizardApplyAsScenarioResponse {
   scenarioId: string;
@@ -12,4 +13,5 @@ export interface WizardApplyAsScenarioResponse {
   complianceViolations: ScheduleErrorEntry[];
   skippedPlacements: SkippedPlacementEntry[];
   overrideApplied: boolean;
+  keywordWishes?: KeywordWishes | null;
 }

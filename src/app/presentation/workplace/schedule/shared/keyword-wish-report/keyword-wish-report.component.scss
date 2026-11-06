@@ -1,0 +1,48 @@
+$cell-padding-block: 4px;
+$cell-padding-inline: 8px;
+$list-max-height: 240px;
+
+.keyword-wish-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  color: var(--standartTextColor);
+  font-weight: 500;
+}
+
+.keyword-wish-list {
+  max-height: $list-max-height;
+  overflow-y: auto;
+}
+
+.keyword-wish-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--standartTextColor);
+  font-size: 13px;
+
+  th,
+  td {
+    padding: $cell-padding-block $cell-padding-inline;
+    border-block-end: 1px solid var(--cardBorderColor);
+    text-align: start;
+  }
+
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--colorLabel);
+  }
+}
+
+.keyword-wish-date,
+.keyword-wish-keyword {
+  white-space: nowrap;
+}
+
+.keyword-wish-keyword {
+  font-weight: 600;
+}

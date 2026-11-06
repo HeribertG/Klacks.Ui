@@ -4,6 +4,9 @@ import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualifica
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
+import { KeywordMode } from 'src/app/domain/models/schedule/keyword-mode.enum';
+import { AutoWizardSoftAlternative } from 'src/app/domain/models/schedule/auto-wizard-soft-alternative.interface';
+import { AutoWizardSoftKeywordRetryOutcome } from 'src/app/domain/constants/keyword-wish.constants';
 
 export interface AutoWizardResult {
   jobId: string;
@@ -15,4 +18,7 @@ export interface AutoWizardResult {
   planningRuleWarnings?: ScheduleErrorEntry[] | null;
   planningRuleRemaining?: PlanningRuleRemaining | null;
   summary?: ScenarioSummary | null;
+  keywordMode?: KeywordMode;
+  softAlternative?: AutoWizardSoftAlternative | null;
+  softKeywordRetryOutcome?: AutoWizardSoftKeywordRetryOutcome;
 }

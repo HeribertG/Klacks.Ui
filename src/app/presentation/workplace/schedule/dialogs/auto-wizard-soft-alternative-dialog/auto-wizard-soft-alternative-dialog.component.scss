@@ -1,0 +1,57 @@
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+$plan-padding: 8px 12px;
+$section-gap: 16px;
+$compare-gap: 12px;
+$plan-min-width: 220px;
+
+:host {
+  display: none;
+}
+
+.soft-intro {
+  margin-block-end: $section-gap;
+  color: var(--standartTextColor);
+}
+
+.soft-compare {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $compare-gap;
+}
+
+.soft-plan {
+  flex: 1 1 $plan-min-width;
+  padding: $plan-padding;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  color: var(--standartTextColor);
+}
+
+.soft-plan-alternative {
+  border-inline-start: 4px solid var(--colorWarning);
+}
+
+.soft-plan-title {
+  margin-block-end: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--colorHeadline);
+}
+
+.soft-plan-name {
+  margin-block-end: 4px;
+  color: var(--colorLabel);
+  font-size: 13px;
+}
+
+.soft-plan-gain {
+  font-weight: 600;
+}
+
+.soft-section-title {
+  margin-block: $section-gap 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--colorHeadline);
+}

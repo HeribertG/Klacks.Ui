@@ -6,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
 import { AutoWizardOrchestratorService } from './auto-wizard-orchestrator.service';
+import { AutoWizardSoftAlternativeService } from './auto-wizard-soft-alternative.service';
 import { DataAutoWizardService } from 'src/app/application/services/auto-wizard/data-auto-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
@@ -439,6 +440,64 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     expect(h.showInfo).toHaveBeenCalledWith('autoWizard.toast.completed', 'auto-wizard', '', expect.anything());
     expect(h.orchestrator.isRunning()).toBe(false);
     expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB)).toBeNull();
+  });
+
+  it('asks for the soft-keyword retry on every start', async () => {
+    // Arrange
+    const h = setup();
+
+    // Act
+    await h.orchestrator.start();
+
+    // Assert
+    expect(h.wizard.start).toHaveBeenCalledWith(expect.objectContaining({ softKeywordRetry: true }));
+  });
+
+  it('offers a kept soft alternative next to the strict plan when the planner looks at the job group', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+    const softSummary = {
+      token: 'soft-token',
+      fromDate: '2026-06-01',
+      untilDate: '2026-06-07',
+      agentCount: 1,
+      workCount: 5,
+      demandedSlots: 6,
+      filledSlots: 5,
+      openSlots: 1,
+      shifts: [],
+      openSlotReasons: [],
+    };
+
+    // Act
+    h.wizard.result.set({
+      jobId: 'job-1',
+      finalScenarioId: 'scenario-1',
+      finalScenarioToken: 'token-1',
+      finalScenarioName: 'Auto Plan',
+      elapsedMs: 1,
+      softKeywordRetryOutcome: 'Kept',
+      softAlternative: {
+        scenarioId: 'soft-1',
+        scenarioToken: 'soft-token',
+        scenarioName: 'Auto Plan (soft)',
+        keywordMode: 1,
+        additionalFilledSlots: 2,
+        summary: softSummary,
+        brokenWishes: [],
+      },
+    });
+    h.wizard.status.set('completed');
+    TestBed.tick();
+
+    // Assert
+    expect(h.openCreatedScenario).toHaveBeenCalledWith('scenario-1');
+    const offer = TestBed.inject(AutoWizardSoftAlternativeService).offer();
+    expect(offer?.strictScenarioName).toBe('Auto Plan');
+    expect(offer?.alternativeScenario).toEqual(
+      expect.objectContaining({ scenarioId: 'soft-1', token: 'soft-token', groupId: JOB_GROUP }),
+    );
   });
 
   it('warns once about skipped invalid planning rules, apart from the completion notice', async () => {

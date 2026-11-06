@@ -1,0 +1,70 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #softAlternativeModal>
+  <div class="modal-header">
+    <div id="soft-alternative-title" class="container-header-modal modal-title">
+      {{ 'autoWizard.softAlternative.title' | translate }}
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" [attr.aria-label]="'close' | translate" (click)="onKeepStrict()">
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    @if (offer(); as data) {
+      <p id="soft-alternative-intro" class="soft-intro">{{ 'autoWizard.softAlternative.intro' | translate }}</p>
+
+      <div class="soft-compare">
+        <section id="soft-alternative-strict" class="soft-plan">
+          <h5 class="soft-plan-title">{{ 'autoWizard.softAlternative.strictTitle' | translate }}</h5>
+          <div class="soft-plan-name">{{ data.strictScenarioName }}</div>
+          @if (data.strictSummary; as strict) {
+            <div class="soft-plan-line">
+              {{ 'autoWizard.softAlternative.filled' | translate: { filled: strict.filledSlots, demanded: strict.demandedSlots } }}
+            </div>
+          }
+          <div id="soft-alternative-strict-broken" class="soft-plan-line">
+            {{ 'autoWizard.softAlternative.brokenCount' | translate: { count: strictBrokenCount() } }}
+          </div>
+        </section>
+
+        <section id="soft-alternative-soft" class="soft-plan soft-plan-alternative">
+          <h5 class="soft-plan-title">{{ 'autoWizard.softAlternative.softTitle' | translate }}</h5>
+          <div id="soft-alternative-name" class="soft-plan-name">{{ data.alternative.scenarioName }}</div>
+          <div class="soft-plan-line">
+            {{
+              'autoWizard.softAlternative.filled'
+                | translate: { filled: data.alternative.summary.filledSlots, demanded: data.alternative.summary.demandedSlots }
+            }}
+          </div>
+          <div id="soft-alternative-additional" class="soft-plan-line soft-plan-gain">
+            {{ additionalSlotsKey() | translate: { count: data.alternative.additionalFilledSlots } }}
+          </div>
+          <div id="soft-alternative-soft-broken" class="soft-plan-line">
+            {{ 'autoWizard.softAlternative.brokenCount' | translate: { count: alternativeBrokenCount() } }}
+          </div>
+        </section>
+      </div>
+
+      @if (brokenWishRows().length > 0) {
+        <h5 class="soft-section-title">{{ 'autoWizard.softAlternative.brokenTitle' | translate }}</h5>
+        <div id="soft-alternative-broken-wishes">
+          <app-keyword-wish-report [rows]="brokenWishRows()" />
+        </div>
+      }
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button id="soft-alternative-keep-btn" type="button" class="btn btn-outline-secondary" (click)="onKeepStrict()">
+      {{ 'autoWizard.softAlternative.keepStrict' | translate }}
+    </button>
+    <button id="soft-alternative-open-btn" type="button" class="btn save-btn" (click)="onOpenAlternative()">
+      {{ 'autoWizard.softAlternative.openAlternative' | translate }}
+    </button>
+  </div>
+</ng-template>

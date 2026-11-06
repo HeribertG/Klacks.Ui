@@ -11,6 +11,10 @@ import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenari
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { IScenarioVariantCoverage } from 'src/app/domain/models/schedule/scenario-variant-coverage.interface';
 import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
+import { signal } from '@angular/core';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.model';
 
 const TEST_LANGUAGE = 'en';
 const EXPENSES_NOTICE_KEY = 'scenarioSummary.expensesWithChangedEmployee';
@@ -47,7 +51,14 @@ describe('ScenarioSummaryDialogComponent', () => {
     loadSummary = vi.fn();
     TestBed.configureTestingModule({
       imports: [ScenarioSummaryDialogComponent, TranslateModule.forRoot()],
-      providers: [{ provide: AnalyseScenarioService, useValue: { loadSummary } }],
+      providers: [
+        { provide: AnalyseScenarioService, useValue: { loadSummary } },
+        { provide: DataManagementScheduleService, useValue: { clients: [{ id: 'c-1', firstName: 'Anna', name: 'Muster' }] } },
+        {
+          provide: AppSettingsManagementService,
+          useValue: { schedulingDefaultSettings: signal(new SchedulingDefaultSettings()) },
+        },
+      ],
     });
     const fixture = TestBed.createComponent(ScenarioSummaryDialogComponent);
     fixture.detectChanges();
@@ -311,5 +322,55 @@ describe('ScenarioSummaryDialogComponent', () => {
     // Assert
     expect(modal('#scenario-summary-failed')).not.toBeNull();
     expect(modal('#scenario-summary-not-found')).toBeNull();
+  });
+  describe('missed wishes', () => {
+    it('lists the missed wishes with the names of the shown employees', () => {
+      // Arrange
+      const pending = new Subject<ScenarioSummary>();
+      loadSummary.mockReturnValue(pending);
+      dialog.open(scenario);
+
+      // Act
+      pending.next({
+        ...summary,
+        keywordWishes: {
+          brokenFree: 1,
+          brokenOnly: 0,
+          brokenNo: 0,
+          unfulfilled: 1,
+          items: [
+            { clientId: 'c-1', date: '2026-10-02', keyword: 'Free', outcome: 'BrokenFree' },
+            { clientId: 'c-9', date: '2026-10-03', keyword: 'NotFree', outcome: 'Unfulfilled' },
+          ],
+        },
+      });
+      TestBed.tick();
+
+      // Assert
+      const counts = Array.from(document.querySelectorAll('#scenario-summary-keyword-wishes .keyword-wish-count'));
+      expect(counts).toHaveLength(2);
+      const rows = Array.from(document.querySelectorAll('#scenario-summary-keyword-wishes .keyword-wish-row'));
+      expect(rows).toHaveLength(2);
+      expect(rows[0].textContent).toContain('Anna Muster');
+      expect(rows[1].textContent).toContain('keywordWishes.unknownEmployee');
+    });
+
+    it('hides the section when no wish is missed', () => {
+      // Arrange
+      const pending = new Subject<ScenarioSummary>();
+      loadSummary.mockReturnValue(pending);
+      dialog.open(scenario);
+
+      // Act
+      pending.next({
+        ...summary,
+        keywordWishes: { brokenFree: 0, brokenOnly: 0, brokenNo: 0, unfulfilled: 0, items: [] },
+      });
+      TestBed.tick();
+
+      // Assert
+      expect(modal('#scenario-summary-total')).not.toBeNull();
+      expect(modal('#scenario-summary-keyword-wishes')).toBeNull();
+    });
   });
 });

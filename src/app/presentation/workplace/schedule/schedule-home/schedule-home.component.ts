@@ -10,7 +10,8 @@
  * and refresh triggers for the child components.
  *
  * @relations
- * - Contains: ScheduleHeaderComponent, ScenarioBannerComponent (while a scenario is open), ScheduleContainerComponent
+ * - Contains: ScheduleHeaderComponent, ScenarioBannerComponent (while a scenario is open), ScheduleContainerComponent,
+ *   AutoWizardSoftAlternativeDialogComponent (offers the soft-keyword alternative of a finished AutoWizard run)
  * - Uses: AllScheduleStateService for state management
  * - Uses: HolidayCollectionService for holiday data
  * - Part of: Workplace module routing
@@ -76,6 +77,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
 import { VariantModeBarComponent } from '../variant-mode-bar/variant-mode-bar.component';
+import { AutoWizardSoftAlternativeDialogComponent } from '../dialogs/auto-wizard-soft-alternative-dialog/auto-wizard-soft-alternative-dialog.component';
 import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
@@ -99,7 +101,13 @@ const MONTH_INDEX_OFFSET = 1;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [FullViewportDirective],
-  imports: [ScheduleHeaderComponent, ScheduleContainerComponent, ScenarioBannerComponent, VariantModeBarComponent],
+  imports: [
+    ScheduleHeaderComponent,
+    ScheduleContainerComponent,
+    ScenarioBannerComponent,
+    VariantModeBarComponent,
+    AutoWizardSoftAlternativeDialogComponent,
+  ],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },
     { provide: ScheduleDataService, useExisting: BaseDataService },

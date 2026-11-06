@@ -94,6 +94,7 @@ const REQUEST: AutoWizardStartRequest = {
   analyseToken: null,
   language: 'en',
   agentOrderIsUserDefined: false,
+  softKeywordRetry: true,
 };
 
 function makeResult(jobId: string): AutoWizardResult {

@@ -3,6 +3,7 @@
 import { ScenarioOpenSlotReason } from './scenario-open-slot-reason.model';
 import { ScenarioShiftCoverage } from './scenario-shift-coverage.model';
 import { IScenarioVariantCoverage } from './scenario-variant-coverage.interface';
+import { KeywordWishes } from './keyword-wishes.interface';
 
 export interface ScenarioSummary {
   token: string;
@@ -17,4 +18,5 @@ export interface ScenarioSummary {
   openSlotReasons: ScenarioOpenSlotReason[];
   expensesWithChangedEmployee?: number;
   variants?: IScenarioVariantCoverage[];
+  keywordWishes?: KeywordWishes | null;
 }

@@ -7,7 +7,9 @@
  * only binds the click and the running state. The run is bound to the group and period of the
  * click: a result for a group the planner is not looking at is announced by name and opened once
  * that group's schedule is shown; a run started before a page reload is re-attached. Right after the server accepted
- * the start it asks for the run presence, so the progress line does not wait for the push.
+ * the start it asks for the run presence, so the progress line does not wait for the push. Every start asks for the
+ * soft-keyword retry; a kept soft alternative is handed to AutoWizardSoftAlternativeService, which offers it next to
+ * the strict plan.
  * @param isRunning - True while any run exists (waiting for the schedule data or running on the server)
  * @param isRunningForCurrentGroup - True while the run belongs to the currently selected group
  * @param runningElsewhereGroupName - Group name of a run that belongs to another group, else null
@@ -34,6 +36,7 @@ import { getDayIndex } from 'src/app/domain/helpers/date.helper';
 import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
 import { AutoWizardJobContext } from './auto-wizard-job-context.interface';
 import { AutoWizardPendingScenario } from './auto-wizard-pending-scenario.interface';
+import { AutoWizardSoftAlternativeService } from './auto-wizard-soft-alternative.service';
 import { SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID } from 'src/app/domain/constants/schedule-validation-keys.constants';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
@@ -55,6 +58,7 @@ export class AutoWizardOrchestratorService {
   private readonly collisionService = inject(CollisionDetectionService);
   private readonly planningRulePreExisting = inject(PlanningRulePreExistingService);
   private readonly autofillRunPresence = inject(AutofillRunPresenceService);
+  private readonly softAlternative = inject(AutoWizardSoftAlternativeService);
 
   readonly isRunning = computed(
     () => this.tracker.activeJob() !== null || this.dataAutoWizardService.status() === 'running',
@@ -197,6 +201,7 @@ export class AutoWizardOrchestratorService {
         analyseToken: this.analyseScenarioService.activeToken(),
         language: this.translateService.currentLang ?? null,
         agentOrderIsUserDefined: this.dataManagementSchedule.isIndividualClientSortActive,
+        softKeywordRetry: true,
       });
       this.tracker.attachJobId(jobId);
       this.autofillRunPresence.refresh();
@@ -268,7 +273,8 @@ export class AutoWizardOrchestratorService {
       result?.finalScenarioName,
     );
 
-    if (!job || this.isShowingJob(job)) {
+    const showingGroup = !job || this.isShowingJob(job);
+    if (showingGroup) {
       if (scenario) {
         void this.tracker.showScenario(scenario);
       }
@@ -288,6 +294,17 @@ export class AutoWizardOrchestratorService {
         }),
       );
     }
+
+    const soft = result?.softAlternative;
+    this.softAlternative.present({
+      outcome: result?.softKeywordRetryOutcome,
+      alternative: soft,
+      strictScenarioName: result?.finalScenarioName,
+      strictSummary: result?.summary,
+      alternativeScenario: this.toPendingScenario(job, soft?.scenarioId, soft?.scenarioToken, soft?.scenarioName),
+      showingGroup,
+      groupName: job?.groupName ?? '',
+    });
 
     const gapCount = result?.qualificationGaps?.length ?? 0;
     if (gapCount > 0) {

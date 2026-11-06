@@ -109,6 +109,13 @@
             </ul>
           }
 
+          @if (hasWishes()) {
+            <h5 class="summary-section-title">{{ 'keywordWishes.title' | translate }}</h5>
+            <div id="scenario-summary-keyword-wishes">
+              <app-keyword-wish-report [wishes]="data.keywordWishes" [rows]="wishRows()" />
+            </div>
+          }
+
           @if (data.openSlotReasons.length > 0) {
             <h5 class="summary-section-title">{{ 'scenarioSummary.reasonsTitle' | translate }}</h5>
             <ul id="scenario-summary-reasons" class="summary-reasons">
