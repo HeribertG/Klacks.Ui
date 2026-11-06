@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import { ScenarioBannerComponent } from './scenario-banner.component';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScenarioActionsService } from '../services/scenario-actions.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 
@@ -60,6 +61,7 @@ describe('ScenarioBannerComponent', () => {
       providers: [
         { provide: AnalyseScenarioService, useValue: { activeScenario, loadSummary } },
         { provide: ScenarioActionsService, useValue: actions },
+        { provide: DataManagementScheduleService, useValue: { clients: [] } },
       ],
     });
   });
