@@ -38,6 +38,10 @@ import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import {
+  LLM_PROVIDER_UNAVAILABLE_ERROR_CODE,
+  LLM_PROVIDER_UNAVAILABLE_I18N_KEY,
+} from 'src/app/domain/constants/assistant-chat-error.constants';
 import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
 import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
@@ -832,6 +836,12 @@ describe('ConversationOrchestratorService', () => {
     const next = firstValueFrom(service.errors$);
     service.onStreamError(PLAYGROUND_TOKEN_LIMIT_ERROR_CODE);
     expect(await next).toEqual({ kind: 'network', i18nKey: PLAYGROUND_TOKEN_LIMIT_I18N_KEY, persistent: false });
+  });
+
+  it('onStreamError reports the provider settings message for the provider-unavailable code', async () => {
+    const next = firstValueFrom(service.errors$);
+    service.onStreamError(LLM_PROVIDER_UNAVAILABLE_ERROR_CODE);
+    expect(await next).toEqual({ kind: 'network', i18nKey: LLM_PROVIDER_UNAVAILABLE_I18N_KEY, persistent: false });
   });
 
   it.each([

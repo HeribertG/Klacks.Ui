@@ -8,7 +8,8 @@
 
 import { Injectable, inject } from '@angular/core';
 import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
-import { playgroundErrorI18nKey, playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
+import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
+import { chatErrorI18nKey } from 'src/app/domain/helpers/assistant-chat-error.helper';
 import { environment } from 'src/environments/environment';
 import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
 import { CredentialedFetchService } from 'src/app/domain/services/auth/credentialed-fetch.service';
@@ -177,7 +178,7 @@ export class DataAssistantStreamService {
       case 'error':
         callbacks.onError?.(
           (data['errorMessage'] as string) || 'Unknown error',
-          playgroundErrorI18nKey(data['errorCode']) ? (data['errorCode'] as string) : undefined,
+          chatErrorI18nKey(data['errorCode']) ? (data['errorCode'] as string) : undefined,
         );
         break;
     }

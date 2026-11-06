@@ -22,7 +22,7 @@ import {
   WORKPLACE_ROUTE_PREFIX,
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
-import { playgroundErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
+import { chatErrorI18nKey } from 'src/app/domain/helpers/assistant-chat-error.helper';
 import { PlaygroundSendGuardService } from 'src/app/presentation/playground/playground-send-guard.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { formatMessage, stripMetadataMarkers } from 'src/app/shared/helpers/assistant-text.helper';
@@ -331,8 +331,8 @@ export class ChatTurnStreamService {
 
   private onError(turn: IChatStreamTurn, rawMessage: string, errorCode?: string): void {
     this.buffer.drain(turn.assistantMessageId);
-    const playgroundKey = playgroundErrorI18nKey(errorCode);
-    const message = playgroundKey ? this.translateService.instant(playgroundKey) : rawMessage;
+    const errorKey = chatErrorI18nKey(errorCode);
+    const message = errorKey ? this.translateService.instant(errorKey) : rawMessage;
     const existing = this.findMessage(turn.assistantMessageId)?.content ?? '';
     const merged = existing ? `${existing}${ERROR_SEPARATOR}${message}` : message;
     this.orchestrator.updateMessage(turn.assistantMessageId, {

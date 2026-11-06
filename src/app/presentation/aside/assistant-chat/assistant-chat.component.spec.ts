@@ -25,6 +25,10 @@ import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { StreamCallbacks } from 'src/app/domain/models/assistant/stream-callbacks.interface';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
+import {
+    LLM_PROVIDER_UNAVAILABLE_ERROR_CODE,
+    LLM_PROVIDER_UNAVAILABLE_I18N_KEY,
+} from 'src/app/domain/constants/assistant-chat-error.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
@@ -4759,6 +4763,21 @@ describe('AssistantChatComponent', () => {
             expect(last?.content).toBe('Teilantwort\n\nBoom');
             expect(last?.isStreaming).toBe(false);
             expect(component.orchestrator.onStreamError).toHaveBeenCalled();
+        });
+
+        it('shows the translated provider message instead of the raw backend text for the provider-unavailable code', async () => {
+            // Arrange
+            await startTurn();
+            (mockTranslateService.instant as any).mockImplementation((key: string) =>
+                key === LLM_PROVIDER_UNAVAILABLE_I18N_KEY ? 'Kein Anbieter eingerichtet' : 'Error message');
+
+            // Act
+            callbacks.onError('The provider for the selected model is not available.', LLM_PROVIDER_UNAVAILABLE_ERROR_CODE);
+
+            // Assert
+            const last = component.messages.at(-1);
+            expect(last?.content).toBe('Kein Anbieter eingerichtet');
+            expect(component.orchestrator.onStreamError).toHaveBeenCalledWith(LLM_PROVIDER_UNAVAILABLE_ERROR_CODE);
         });
 
         it('focuses the chat input once the turn is done', async () => {

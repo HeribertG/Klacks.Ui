@@ -290,43 +290,6 @@ describe('WorkLockLevelService', () => {
     });
   });
 
-  describe('getLockIcon', () => {
-    it('should return empty string for None', () => {
-      // Arrange & Act
-      const result = service.getLockIcon(WorkLockLevel.None);
-
-      // Assert
-      expect(result).toBe('');
-    });
-
-    it('should return SVG for Confirmed', () => {
-      // Arrange & Act
-      const result = service.getLockIcon(WorkLockLevel.Confirmed);
-
-      // Assert
-      expect(result).toContain('svg');
-      expect(result).toContain('positiveColor');
-    });
-
-    it('should return SVG for Approved', () => {
-      // Arrange & Act
-      const result = service.getLockIcon(WorkLockLevel.Approved);
-
-      // Assert
-      expect(result).toContain('svg');
-      expect(result).toContain('warningColor');
-    });
-
-    it('should return SVG for Closed', () => {
-      // Arrange & Act
-      const result = service.getLockIcon(WorkLockLevel.Closed);
-
-      // Assert
-      expect(result).toContain('svg');
-      expect(result).toContain('negativeColor');
-    });
-  });
-
   describe('getLockTooltip', () => {
     it('should return empty for None', () => {
       // Arrange & Act

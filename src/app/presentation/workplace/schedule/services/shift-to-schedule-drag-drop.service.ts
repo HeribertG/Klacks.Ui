@@ -7,6 +7,9 @@
  * Service managing drag-drop operations from ShiftSection to ScheduleSection.
  * Tracks drag state, validates drop targets, and provides visual feedback
  * signals for valid/invalid drop zones. Enables shift assignment by dragging.
+ * A drop released on an invalid schedule cell (occupied, e.g. by a FREE command,
+ * or outside the employee's group/membership period) books nothing and says so
+ * in a toast; a drop released outside the schedule stays a silent cancel.
  *
  * @relations
  * - Used by: ScheduleContainerComponent (coordinates drag between sections)
@@ -15,10 +18,17 @@
  */
 import { ShiftDragData } from './shift-drag-data.interface';
 import { ShiftDropResult } from './shift-drop-result.interface';
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+
+const SHIFT_DROP_REJECTED_KEY = 'schedule.shiftDrop.rejected';
 
 @Injectable({ providedIn: 'root' })
 export class ShiftToScheduleDragDropService {
+  private readonly toastShowService = inject(ToastShowService);
+  private readonly translateService = inject(TranslateService);
+
   private _isDragging = signal(false);
   private _dragData = signal<ShiftDragData | null>(null);
   private _dragStartX = signal(0);
@@ -89,8 +99,14 @@ export class ShiftToScheduleDragDropService {
     const targetClientId = this._targetClientId();
     const targetDate = this._targetDate();
     const isValid = this._isValidDrop();
+    const isRejected = this._isOverScheduleSection() && targetRow !== null && !isValid;
 
     this.cancelDrag();
+
+    if (isRejected) {
+      this.toastShowService.showInfo(this.translateService.instant(SHIFT_DROP_REJECTED_KEY));
+      return null;
+    }
 
     if (!isValid || !dragData || targetRow === null || !targetClientId || !targetDate) {
       return null;
