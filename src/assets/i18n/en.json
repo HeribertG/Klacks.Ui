@@ -2921,6 +2921,7 @@
   "assistant-chat.no-api-key.title": "No API key configured",
   "assistant-chat.no-api-key.message": "No API key for LLM providers is configured. Please contact the administrator to install an API key.",
   "assistant-chat.no-api-key.admin-link": "Go to Settings",
+  "assistant-chat.error.provider-unavailable": "No AI provider is set up for the selected model. Set one up with an API key under Settings > LLM Providers, or ask your administrator.",
   "assistant-chat.whisper-loading": "Loading speech model...",
   "assistant-chat.transcribing": "Transcribing...",
   "assistant-chat.tool-status.searching": "Searching…",

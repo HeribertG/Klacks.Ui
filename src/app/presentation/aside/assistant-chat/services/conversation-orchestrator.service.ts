@@ -34,7 +34,7 @@ import {
   PLAYGROUND_VOICE_TOO_LONG_HINT,
 } from 'src/app/domain/constants/playground.constants';
 import { PlaygroundPromptGateService } from 'src/app/domain/services/playground/playground-prompt-gate.service';
-import { playgroundErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
+import { chatErrorI18nKey } from 'src/app/domain/helpers/assistant-chat-error.helper';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
@@ -394,7 +394,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.isPlanningSignal.set(false);
     this.reportError({
       kind: 'network',
-      i18nKey: playgroundErrorI18nKey(errorCode) ?? 'klacksy.voice.errors.network-failed',
+      i18nKey: chatErrorI18nKey(errorCode) ?? 'klacksy.voice.errors.network-failed',
       persistent: false,
     });
   }

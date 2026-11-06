@@ -13,6 +13,7 @@ import {
   PLAYGROUND_TOKEN_LIMIT_ERROR_CODE,
 } from 'src/app/domain/constants/playground.constants';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { LLM_PROVIDER_UNAVAILABLE_ERROR_CODE } from 'src/app/domain/constants/assistant-chat-error.constants';
 import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 import { INSTANCE_ID_HEADER } from 'src/app/domain/helpers/instance-id.helper';
 
@@ -450,6 +451,27 @@ describe('DataAssistantStreamService', () => {
 
       // Assert
       expect(errors[0]).toBe(PLAYGROUND_TOKEN_LIMIT_ERROR_CODE);
+    });
+
+    it('forwards the provider-unavailable code of an SSE error chunk', async () => {
+      // Arrange
+      mockFetchWithEvents([
+        {
+          event: 'error',
+          data: {
+            errorMessage: 'The provider for the selected model is not available.',
+            errorCode: LLM_PROVIDER_UNAVAILABLE_ERROR_CODE,
+          },
+        },
+      ]);
+      const errors: (string | undefined)[] = [];
+
+      // Act
+      service.chatStream(request, { onError: (_message, code) => errors.push(code) });
+      await vi.waitFor(() => expect(errors.length).toBe(1));
+
+      // Assert
+      expect(errors[0]).toBe(LLM_PROVIDER_UNAVAILABLE_ERROR_CODE);
     });
   });
 });
