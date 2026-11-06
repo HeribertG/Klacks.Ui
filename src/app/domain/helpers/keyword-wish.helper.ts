@@ -2,11 +2,12 @@
 
 /**
  * Display rules for missed schedule-command wishes: the planner's own keyword label for a backend keyword name, the
- * i18n key of how a wish was missed, and whether a wish evaluation has anything to show.
+ * i18n key of how a wish was missed, whether a wish evaluation has anything to show, and the employee name of a wish
+ * (the server's name, else the loaded employees, else the unknown-employee text).
  * @param keyword - Backend keyword name (Free, NotFree, OnlyEarly, NoEarly, OnlyLate, NoLate, OnlyNight, NoNight)
  * @param labels - The configured schedule-command keywords of the installation
  * @param outcome - Backend outcome name (BrokenFree, BrokenOnly, BrokenNo, Unfulfilled)
- * @param clients - Employees whose display names the wish items are resolved against
+ * @param clients - Employees whose display names are used when an item carries no usable server name
  * @param unknownName - Name shown for an employee not among the clients
  */
 
@@ -75,9 +76,17 @@ export function toKeywordWishRows(
 ): KeywordWishRow[] {
   const names = new Map(clients.map((client) => [client.id, formatClientDisplayName(client)]));
   return items.map((item) => ({
-    clientName: names.get(item.clientId) || unknownName,
+    clientName: serverClientName(item) ?? (names.get(item.clientId) || unknownName),
     date: item.date,
     keyword: item.keyword,
     outcome: item.outcome,
   }));
+}
+
+function serverClientName(item: KeywordWishItem): string | null {
+  const name = item.clientName?.trim();
+  if (!name || name.toLowerCase() === item.clientId.toLowerCase()) {
+    return null;
+  }
+  return name;
 }

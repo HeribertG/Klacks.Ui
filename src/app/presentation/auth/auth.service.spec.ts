@@ -23,6 +23,7 @@ import { DataHolisticHarmonizerService } from 'src/app/application/services/holi
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
 import { DataAutoWizardService } from 'src/app/application/services/auto-wizard/data-auto-wizard.service';
 import { AutoWizardJobTrackerService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-job-tracker.service';
+import { AutoWizardSoftAlternativeService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-soft-alternative.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 
 describe('AuthService', () => {
@@ -482,6 +483,7 @@ describe('AuthService logout session cleanup', () => {
     const companyClockMock = { loadIfAuthenticated: vi.fn().mockResolvedValue(undefined), reset: vi.fn() };
     const autoWizardMock = { stopConnection: vi.fn().mockResolvedValue(undefined) };
     const autoWizardTrackerMock = { reset: vi.fn() };
+    const softAlternativeMock = { reset: vi.fn() };
 
     beforeEach(() => {
         signalRMock.stopConnection.mockClear();
@@ -489,6 +491,7 @@ describe('AuthService logout session cleanup', () => {
         companyClockMock.reset.mockClear();
         autoWizardMock.stopConnection.mockClear();
         autoWizardTrackerMock.reset.mockClear();
+        softAlternativeMock.reset.mockClear();
         TestBed.configureTestingModule({
             imports: [RouterTestingModule],
             providers: [
@@ -505,6 +508,7 @@ describe('AuthService logout session cleanup', () => {
                 { provide: CompanyClockService, useValue: companyClockMock },
                 { provide: DataAutoWizardService, useValue: autoWizardMock },
                 { provide: AutoWizardJobTrackerService, useValue: autoWizardTrackerMock },
+                { provide: AutoWizardSoftAlternativeService, useValue: softAlternativeMock },
             ],
         });
         service = TestBed.inject(AuthService);
@@ -540,6 +544,7 @@ describe('AuthService logout session cleanup', () => {
 
         expect(autoWizardMock.stopConnection).toHaveBeenCalled();
         expect(autoWizardTrackerMock.reset).toHaveBeenCalledTimes(1);
+        expect(softAlternativeMock.reset).toHaveBeenCalledTimes(1);
         expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB)).toBeNull();
         expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO)).toBeNull();
         httpMock.expectOne(logoutUrl).flush(null);

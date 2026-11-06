@@ -3,7 +3,8 @@
 /**
  * Domain service for managing what-if analysis scenarios. The list reloads by itself when the background optimiser
  * changes its candidates and when an autofill run of the loaded group (or of any group, for the unfiltered list) ends,
- * so every viewer of the group sees the run's new scenario.
+ * so every viewer of the group sees the run's new scenario. The planner's latest choice wins: an open by id that is
+ * still reading the scenario when a later open, selection, creation or exit happens does not enter it afterwards.
  * @param activeScenario - The currently selected scenario (or null)
  * @param scenarios - List of all active scenarios for the current group
  * @param isScenarioMode - Whether a scenario is actively selected
@@ -36,6 +37,7 @@ export class AnalyseScenarioService {
   private scenarioVariantService = inject(ScenarioVariantService);
 
   private _lastLoadedGroupId: string | undefined;
+  private _scenarioChoice = 0;
 
   public activeScenario = signal<IAnalyseScenario | null>(null);
   public scenarios = signal<IAnalyseScenario[]>([]);
@@ -67,30 +69,33 @@ export class AnalyseScenarioService {
   }
 
   selectScenario(scenario: IAnalyseScenario): void {
-    this.leaveVariantMode();
-    this.activeScenario.set(scenario);
+    this._scenarioChoice++;
+    this.enterScenario(scenario);
   }
 
   exitScenario(): void {
+    this._scenarioChoice++;
     this.activeScenario.set(null);
   }
 
   /**
    * Enters a scenario reached by id (deep link). Only an active scenario is entered and added to the list; the
-   * result tells the caller whether the scenario is now active.
+   * result tells the caller whether the scenario is now active; it is false as well when a later choice superseded
+   * this open while the scenario was being read.
    */
   async openScenarioById(id: string): Promise<boolean> {
+    const choice = ++this._scenarioChoice;
     if (this.activeScenario()?.id === id) {
       return true;
     }
 
     const scenario = await lastValueFrom(this.dataService.get(id));
-    if (scenario?.status !== AnalyseScenarioStatus.Active) {
+    if (choice !== this._scenarioChoice || scenario?.status !== AnalyseScenarioStatus.Active) {
       return false;
     }
 
     this.scenarios.update((list) => (list.some((s) => s.id === scenario.id) ? list : [...list, scenario]));
-    this.selectScenario(scenario);
+    this.enterScenario(scenario);
     return true;
   }
 
@@ -121,8 +126,8 @@ export class AnalyseScenarioService {
     return this.dataService.create(request).pipe(
       tap(scenario => {
         this.scenarios.update(list => [...list, scenario]);
-        this.leaveVariantMode();
-        this.activeScenario.set(scenario);
+        this._scenarioChoice++;
+        this.enterScenario(scenario);
       })
     );
   }
@@ -174,6 +179,11 @@ export class AnalyseScenarioService {
    */
   private leaveVariantMode(): void {
     this.scenarioVariantService.leave();
+  }
+
+  private enterScenario(scenario: IAnalyseScenario): void {
+    this.leaveVariantMode();
+    this.activeScenario.set(scenario);
   }
 
   renameScenario(id: string, name: string): Observable<void> {

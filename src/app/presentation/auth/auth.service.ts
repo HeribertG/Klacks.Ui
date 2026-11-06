@@ -28,6 +28,7 @@ import { DraftRecoveryService } from 'src/app/presentation/services/draft-recove
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { DataAutoWizardService } from 'src/app/application/services/auto-wizard/data-auto-wizard.service';
 import { AutoWizardJobTrackerService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-job-tracker.service';
+import { AutoWizardSoftAlternativeService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-soft-alternative.service';
 
 /**
  * Realtime hub services whose authenticated push channel must be torn down on logout
@@ -167,6 +168,12 @@ export class AuthService {
       this.injector.get(AutoWizardJobTrackerService).reset();
     } catch {
       // AutoWizard tracker not resolvable - ignore.
+    }
+
+    try {
+      this.injector.get(AutoWizardSoftAlternativeService).reset();
+    } catch {
+      // Soft alternative offers not resolvable - ignore.
     }
   }
 

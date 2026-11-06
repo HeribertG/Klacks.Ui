@@ -4984,5 +4984,5 @@
   "autoWizard.softAlternative.openAlternative": "Alternative öffnen",
   "autoWizard.softAlternative.notBetter": "Ein Versuch mit gelockerten Wünschen hat nicht mehr Dienste besetzt. Es bleibt beim strengen Plan.",
   "autoWizard.softAlternative.failed": "Der Versuch mit gelockerten Wünschen konnte nicht abgeschlossen werden. Es bleibt beim strengen Plan.",
-  "autoWizard.softAlternative.keptForGroup": "Für Gruppe {{group}} gibt es zusätzlich die Alternative {{scenario}}: sie besetzt {{count}} Dienst(e) mehr und bricht dafür Wünsche. Du findest sie in der Szenario-Auswahl dieser Gruppe."
+  "autoWizard.softAlternative.keptForGroup": "Für Gruppe {{group}} gibt es zusätzlich die Alternative {{scenario}}: sie besetzt {{count}} Dienst(e) mehr und bricht dafür Wünsche. Sobald du diese Gruppe öffnest, zeigt Klacks dir beide Pläne zum Vergleich."
 }

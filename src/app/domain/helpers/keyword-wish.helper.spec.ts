@@ -91,4 +91,36 @@ describe('keyword-wish.helper', () => {
       { clientName: 'Unknown', date: '2026-11-03', keyword: 'NoNight', outcome: 'BrokenNo' },
     ]);
   });
+
+  it('prefers the name the server sent, also for an employee not shown', () => {
+    // Arrange
+    const items = [
+      { clientId: 'c-1', clientName: 'Anna Server', date: '2026-11-02', keyword: 'Free', outcome: 'BrokenFree' },
+      { clientId: 'c-9', clientName: 'Zoe Elsewhere', date: '2026-11-03', keyword: 'NoNight', outcome: 'BrokenNo' },
+    ];
+    const clients = [{ id: 'c-1', firstName: 'Anna', name: 'Muster' }];
+
+    // Act
+    const rows = toKeywordWishRows(items, clients, 'Unknown');
+
+    // Assert
+    expect(rows.map((row) => row.clientName)).toEqual(['Anna Server', 'Zoe Elsewhere']);
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['null', null],
+    ['blank', '  '],
+    ['the client id the server sends when it cannot read the name', 'C-1'],
+  ])('falls back to the loaded employees when the server name is %s', (_case, clientName) => {
+    // Arrange
+    const items = [{ clientId: 'c-1', clientName, date: '2026-11-02', keyword: 'Free', outcome: 'BrokenFree' }];
+    const clients = [{ id: 'c-1', firstName: 'Anna', name: 'Muster' }];
+
+    // Act
+    const rows = toKeywordWishRows(items, clients, 'Unknown');
+
+    // Assert
+    expect(rows[0].clientName).toBe('Anna Muster');
+  });
 });

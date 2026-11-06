@@ -2,27 +2,26 @@
 
 /**
  * Presents the outcome of the soft-keyword retry of a finished AutoWizard run. When the soft scenario filled more
- * shifts it is offered next to the strict plan (dialog for the shown group, a toast naming it for another group);
- * when the retry was not better or failed, a short neutral hint is shown. Opening the alternative goes through the
- * same path as the strict scenario, so accepting it later uses the scenario banner.
- * @param offer - The pending side-by-side offer for the shown group, null when there is none
+ * shifts it is offered next to the strict plan: at once when the run's group and period are shown, otherwise a toast
+ * names it and the offer waits (newest one per group, in memory only, because it carries employee names) until the
+ * planner shows that group and period. When the retry was not better or failed, a short neutral hint is shown and a
+ * waiting offer of an earlier run for that group is dropped. Opening the alternative goes through the same path as
+ * the strict scenario, so accepting it later uses the scenario banner. A page reload drops the waiting offers.
+ * @param offer - The offer to show now, null when there is none
+ * @param pendingOffers - Offers waiting for their group and period to be shown
  * @param run - What the finished run reported: retry outcome, soft alternative, strict scenario name and summary,
- *   the soft scenario as the tracker opens it, whether the run's group is shown and the run's group name
+ *   the soft scenario as the tracker opens it, whether the run's group is shown, the run's group id and name
  */
 
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, effect, inject, signal, untracked } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
-import {
-  AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME,
-  AutoWizardSoftKeywordRetryOutcome,
-} from 'src/app/domain/constants/keyword-wish.constants';
-import { AutoWizardSoftAlternative } from 'src/app/domain/models/schedule/auto-wizard-soft-alternative.interface';
-import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
+import { AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME } from 'src/app/domain/constants/keyword-wish.constants';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
-import { AutoWizardPendingScenario } from './auto-wizard-pending-scenario.interface';
 import { AutoWizardSoftAlternativeOffer } from './auto-wizard-soft-alternative-offer.interface';
+import { AutoWizardSoftAlternativeRun } from './auto-wizard-soft-alternative-run.interface';
 
 const TOAST_CONTEXT = 'auto-wizard-soft-alternative';
 const NOT_BETTER_KEY = 'autoWizard.softAlternative.notBetter';
@@ -32,21 +31,35 @@ const KEPT_FOR_GROUP_KEY = 'autoWizard.softAlternative.keptForGroup';
 @Injectable({ providedIn: 'root' })
 export class AutoWizardSoftAlternativeService {
   private readonly tracker = inject(AutoWizardJobTrackerService);
+  private readonly dataManagementSchedule = inject(DataManagementScheduleService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly translateService = inject(TranslateService);
 
   private readonly _offer = signal<AutoWizardSoftAlternativeOffer | null>(null);
+  private readonly _pendingOffers = signal<AutoWizardSoftAlternativeOffer[]>([]);
   readonly offer = this._offer.asReadonly();
+  readonly pendingOffers = this._pendingOffers.asReadonly();
 
-  present(run: {
-    outcome: AutoWizardSoftKeywordRetryOutcome | undefined;
-    alternative: AutoWizardSoftAlternative | null | undefined;
-    strictScenarioName: string | null | undefined;
-    strictSummary: ScenarioSummary | null | undefined;
-    alternativeScenario: AutoWizardPendingScenario | null;
-    showingGroup: boolean;
-    groupName: string;
-  }): void {
+  constructor() {
+    effect(() => {
+      const pendings = this._pendingOffers();
+      this.dataManagementSchedule.isRead();
+      if (pendings.length === 0) {
+        return;
+      }
+      const shown = pendings.find((p) => this.isShown(p));
+      if (!shown) {
+        return;
+      }
+      untracked(() => {
+        this._pendingOffers.set(pendings.filter((p) => p !== shown));
+        this._offer.set(shown);
+      });
+    });
+  }
+
+  present(run: AutoWizardSoftAlternativeRun): void {
+    this.dropPendingFor(run.groupId);
     switch (run.outcome) {
       case AUTO_WIZARD_SOFT_KEYWORD_RETRY_OUTCOME.Kept:
         this.presentKept(run);
@@ -62,39 +75,61 @@ export class AutoWizardSoftAlternativeService {
     }
   }
 
-  async openAlternative(): Promise<void> {
-    const offer = this._offer();
-    this._offer.set(null);
-    if (offer) {
-      await this.tracker.showScenario(offer.alternativeScenario);
-    }
+  async openAlternative(offer: AutoWizardSoftAlternativeOffer): Promise<void> {
+    this.clearShown(offer);
+    await this.tracker.showScenario(offer.alternativeScenario);
   }
 
-  dismiss(): void {
-    this._offer.set(null);
+  dismiss(offer: AutoWizardSoftAlternativeOffer): void {
+    this.clearShown(offer);
   }
 
-  private presentKept(run: Parameters<AutoWizardSoftAlternativeService['present']>[0]): void {
+  reset(): void {
+    this._offer.set(null);
+    this._pendingOffers.set([]);
+  }
+
+  private presentKept(run: AutoWizardSoftAlternativeRun): void {
     const { alternative, alternativeScenario } = run;
     if (!alternative || !alternativeScenario) {
       return;
     }
-    if (!run.showingGroup) {
-      this.showHint(
-        this.translateService.instant(KEPT_FOR_GROUP_KEY, {
-          group: run.groupName,
-          scenario: alternative.scenarioName,
-          count: alternative.additionalFilledSlots,
-        }),
-      );
-      return;
-    }
-    this._offer.set({
+    const offer: AutoWizardSoftAlternativeOffer = {
       strictScenarioName: run.strictScenarioName ?? '',
       strictSummary: run.strictSummary ?? null,
       alternative,
       alternativeScenario,
-    });
+    };
+    if (run.showingGroup) {
+      this._offer.set(offer);
+      return;
+    }
+    this._pendingOffers.update((list) => [...list, offer]);
+    this.showHint(
+      this.translateService.instant(KEPT_FOR_GROUP_KEY, {
+        group: run.groupName,
+        scenario: alternative.scenarioName,
+        count: alternative.additionalFilledSlots,
+      }),
+    );
+  }
+
+  private dropPendingFor(groupId: string | null): void {
+    const pendings = this._pendingOffers();
+    if (pendings.some((p) => p.alternativeScenario.groupId === groupId)) {
+      this._pendingOffers.set(pendings.filter((p) => p.alternativeScenario.groupId !== groupId));
+    }
+  }
+
+  private isShown(offer: AutoWizardSoftAlternativeOffer): boolean {
+    const scenario = offer.alternativeScenario;
+    return this.tracker.isShowing(scenario.groupId, scenario.periodFrom, scenario.periodUntil);
+  }
+
+  private clearShown(offer: AutoWizardSoftAlternativeOffer): void {
+    if (this._offer() === offer) {
+      this._offer.set(null);
+    }
   }
 
   private showHint(message: string): void {

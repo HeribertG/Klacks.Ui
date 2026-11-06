@@ -4976,5 +4976,5 @@
   "autoWizard.softAlternative.openAlternative": "Apri l'alternativa",
   "autoWizard.softAlternative.notBetter": "Un tentativo con desideri allentati non ha coperto più turni. Resta il piano rigoroso.",
   "autoWizard.softAlternative.failed": "Il tentativo con desideri allentati non è stato completato. Resta il piano rigoroso.",
-  "autoWizard.softAlternative.keptForGroup": "Per il gruppo {{group}} c'è anche l'alternativa {{scenario}}: copre {{count}} turno/i in più non rispettando alcuni desideri. La trovi nella selezione degli scenari di quel gruppo."
+  "autoWizard.softAlternative.keptForGroup": "Per il gruppo {{group}} c'è anche l'alternativa {{scenario}}: copre {{count}} turno/i in più non rispettando alcuni desideri. Appena apri quel gruppo, Klacks ti mostra i due piani a confronto."
 }

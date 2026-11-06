@@ -138,6 +138,61 @@ describe('AnalyseScenarioService', () => {
       expect(service.activeScenario()).toBeNull();
       expect(getByGroupRequest).toHaveBeenCalledTimes(1);
     });
+
+    it('should keep the later open when the earlier read finishes last', async () => {
+      // Arrange
+      const strictRead = new Subject<IAnalyseScenario>();
+      const softRead = new Subject<IAnalyseScenario>();
+      getRequest.mockImplementation((id: string) => (id === 'strict' ? strictRead : softRead));
+      const strictOpen = service.openCreatedScenario('strict');
+      const softOpen = service.openCreatedScenario('soft');
+
+      // Act
+      softRead.next(createScenario({ id: 'soft' }));
+      softRead.complete();
+      const softOpened = await softOpen;
+      strictRead.next(createScenario({ id: 'strict' }));
+      strictRead.complete();
+      const strictOpened = await strictOpen;
+
+      // Assert
+      expect(softOpened).toBe(true);
+      expect(strictOpened).toBe(false);
+      expect(service.activeScenario()?.id).toBe('soft');
+    });
+
+    it('should not enter a scenario whose read finishes after the planner selected another one', async () => {
+      // Arrange
+      const strictRead = new Subject<IAnalyseScenario>();
+      getRequest.mockReturnValue(strictRead);
+      const strictOpen = service.openCreatedScenario('strict');
+
+      // Act
+      service.selectScenario(createScenario({ id: 'picked' }));
+      strictRead.next(createScenario({ id: 'strict' }));
+      strictRead.complete();
+      const opened = await strictOpen;
+
+      // Assert
+      expect(opened).toBe(false);
+      expect(service.activeScenario()?.id).toBe('picked');
+    });
+
+    it('should not enter a scenario whose read finishes after the planner left scenario mode', async () => {
+      // Arrange
+      const strictRead = new Subject<IAnalyseScenario>();
+      getRequest.mockReturnValue(strictRead);
+      const strictOpen = service.openCreatedScenario('strict');
+
+      // Act
+      service.exitScenario();
+      strictRead.next(createScenario({ id: 'strict' }));
+      strictRead.complete();
+      await strictOpen;
+
+      // Assert
+      expect(service.activeScenario()).toBeNull();
+    });
   });
 
   describe('exitScenario', () => {

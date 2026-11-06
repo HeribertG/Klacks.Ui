@@ -3,6 +3,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { AutoWizardSoftAlternativeDialogComponent } from './auto-wizard-soft-alternative-dialog.component';
 import { AutoWizardSoftAlternativeService } from '../../services/auto-wizard-soft-alternative.service';
@@ -124,7 +125,7 @@ describe('AutoWizardSoftAlternativeDialogComponent', () => {
     TestBed.tick();
 
     // Assert
-    expect(openAlternative).toHaveBeenCalledTimes(1);
+    expect(openAlternative).toHaveBeenCalledWith(OFFER);
   });
 
   it('drops the offer when the planner keeps the strict plan', () => {
@@ -137,7 +138,92 @@ describe('AutoWizardSoftAlternativeDialogComponent', () => {
     TestBed.tick();
 
     // Assert
-    expect(dismiss).toHaveBeenCalled();
+    expect(dismiss).toHaveBeenCalledWith(OFFER);
     expect(openAlternative).not.toHaveBeenCalled();
+  });
+});
+
+describe('AutoWizardSoftAlternativeDialogComponent while the modal fades out', () => {
+  const offer = signal<AutoWizardSoftAlternativeOffer | null>(null);
+  const NEXT_OFFER: AutoWizardSoftAlternativeOffer = {
+    ...OFFER,
+    strictScenarioName: 'Auto Plan 2',
+    alternativeScenario: { ...OFFER.alternativeScenario, groupId: 'g2' },
+  };
+  let hidden: Subject<void>[];
+  let open: ReturnType<typeof vi.fn>;
+  let close: ReturnType<typeof vi.fn>;
+  let dismiss: ReturnType<typeof vi.fn>;
+  let component: AutoWizardSoftAlternativeDialogComponent;
+
+  beforeEach(() => {
+    offer.set(null);
+    hidden = [];
+    close = vi.fn();
+    open = vi.fn(() => {
+      const modalHidden = new Subject<void>();
+      hidden.push(modalHidden);
+      return { close, hidden: modalHidden };
+    });
+    dismiss = vi.fn((dismissed: AutoWizardSoftAlternativeOffer) => {
+      if (offer() === dismissed) {
+        offer.set(null);
+      }
+    });
+    TestBed.configureTestingModule({
+      imports: [AutoWizardSoftAlternativeDialogComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: NgbModal, useValue: { open } },
+        {
+          provide: AutoWizardSoftAlternativeService,
+          useValue: { offer, dismiss, openAlternative: vi.fn().mockResolvedValue(undefined) },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AutoWizardSoftAlternativeDialogComponent);
+    fixture.detectChanges();
+    component = fixture.componentInstance;
+    offer.set(OFFER);
+    TestBed.tick();
+  });
+
+  it('keeps showing the closed offer until the modal is hidden', () => {
+    // Arrange / Act
+    component.onKeepStrict();
+    TestBed.tick();
+
+    // Assert
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(offer()).toBeNull();
+    expect(component.shownOffer()).toBe(OFFER);
+  });
+
+  it('shows an offer published during the fade-out once the modal is hidden', () => {
+    // Arrange
+    component.onKeepStrict();
+    offer.set(NEXT_OFFER);
+    TestBed.tick();
+    expect(open).toHaveBeenCalledTimes(1);
+
+    // Act
+    hidden[0].next();
+    TestBed.tick();
+
+    // Assert
+    expect(offer()).toBe(NEXT_OFFER);
+    expect(open).toHaveBeenCalledTimes(2);
+    expect(component.shownOffer()).toBe(NEXT_OFFER);
+  });
+
+  it('drops the shown offer when the modal is closed without a button', () => {
+    // Arrange / Act
+    hidden[0].next();
+    TestBed.tick();
+
+    // Assert
+    expect(dismiss).toHaveBeenCalledWith(OFFER);
+    expect(offer()).toBeNull();
+    expect(component.shownOffer()).toBeNull();
+    expect(open).toHaveBeenCalledTimes(1);
   });
 });

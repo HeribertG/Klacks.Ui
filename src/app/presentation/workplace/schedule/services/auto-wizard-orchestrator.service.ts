@@ -9,7 +9,7 @@
  * that group's schedule is shown; a run started before a page reload is re-attached. Right after the server accepted
  * the start it asks for the run presence, so the progress line does not wait for the push. Every start asks for the
  * soft-keyword retry; a kept soft alternative is handed to AutoWizardSoftAlternativeService, which offers it next to
- * the strict plan.
+ * the strict plan (for another group once that group is shown).
  * @param isRunning - True while any run exists (waiting for the schedule data or running on the server)
  * @param isRunningForCurrentGroup - True while the run belongs to the currently selected group
  * @param runningElsewhereGroupName - Group name of a run that belongs to another group, else null
@@ -303,6 +303,7 @@ export class AutoWizardOrchestratorService {
       strictSummary: result?.summary,
       alternativeScenario: this.toPendingScenario(job, soft?.scenarioId, soft?.scenarioToken, soft?.scenarioName),
       showingGroup,
+      groupId: job ? job.groupId : this.dataManagementSchedule.workFilter.selectedGroup ?? null,
       groupName: job?.groupName ?? '',
     });
 
