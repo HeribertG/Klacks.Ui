@@ -3,11 +3,12 @@
 /**
  * Renders the named canvas icons of grid cells (CellIcon.svgIcon) into cached canvases. Only names with a case in
  * getSvgForIcon are drawn; the lock and moved icons of work cells take their colors from the theme's CSS variables,
- * resolved here because an SVG drawn into a canvas cannot read CSS variables.
+ * resolved here because an SVG drawn into a canvas cannot read CSS variables. The SVG decodes asynchronously: a cell drawn
+ * before that stays without its icon, so iconsLoaded counts the finished loads and lets the grid draw again.
  * @param svgIconName - Registered icon name (pp-icon-*)
  * @param size - Edge length in CSS pixels
  */
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
@@ -38,6 +39,9 @@ export class CellIconsService {
 
   private iconCache = new Map<string, HTMLCanvasElement>();
   private currentSize = DEFAULT_ICON_SIZE;
+  private readonly loadedIcons = signal(0);
+
+  readonly iconsLoaded = this.loadedIcons.asReadonly();
 
   reset(size: number = DEFAULT_ICON_SIZE): void {
     this.currentSize = size;
@@ -87,11 +91,13 @@ export class CellIconsService {
   }
 
   private createFromSvg(svgString: string, size: number): HTMLCanvasElement {
-    return DrawHelper.createCanvasFromSvgStringSync(
-      svgString,
-      size,
-      size,
-      () => {}
-    );
+    let returned = false;
+    const canvas = DrawHelper.createCanvasFromSvgStringSync(svgString, size, size, () => {
+      if (returned) {
+        this.loadedIcons.update((count) => count + 1);
+      }
+    });
+    returned = true;
+    return canvas;
   }
 }

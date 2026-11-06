@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { BaseDrawScheduleService } from './draw-schedule.service';
@@ -15,6 +16,7 @@ import { GridCoordinateService } from 'src/app/presentation/shared/grid/services
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { GridFontsService } from '../grid-fonts.service';
+import { CellIconsService } from './cell-icons.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { maxScrollValue } from 'src/app/presentation/shared/scrollbar/scroll-range.helper';
 
@@ -55,6 +57,7 @@ describe('BaseDrawScheduleService selection overlay', () => {
         { provide: GridColorService, useValue: {} },
         { provide: ScrollService, useValue: { verticalScrollPosition: 0, horizontalScrollPosition: 0 } },
         { provide: GridFontsService, useValue: {} },
+        { provide: CellIconsService, useValue: { iconsLoaded: signal(0) } },
       ],
     });
     service = TestBed.inject(BaseDrawScheduleService);
@@ -106,6 +109,7 @@ describe('BaseDrawScheduleService scroll range', () => {
         { provide: GridColorService, useValue: {} },
         { provide: ScrollService, useValue: scroll },
         { provide: GridFontsService, useValue: {} },
+        { provide: CellIconsService, useValue: { iconsLoaded: signal(0) } },
       ],
     });
     const service = TestBed.inject(BaseDrawScheduleService);
@@ -116,5 +120,38 @@ describe('BaseDrawScheduleService scroll range', () => {
     expect(scroll['visibleRows']).toBe(6);
     expect(scroll['maxCols']).toBe(maxScrollValue(31, 6));
     expect(scroll['maxRows']).toBe(maxScrollValue(40, 6));
+  });
+});
+
+describe('BaseDrawScheduleService icon loading', () => {
+  it('draws the grid again when a cell icon finished loading, so cells drawn before keep no blank icon', () => {
+    const iconsLoaded = signal(0);
+    TestBed.configureTestingModule({
+      providers: [
+        BaseDrawScheduleService,
+        { provide: BaseGridRenderService, useValue: {} },
+        { provide: BaseCellManipulationService, useValue: {} },
+        { provide: BaseCanvasManagerService, useValue: { isCanvasAvailable: () => true } },
+        { provide: BaseCellRenderService, useValue: {} },
+        { provide: BaseCreateCellService, useValue: {} },
+        { provide: BaseCreateHeaderService, useValue: {} },
+        { provide: BaseDataService, useValue: { rows: 10, columns: 10 } },
+        { provide: BaseSettingsService, useValue: {} },
+        { provide: GridCoordinateService, useValue: {} },
+        { provide: GridColorService, useValue: {} },
+        { provide: ScrollService, useValue: { verticalScrollPosition: 0, horizontalScrollPosition: 0 } },
+        { provide: GridFontsService, useValue: {} },
+        { provide: CellIconsService, useValue: { iconsLoaded } },
+      ],
+    });
+    const service = TestBed.inject(BaseDrawScheduleService);
+    const redraw = vi.spyOn(service, 'redraw').mockImplementation(() => undefined);
+
+    TestBed.tick();
+    expect(redraw).not.toHaveBeenCalled();
+
+    iconsLoaded.set(1);
+    TestBed.tick();
+    expect(redraw).toHaveBeenCalledTimes(1);
   });
 });

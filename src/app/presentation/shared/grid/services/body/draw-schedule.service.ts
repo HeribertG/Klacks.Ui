@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable, untracked } from '@angular/core';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
@@ -16,6 +16,7 @@ import { BaseGridRenderService } from './grid-render.service';
 import { BaseCreateCellService } from './create-cell.service';
 import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCellManipulationService } from './cell-manipulation.service';
+import { CellIconsService } from './cell-icons.service';
 import { GridFontsService } from '../grid-fonts.service';
 import { GridCoordinateService } from 'src/app/presentation/shared/grid/services/grid-coordinate.service';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
@@ -35,6 +36,7 @@ export class BaseDrawScheduleService {
   protected gridRender = inject(BaseGridRenderService);
   protected cellRender = inject(BaseCellRenderService);
   protected gridFonts = inject(GridFontsService);
+  private cellIcons = inject(CellIconsService);
 
   private readonly MAX_INCREMENTAL_SCROLL = 4;
 
@@ -46,6 +48,13 @@ export class BaseDrawScheduleService {
   private _isFocused = true;
   private isScrolling = false;
   private isScrollingToFast = false;
+
+  constructor() {
+    effect(() => {
+      if (this.cellIcons.iconsLoaded() === 0) return;
+      untracked(() => this.redraw());
+    });
+  }
 
   private updateCoordinates(): void {
     const pixelRatio = DrawHelper.pixelRatio();
