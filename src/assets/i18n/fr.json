@@ -1046,6 +1046,7 @@
   "schedule.toolbar.timeline-range.full": "Vue 24h",
   "schedule.moveWork.shiftNotFound": "Déplacer le service : service source introuvable dans les plannings",
   "schedule.moveWork.moveFailed": "Échec du déplacement du service",
+  "schedule.shiftDrop.rejected": "Service non planifié : la cellule cible est occupée (p. ex. par FREE, un service ou une note) ou se trouve hors de la période de groupe ou d'emploi. Déposez le service dans une cellule vide.",
   "schedule.moveBreak.moveFailed": "Échec du déplacement de la pause",
   "schedule.toolbar.timeline-range.day": "Vue journalière",
   "setting.absence.add": "+ Ajouter une absence",

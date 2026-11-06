@@ -1048,6 +1048,7 @@
   "schedule.toolbar.timeline-range.day": "Tagesansicht",
   "schedule.moveWork.shiftNotFound": "Dienst verschieben: Quell-Dienst nicht in Dienstplänen gefunden",
   "schedule.moveWork.moveFailed": "Dienst verschieben fehlgeschlagen",
+  "schedule.shiftDrop.rejected": "Dienst nicht eingeplant: Die Zielzelle ist belegt (z. B. durch FREE, einen Dienst oder eine Notiz) oder liegt ausserhalb der Gruppen- oder Anstellungszeit. Lege den Dienst in einer leeren Zelle ab.",
   "schedule.moveBreak.moveFailed": "Abwesenheit verschieben fehlgeschlagen",
   "setting.absence.add": "+ Absenz hinzufügen",
   "setting.absence.headline": "Absenzen",

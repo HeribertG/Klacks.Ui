@@ -1047,6 +1047,7 @@
   "schedule.toolbar.timeline-range.day": "Vista giornaliera",
   "schedule.moveWork.shiftNotFound": "Sposta servizio: turno sorgente non trovato nei piani",
   "schedule.moveWork.moveFailed": "Spostamento del servizio fallito",
+  "schedule.shiftDrop.rejected": "Servizio non pianificato: la cella di destinazione è occupata (ad es. da FREE, un servizio o una nota) o è fuori dal periodo di gruppo o di impiego. Rilascia il servizio in una cella vuota.",
   "schedule.moveBreak.moveFailed": "Spostamento della pausa fallito",
   "setting.absence.add": "+ Aggiungi assenza",
   "setting.absence.headline": "Assenze",

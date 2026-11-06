@@ -1048,6 +1048,7 @@
   "schedule.toolbar.timeline-range.day": "Day View",
   "schedule.moveWork.shiftNotFound": "Move Work: source shift not found in shift schedules",
   "schedule.moveWork.moveFailed": "Move Work failed",
+  "schedule.shiftDrop.rejected": "Shift not planned: the target cell is occupied (e.g. by FREE, a shift or a note) or lies outside the group or employment period. Drop the shift on an empty cell.",
   "schedule.moveBreak.moveFailed": "Move Break failed",
   "setting.absence.add": "+ Add Absence",
   "setting.absence.headline": "Absences",
