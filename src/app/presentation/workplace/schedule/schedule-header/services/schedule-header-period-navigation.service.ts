@@ -16,13 +16,10 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { AllScheduleStateService } from '../../services/all-schedule-state.service';
 import {
-  SCHEDULE_HEADER_DECEMBER_MONTH_INDEX,
   SCHEDULE_HEADER_FIRST_MONTH,
   SCHEDULE_HEADER_FIRST_WEEK,
-  SCHEDULE_HEADER_LAST_DAY_OF_DECEMBER,
   SCHEDULE_HEADER_LAST_MONTH,
   SCHEDULE_HEADER_WEEK_LABEL,
-  SCHEDULE_HEADER_WEEKS_IN_SHORT_ISO_YEAR,
 } from '../schedule-header.constants';
 
 @Injectable()
@@ -142,7 +139,7 @@ export class ScheduleHeaderPeriodNavigationService {
   private goToPreviousWeek(): void {
     if (this.selectedWeek === SCHEDULE_HEADER_FIRST_WEEK) {
       this.currentYear--;
-      this.selectedWeek = this.getWeeksInYear(this.currentYear);
+      this.selectedWeek = this.calendarUtil.getIsoWeeksInYear(this.currentYear);
     } else {
       this.selectedWeek--;
     }
@@ -150,7 +147,7 @@ export class ScheduleHeaderPeriodNavigationService {
   }
 
   private goToNextWeek(): void {
-    const weeksInYear = this.getWeeksInYear(this.currentYear);
+    const weeksInYear = this.calendarUtil.getIsoWeeksInYear(this.currentYear);
     if (this.selectedWeek >= weeksInYear) {
       this.currentYear++;
       this.selectedWeek = SCHEDULE_HEADER_FIRST_WEEK;
@@ -173,12 +170,6 @@ export class ScheduleHeaderPeriodNavigationService {
     this.currentYear = key.year;
     this.selectedWeek = key.week;
     this.applyPeriodChange();
-  }
-
-  private getWeeksInYear(year: number): number {
-    const dec31 = new Date(year, SCHEDULE_HEADER_DECEMBER_MONTH_INDEX, SCHEDULE_HEADER_LAST_DAY_OF_DECEMBER);
-    const week = this.calendarUtil.getISO8601WeekNumber(dec31);
-    return week === SCHEDULE_HEADER_FIRST_WEEK ? SCHEDULE_HEADER_WEEKS_IN_SHORT_ISO_YEAR : week;
   }
 
   private applyPeriodChange(): void {

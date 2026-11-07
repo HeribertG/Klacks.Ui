@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { Injector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
@@ -18,6 +20,7 @@ import {
 const DAY_VISIBLE_BEFORE = 2;
 const DAY_VISIBLE_AFTER = 3;
 const AUGUST_3_INDEX = 4;
+const SUNDAY = 0;
 
 function createShift(wireDate: string, engaged: number): IShiftSchedule {
   const shift = new ShiftSchedule();
@@ -84,6 +87,25 @@ describe('AvailableShiftsCalculatorService', () => {
 
         expect(service.overbookedShiftsByDay[AUGUST_3_INDEX]).toEqual(['F']);
         expect(service.availableShiftsByDay[AUGUST_3_INDEX]).toEqual([]);
+      });
+
+      it('starts a weekly period on the configured week start (Sunday 2026-12-06 for W50)', () => {
+        const weeklyService = Injector.create({
+          providers: [
+            { provide: AvailableShiftsCalculatorService },
+            { provide: CalendarUtilService },
+            { provide: WeekConfigurationService, useValue: { weekStartDay: signal(SUNDAY) } },
+            { provide: DataManagementSettingsService, useValue: TestBed.inject(DataManagementSettingsService) },
+          ],
+        }).get(AvailableShiftsCalculatorService);
+        const filter = new WorkFilter();
+        filter.currentYear = 2026;
+        filter.currentWeek = 50;
+        filter.paymentInterval = 0;
+
+        weeklyService.calculate([createShift('2026-12-06', 0)], filter);
+
+        expect(weeklyService.availableShiftsByDay[DAY_VISIBLE_BEFORE]).toEqual(['F']);
       });
     });
   }

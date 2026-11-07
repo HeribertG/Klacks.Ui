@@ -3,9 +3,9 @@
 /**
  * Calendar arithmetic of the period navigation: ISO weeks and week-years, weekly and monthly bounds and the one biweekly
  * pay-period rule, mirrored from the backend's BiweeklyPayPeriod (fixed anchor 2025-12-29, 14-day cycle, aligned to the
- * configured week start of WeekConfigurationService, no ISO week parity). A biweekly period is stored in the schedule
- * filter as the ISO year/week of the Monday inside its first configured week, so the key maps back onto the same period
- * for every week-start day.
+ * configured week start of WeekConfigurationService, no ISO week parity). A weekly period is the configured week
+ * (backend PeriodHoursService). A weekly or biweekly period is stored in the schedule filter as the ISO year/week of the
+ * Monday inside its first configured week, so the key maps back onto the same period for every week-start day.
  * @param weekConfiguration - Supplies the configured first day of the week (JS numbering, Monday when unconfigured)
  */
 import { inject, Injectable } from '@angular/core';
@@ -15,8 +15,11 @@ import {
   BIWEEKLY_PAY_PERIOD_ANCHOR,
   BIWEEKLY_PAY_PERIOD_CYCLE_DAYS,
   CALENDAR_DAYS_PER_WEEK,
+  DECEMBER_MONTH_INDEX,
   ISO_WEEK_FIRST_JS_DAY,
   ISO_WEEK_THURSDAY_OFFSET_DAYS,
+  ISO_WEEKS_IN_SHORT_YEAR,
+  LAST_DAY_OF_DECEMBER,
 } from 'src/app/domain/constants/biweekly-pay-period.constants';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { ICalendarPeriod } from 'src/app/domain/models/calendar/calendar-period.interface';
@@ -68,6 +71,23 @@ export class CalendarUtilService {
     return weekEnd;
   }
 
+  getIsoWeeksInYear(year: number): number {
+    const week = this.getISO8601WeekNumber(new Date(year, DECEMBER_MONTH_INDEX, LAST_DAY_OF_DECEMBER));
+    return week === 1 ? ISO_WEEKS_IN_SHORT_YEAR : week;
+  }
+
+  /**
+   * The weekly pay period containing the date: its configured week (backend PeriodHoursService, weekly interval).
+   */
+  getWeeklyPeriod(date: Date): ICalendarPeriod {
+    const start = moveBackTo(parseCalendarDate(date) ?? date, this.weekConfiguration.weekStartDay());
+    return { start, end: addDays(start, CALENDAR_DAYS_PER_WEEK - 1) };
+  }
+
+  getWeeklyPeriodOfWeek(year: number, weekNumber: number): ICalendarPeriod {
+    return this.getWeeklyPeriod(this.getWeekStartDate(year, weekNumber));
+  }
+
   /**
    * The biweekly pay period containing the date, per the configured week start (backend BiweeklyPayPeriod.Containing).
    */
@@ -110,11 +130,15 @@ export class CalendarUtilService {
   }
 
   /**
-   * The ISO year/week a period filter stores for the date: the start week of its biweekly period, otherwise its ISO week.
+   * The ISO year/week a period filter stores for the date: the start week of its biweekly period, the configured week
+   * of a weekly period, otherwise its ISO week.
    */
   getWeekKeyForInterval(date: Date, paymentInterval: PaymentInterval): IIsoWeekKey {
     if (paymentInterval === PaymentInterval.Biweekly) {
       return this.keyOfConfiguredWeek(this.getBiweeklyPeriod(date).start);
+    }
+    if (paymentInterval === PaymentInterval.Weekly) {
+      return this.keyOfConfiguredWeek(this.getWeeklyPeriod(date).start);
     }
     return this.getIsoWeekKey(date);
   }

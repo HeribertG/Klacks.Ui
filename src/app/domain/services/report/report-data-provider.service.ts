@@ -109,7 +109,7 @@ export class ReportDataProviderService {
       },
       resolveFooterValue: (field, rows: IScheduleCell[]) => {
         switch (field.dataBinding) {
-          case 'sum.hours': return hoursToHHMM(rows.reduce((s, e) => s + (e.changeTime ?? 0), 0));
+          case 'sum.hours': return hoursToHHMM(this.sumCountedHours(rows));
           case 'sum.surcharges': return hoursToHHMM(rows.reduce((s, e) => s + (e.surcharges ?? 0), 0));
           case 'sum.workDays': {
             const uniqueDates = new Set(
@@ -125,7 +125,7 @@ export class ReportDataProviderService {
         }
       },
       buildFormulaVariables: (row: IScheduleCell) => ({
-        hours: row.changeTime ?? 0,
+        hours: this.countedHours(row) ?? 0,
         surcharges: row.surcharges ?? 0,
         startTime: row.startTime ?? '',
         endTime: row.endTime ?? '',
@@ -142,7 +142,7 @@ export class ReportDataProviderService {
         );
         return {
           totalRows: rows.length,
-          totalHours: rows.reduce((s, e) => s + (e.changeTime ?? 0), 0),
+          totalHours: this.sumCountedHours(rows),
           totalSurcharges: rows.reduce((s, e) => s + (e.surcharges ?? 0), 0),
           totalWorkDays: uniqueDates.size,
           totalExpenses: rows
@@ -289,7 +289,7 @@ export class ReportDataProviderService {
       case 'entry.endTime':
         return formatTime(entry.endTime);
       case 'entry.hours':
-        return hoursToHHMM(entry.changeTime);
+        return hoursToHHMM(this.countedHours(entry));
       case 'entry.surcharges':
         return hoursToHHMM(entry.surcharges);
       case 'entry.shiftName':
@@ -316,6 +316,20 @@ export class ReportDataProviderService {
       default:
         return '';
     }
+  }
+
+  private sumCountedHours(rows: IScheduleCell[]): number {
+    return rows.reduce((sum, entry) => sum + (this.countedHours(entry) ?? 0), 0);
+  }
+
+  /**
+   * Hours a schedule row counts: an on-call absence (Pikett) counts none, only its call-out work does (backend
+   * BreakOwnHours). Container sub-breaks never arrive as rows, the schedule entries list only standalone breaks.
+   */
+  private countedHours(entry: IScheduleCell): number | null | undefined {
+    const isOnCallBreak = entry.entryType === WorkScheduleEntryType.Break
+      && this.absenceLookup.findAbsenceForEntryId(entry.entryId)?.isOnCall === true;
+    return isOnCallBreak ? 0 : entry.changeTime;
   }
 
   private getEntryTypeLabel(type: number): string {

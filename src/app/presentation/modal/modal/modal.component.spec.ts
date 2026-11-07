@@ -52,4 +52,20 @@ describe('ModalComponent', () => {
             expect(options.size).toBeUndefined();
         },
     );
+
+    it.each([
+        ['', true],
+        ['   ', true],
+        [' payroll correction ', false],
+    ])('disables the store button of the input modal for the blank input %j', (input, disabled) => {
+        const view = component.contentInput().createEmbeddedView({ $implicit: { close: vi.fn(), dismiss: vi.fn() } });
+        component.modalService.contentInputString = input;
+        view.detectChanges();
+
+        const button = view.rootNodes
+            .map((node: Node) => (node instanceof HTMLElement ? node.querySelector('#modal-input-confirm') : null))
+            .find((found): found is HTMLButtonElement => found !== null);
+        expect(button?.disabled).toBe(disabled);
+        view.destroy();
+    });
 });

@@ -52,14 +52,8 @@ export class PeriodCalendarWeeklyComponent implements OnInit {
   }
 
   private updateWeeks(): void {
-    const weeksInYear = this.getWeeksInYear(this.year);
+    const weeksInYear = this.calendarUtil.getIsoWeeksInYear(this.year);
     this.weeks = Array.from({ length: weeksInYear }, (_, i) => i + 1);
-  }
-
-  private getWeeksInYear(year: number): number {
-    const dec31 = new Date(year, 11, 31);
-    const week = this.calendarUtil.getISO8601WeekNumber(dec31);
-    return week === 1 ? 52 : week;
   }
 
   private emitChange(): void {

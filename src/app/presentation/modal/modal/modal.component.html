@@ -23,7 +23,7 @@
       type="button"
       class="btn btn-success normal-btn"
       (click)="modal.close()"
-      [disabled]="modalService.contentInputString === ''"
+      [disabled]="modalService.contentInputString.trim() === ''"
     >
       {{ "store" | translate }}
     </button>

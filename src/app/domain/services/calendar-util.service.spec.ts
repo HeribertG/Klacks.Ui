@@ -123,6 +123,71 @@ describe('CalendarUtilService biweekly pay period', () => {
     });
   }
 
+  describe('weekly pay period and ISO week count', () => {
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it.each([
+          [2015, 53],
+          [2020, 53],
+          [2026, 53],
+          [2021, 52],
+          [2025, 52],
+          [2027, 52],
+        ])('counts the ISO weeks of %i as %i', (year, weeks) => {
+          expect(service.getIsoWeeksInYear(year)).toBe(weeks);
+        });
+
+        it.each([
+          [MONDAY, '2026-12-27', '2026-12-21..2026-12-27'],
+          [MONDAY, '2026-12-28', '2026-12-28..2027-01-03'],
+          [SUNDAY, '2026-12-27', '2026-12-27..2027-01-02'],
+          [SUNDAY, '2027-01-02', '2026-12-27..2027-01-02'],
+          [SATURDAY, '2027-01-01', '2026-12-26..2027-01-01'],
+        ])('week start %i: %s lies in the backend week %s (configured week start through +6 days)', (startDay, date, expected) => {
+          weekStartDay.set(startDay);
+
+          expect(range(service.getWeeklyPeriod(day(date)))).toBe(expected);
+        });
+
+        it.each([MONDAY, SUNDAY, SATURDAY])('week start %i: consecutive weeks are contiguous and round-trip through the stored week', (startDay) => {
+          weekStartDay.set(startDay);
+          let previous = service.getWeeklyPeriod(day('2026-01-01'));
+
+          for (let date = day('2026-01-01'); date <= day('2028-12-31'); date = addDays(date, 1)) {
+            const period = service.getWeeklyPeriod(date);
+            expect(period.start.getDay()).toBe(startDay);
+            expect(period.start <= date && date <= period.end).toBe(true);
+
+            const key = service.getWeekKeyForInterval(date, PaymentInterval.Weekly);
+            expect(range(service.getWeeklyPeriodOfWeek(key.year, key.week))).toBe(range(period));
+
+            if (range(period) !== range(previous)) {
+              expect(formatDateOnly(period.start)).toBe(formatDateOnly(addDays(previous.end, 1)));
+              previous = period;
+            }
+          }
+        });
+
+        it('keeps the ISO Monday to Sunday week for the default Monday start', () => {
+          expect(range(service.getWeeklyPeriodOfWeek(2026, 53))).toBe('2026-12-28..2027-01-03');
+          expect(formatDateOnly(service.getWeeklyPeriodOfWeek(2026, 53).start)).toBe(formatDateOnly(service.getWeekStartDate(2026, 53)));
+          expect(formatDateOnly(service.getWeeklyPeriodOfWeek(2026, 53).end)).toBe(formatDateOnly(service.getWeekEndDate(2026, 53)));
+        });
+      });
+    }
+
+    it('keys a Sunday-start weekly date by the Monday inside its configured week', () => {
+      weekStartDay.set(SUNDAY);
+
+      expect(service.getWeekKeyForInterval(day('2026-12-27'), PaymentInterval.Weekly)).toEqual({ year: 2026, week: 53 });
+      expect(service.getWeekKeyForInterval(day('2027-01-02'), PaymentInterval.Weekly)).toEqual({ year: 2026, week: 53 });
+      expect(service.getWeekKeyForInterval(day('2027-01-03'), PaymentInterval.Weekly)).toEqual({ year: 2027, week: 1 });
+      expect(range(service.getWeeklyPeriodOfWeek(2026, 53))).toBe('2026-12-27..2027-01-02');
+    });
+  });
+
   it('lists the biweekly start weeks of a year from the rule', () => {
     const weeks2026 = service.getBiweeklyPeriodsOfYear(2026).map((weeks) => weeks.start.week);
     const weeks2027 = service.getBiweeklyPeriodsOfYear(2027).map((weeks) => weeks.start.week);

@@ -792,6 +792,74 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       expect(toast['showError']).toHaveBeenCalledWith('schedule.recalculate.thorough.error', 'recalculate-thorough');
     });
 
+    it('resets the flag and shows an error when the server did not queue the run', async () => {
+      createComponent();
+
+      const pending = recalculation().onThoroughRecalculateConfirmed();
+      recalcThorough.resolve({ accepted: false, frozenSkipped: 0 });
+      await pending;
+
+      expect(recalculation().isRecalculating()).toBe(false);
+      expect(toast['showError']).toHaveBeenCalledWith('schedule.recalculate.thorough.error', 'recalculate-thorough');
+      expect(toast['showInfo']).not.toHaveBeenCalledWith(
+        'schedule.recalculate.thorough.started',
+        'recalculate-thorough',
+        '',
+        TOAST_ICONS.INFO,
+      );
+    });
+
+    describe('with a frozen override next to the first run', () => {
+      const startFirstRunAndOverride = async () => {
+        createComponent();
+        const pending = recalculation().onThoroughRecalculateConfirmed();
+        recalcThorough.resolve(TWO_FROZEN);
+        await pending;
+        (modal.openModal.mock.calls[0][0] as { onConfirm: () => void }).onConfirm();
+        recalcThorough = deferred<IPeriodHoursRecalculationResult>();
+        modal.contentInputString = 'late correction';
+        modal.resultEvent.next(ModalType.Input);
+      };
+
+      it('keeps the flag after the first completion until the override run completes as well', async () => {
+        await startFirstRunAndOverride();
+        recalcThorough.resolve(NOTHING_FROZEN);
+        await recalcThorough.promise;
+
+        completed$.next({ analyseToken: ACTIVE_TOKEN } as IThoroughRecalculationCompletedNotification);
+        expect(recalculation().isRecalculating()).toBe(true);
+
+        completed$.next({ analyseToken: ACTIVE_TOKEN } as IThoroughRecalculationCompletedNotification);
+        expect(recalculation().isRecalculating()).toBe(false);
+      });
+
+      it('keeps the flag of the first run when the override request fails', async () => {
+        await startFirstRunAndOverride();
+        recalcThorough.reject(new Error('boom'));
+        await recalcThorough.promise.catch(() => undefined);
+        await Promise.resolve();
+
+        expect(toast['showError']).toHaveBeenCalledWith('schedule.recalculate.thorough.error', 'recalculate-thorough');
+        expect(recalculation().isRecalculating()).toBe(true);
+
+        completed$.next({ analyseToken: ACTIVE_TOKEN } as IThoroughRecalculationCompletedNotification);
+        expect(recalculation().isRecalculating()).toBe(false);
+      });
+    });
+
+    it('never counts below zero when a completion arrives without an own run', async () => {
+      createComponent();
+      completed$.next({ analyseToken: ACTIVE_TOKEN } as IThoroughRecalculationCompletedNotification);
+
+      const pending = recalculation().onThoroughRecalculateConfirmed();
+      recalcThorough.resolve(NOTHING_FROZEN);
+      await pending;
+      expect(recalculation().isRecalculating()).toBe(true);
+
+      completed$.next({ analyseToken: ACTIVE_TOKEN } as IThoroughRecalculationCompletedNotification);
+      expect(recalculation().isRecalculating()).toBe(false);
+    });
+
     it('does not start without a period', async () => {
       schedule.periodStartDate = null;
       createComponent();

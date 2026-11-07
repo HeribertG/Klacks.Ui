@@ -104,10 +104,10 @@ export class AvailableShiftsCalculatorService {
 
     switch (paymentInterval) {
       case 0:
-        return this.calendarUtil.getWeekStartDate(
+        return this.calendarUtil.getWeeklyPeriodOfWeek(
           year,
           filter.currentWeek ?? 1,
-        );
+        ).start;
       case 1:
         return this.calendarUtil.getBiweeklyPeriodOfWeek(
           year,

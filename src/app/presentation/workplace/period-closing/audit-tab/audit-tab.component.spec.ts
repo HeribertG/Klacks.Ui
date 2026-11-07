@@ -127,6 +127,17 @@ describe('AuditTabComponent', () => {
     expect(breakBadge.classList.contains('badge-unseal')).toBe(false);
   });
 
+  it('renders a recalculation of an exported period with its own label and badge, not unseal', () => {
+    component.auditEntries.set([auditEntry(PeriodAuditAction.RecalculateExportedPeriod, 'a6')]);
+    fixture.detectChanges();
+
+    const badge = actionBadge(0);
+    expect(badge.textContent?.trim()).toBe('periodClosing.audit.action.recalculateExportedPeriod');
+    expect(badge.classList.contains('badge-recalculate-exported')).toBe(true);
+    expect(badge.classList.contains('badge-unseal')).toBe(false);
+    expect(badge.classList.contains('badge-unknown')).toBe(false);
+  });
+
   it('renders an unrecognised action value as unknown instead of disguising it as unseal', () => {
     component.auditEntries.set([auditEntry(99 as PeriodAuditAction, 'a5')]);
     fixture.detectChanges();

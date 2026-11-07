@@ -165,6 +165,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
   async ngAfterViewInit(): Promise<void> {
     await Promise.all([
+      this.appSettingsService.loadSettingsAsync(),
       this.gridColors.readDataAsync(),
       this.gridFonts.readDataAsync(),
       this.holidayCollection.readDataAsync(),
@@ -216,9 +217,11 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     const now = companyToday();
     if (this.viewMode === PaymentInterval.Monthly) {
       this.calculation.startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      this.header().showPeriod({ year: now.getFullYear(), month: now.getMonth() + 1 });
     } else {
       const week = this.calendarUtil.getWeekKeyForInterval(now, this.viewMode);
       this.calculation.startDate = this.weekPeriodStart(week.year, week.week);
+      this.header().showPeriod({ year: week.year, week: week.week });
     }
   }
 
@@ -233,7 +236,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private weekPeriodStart(year: number, week: number): Date {
     return this.viewMode === PaymentInterval.Biweekly
       ? this.calendarUtil.getBiweeklyPeriodOfWeek(year, week).start
-      : this.calendarUtil.getWeekStartDate(year, week);
+      : this.calendarUtil.getWeeklyPeriodOfWeek(year, week).start;
   }
 
   private async loadAvailabilityData(): Promise<void> {

@@ -182,6 +182,12 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   onCalendarReset(data: PeriodResetData): void {
+    this.showPeriod(data);
+    this.emitPeriodChange();
+  }
+
+  /** Shows the period the page has loaded, without asking the page to load it again. */
+  showPeriod(data: PeriodResetData): void {
     if (data.month !== undefined) {
       this.currentMonth = data.month;
     }
@@ -189,7 +195,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
       this.currentWeek = data.week;
     }
     this.currentYear = data.year;
-    this.emitPeriodChange();
+    this.cdr.markForCheck();
   }
 
   goToPrevious(): void {
@@ -247,7 +253,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   private goToPreviousWeek(): void {
     if (this.currentWeek === 1) {
       this.currentYear--;
-      this.currentWeek = this.getWeeksInYear(this.currentYear);
+      this.currentWeek = this.calendarUtil.getIsoWeeksInYear(this.currentYear);
     } else {
       this.currentWeek--;
     }
@@ -255,7 +261,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   private goToNextWeek(): void {
-    const weeksInYear = this.getWeeksInYear(this.currentYear);
+    const weeksInYear = this.calendarUtil.getIsoWeeksInYear(this.currentYear);
     if (this.currentWeek >= weeksInYear) {
       this.currentYear++;
       this.currentWeek = 1;
@@ -278,12 +284,6 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
     this.currentYear = key.year;
     this.currentWeek = key.week;
     this.emitPeriodChange();
-  }
-
-  private getWeeksInYear(year: number): number {
-    const dec31 = new Date(year, 11, 31);
-    const week = this.calendarUtil.getISO8601WeekNumber(dec31);
-    return week === 1 ? 52 : week;
   }
 
   private emitPeriodChange(): void {

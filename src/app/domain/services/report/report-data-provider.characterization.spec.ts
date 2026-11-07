@@ -264,6 +264,34 @@ describe('ReportDataProviderService (characterization)', () => {
       expect(provider.resolveFooterValue(field('sum.other'), rows)).toBe('');
     });
 
+    it('counts no hours of an on-call absence in the hour totals, but every other break', () => {
+      absenceLookup.findAbsenceForEntryId.mockImplementation((id: string) =>
+        id === 'on-call' ? { isOnCall: true } : { isOnCall: false });
+      const provider = service.getProvider('schedule', ['work', 'break']);
+      const rows = [
+        { entryType: WORK, clientId: 'c1', entryDate: '2026-01-05', changeTime: 2 },
+        { entryType: BREAK, clientId: 'c1', entryDate: '2026-01-06', changeTime: 8, entryId: 'on-call' },
+        { entryType: BREAK, clientId: 'c1', entryDate: '2026-01-07', changeTime: 8, entryId: 'vacation' },
+      ] as never[];
+
+      expect(provider.resolveFooterValue(field('sum.hours'), rows)).toBe('10:00');
+      expect(provider.buildFooterFormulaVariables!(rows)).toEqual(expect.objectContaining({ totalHours: 10 }));
+    });
+
+    it('shows no hours on the row of an on-call absence, the same as the footer counts', () => {
+      absenceLookup.findAbsenceForEntryId.mockImplementation((id: string) =>
+        id === 'on-call' ? { isOnCall: true } : { isOnCall: false });
+      const provider = service.getProvider('schedule', ['work', 'break']);
+      const onCall = { entryType: BREAK, entryDate: '2026-01-06', changeTime: 8, entryId: 'on-call' } as never;
+      const vacation = { entryType: BREAK, entryDate: '2026-01-07', changeTime: 8, entryId: 'vacation' } as never;
+
+      expect(provider.resolveFieldValue(field('entry.hours'), onCall)).toBe('00:00');
+      expect(provider.buildFormulaVariables!(onCall)).toEqual(expect.objectContaining({ hours: 0 }));
+      expect(provider.resolveFieldValue(field('entry.hours'), vacation)).toBe('08:00');
+      expect(provider.buildFormulaVariables!(vacation)).toEqual(expect.objectContaining({ hours: 8 }));
+      expect(provider.resolveFooterValue(field('sum.hours'), [onCall, vacation])).toBe('08:00');
+    });
+
     it('offers row and footer formula variables', () => {
       const provider = service.getProvider('schedule', ['work']);
 

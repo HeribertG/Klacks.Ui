@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
@@ -160,7 +160,16 @@ describe('WorkScheduleLoaderService calendar dates', () => {
         getWeekStartDate: calendar.getWeekStartDate.bind(calendar),
         getWeekEndDate: calendar.getWeekEndDate.bind(calendar),
         getBiweeklyPeriodOfWeek: calendar.getBiweeklyPeriodOfWeek.bind(calendar),
+        getWeeklyPeriodOfWeek: calendar.getWeeklyPeriodOfWeek.bind(calendar),
       });
+    });
+
+    it('weekly with a Sunday week start asks for the configured week the backend computes', () => {
+      (TestBed.inject(WeekConfigurationService).weekStartDay as WritableSignal<number>).set(0);
+      const filter = { ...createWorkFilter(), currentYear: 2026, currentMonth: 12, currentWeek: WEEK_50, paymentInterval: 0 };
+
+      expect(formatDateOnly(service.getPeriodStartDate(filter))).toBe('2026-12-06');
+      expect(formatDateOnly(service.getPeriodEndDate(filter))).toBe('2026-12-12');
     });
 
     it.each([

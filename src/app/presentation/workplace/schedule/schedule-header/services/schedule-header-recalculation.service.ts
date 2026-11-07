@@ -2,10 +2,11 @@
 
 /**
  * Period-hours recalculation from the schedule header (admins only): the normal run resets its busy flag when the
- * request returns, the thorough run (after confirmation) keeps it until the matching SignalR completion arrives. When
- * the backend reports frozen (sealed and exported) client periods it left unchanged, the admin is offered to include
- * them; that asks for a mandatory reason and sends the same run again with the override. The thorough override is sent
- * even while the first thorough run still waits for its completion.
+ * request returns, every thorough run (after confirmation) counts as open from its request until a matching SignalR
+ * completion arrives, or until its own request fails or is not queued by the server; the busy flag stays on while any
+ * run is open. When the backend reports frozen (sealed and exported) client periods it left unchanged, the admin is
+ * offered to include them; that asks for a mandatory reason and sends the same run again with the override. The
+ * thorough override is sent even while the first thorough run still waits for its completion.
  * @param destroyRef - Lifetime of the header component that ends the completion and dialog subscriptions
  */
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
@@ -44,7 +45,10 @@ export class ScheduleHeaderRecalculationService {
   private translateService = inject(TranslateService);
   private authorizationService = inject(AuthorizationService);
 
-  readonly isRecalculating = signal(false);
+  private readonly isNormalRunning = signal(false);
+  private readonly openThoroughRuns = signal(0);
+
+  readonly isRecalculating = computed(() => this.isNormalRunning() || this.openThoroughRuns() > 0);
   readonly canRecalculate = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
 
   private pendingOverride: RecalculationKind | null = null;
@@ -105,10 +109,13 @@ export class ScheduleHeaderRecalculationService {
     const endDate = this.dataManagementSchedule.periodEndDate;
     if (!startDate || !endDate) return null;
 
-    this.isRecalculating.set(true);
+    this.openThoroughRuns.update((count) => count + 1);
 
     try {
       const result = await this.periodHoursRecalculation.recalculateThorough(startDate, endDate, frozenOverride);
+      if (!result.accepted) {
+        return this.failThorough();
+      }
 
       this.toastShowService.showInfo(
         this.translateService.instant('schedule.recalculate.thorough.started'),
@@ -118,13 +125,21 @@ export class ScheduleHeaderRecalculationService {
       );
       return result;
     } catch {
-      this.isRecalculating.set(false);
-      this.toastShowService.showError(
-        this.translateService.instant('schedule.recalculate.thorough.error'),
-        SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST,
-      );
-      return null;
+      return this.failThorough();
     }
+  }
+
+  private failThorough(): null {
+    this.closeThoroughRun();
+    this.toastShowService.showError(
+      this.translateService.instant('schedule.recalculate.thorough.error'),
+      SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST,
+    );
+    return null;
+  }
+
+  private closeThoroughRun(): void {
+    this.openThoroughRuns.update((count) => Math.max(0, count - 1));
   }
 
   private async runNormal(frozenOverride?: IFrozenPeriodOverride): Promise<IPeriodHoursRecalculationResult | null> {
@@ -132,7 +147,7 @@ export class ScheduleHeaderRecalculationService {
     const endDate = this.dataManagementSchedule.periodEndDate;
     if (!startDate || !endDate) return null;
 
-    this.isRecalculating.set(true);
+    this.isNormalRunning.set(true);
 
     try {
       const result = await this.periodHoursRecalculation.recalculate(startDate, endDate, frozenOverride);
@@ -151,7 +166,7 @@ export class ScheduleHeaderRecalculationService {
       );
       return null;
     } finally {
-      this.isRecalculating.set(false);
+      this.isNormalRunning.set(false);
     }
   }
 
@@ -204,7 +219,7 @@ export class ScheduleHeaderRecalculationService {
     const activeToken = this.analyseScenarioService.activeToken() ?? null;
     if ((notification.analyseToken ?? null) !== activeToken) return;
 
-    this.isRecalculating.set(false);
+    this.closeThoroughRun();
     this.toastShowService.showInfo(
       this.translateService.instant('schedule.recalculate.thorough.completed'),
       SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST,
