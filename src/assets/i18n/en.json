@@ -900,6 +900,7 @@
   "schedule.recalculate.frozen.message": "{{count}} pay periods are sealed and already exported. Their hours were not recalculated. Recalculate them anyway? This is recorded with your reason in the period audit log.",
   "schedule.recalculate.frozen.include": "Recalculate anyway",
   "schedule.recalculate.frozen.reason": "Reason for recalculating exported periods",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} pay periods are sealed and already exported. Their hours were not recalculated. Only an administrator can recalculate them anyway.",
   "schedule.recalculate.thorough.start": "Start",
   "schedule.recalculate.thorough.started": "Thorough recalculation has been started. You will be notified once it is complete.",
   "schedule.recalculate.thorough.completed": "Thorough recalculation finished.",

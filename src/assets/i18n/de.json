@@ -900,6 +900,7 @@
   "schedule.recalculate.frozen.message": "{{count}} Lohnperioden sind versiegelt und bereits exportiert. Ihre Stunden wurden nicht neu berechnet. Trotzdem neu berechnen? Das wird mit Begründung im Periodenprotokoll vermerkt.",
   "schedule.recalculate.frozen.include": "Trotzdem neu berechnen",
   "schedule.recalculate.frozen.reason": "Begründung für die Neuberechnung exportierter Perioden",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} Lohnperioden sind versiegelt und bereits exportiert. Ihre Stunden wurden nicht neu berechnet. Nur ein Administrator kann sie trotzdem neu berechnen.",
   "schedule.recalculate.thorough.start": "Starten",
   "schedule.recalculate.thorough.started": "Gründliche Neuberechnung wurde gestartet. Sie werden benachrichtigt, sobald sie abgeschlossen ist.",
   "schedule.recalculate.thorough.completed": "Gründliche Neuberechnung abgeschlossen.",

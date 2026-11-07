@@ -4,8 +4,11 @@
  * Answer of a manual period-hours recalculation.
  * @param accepted - True when the normal run finished or the thorough run was queued
  * @param frozenSkipped - Client pay periods left unchanged because they are sealed, exported and behind the window
+ * @param nothingToRecalculate - True when the caller may see nobody in the window: nothing ran or was queued and no
+ * completion follows
  */
 export interface IPeriodHoursRecalculationResult {
   accepted: boolean;
   frozenSkipped: number;
+  nothingToRecalculate: boolean;
 }

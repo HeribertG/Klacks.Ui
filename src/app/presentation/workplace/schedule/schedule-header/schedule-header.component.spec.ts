@@ -68,8 +68,8 @@ const PERIOD_START = new Date(Date.UTC(2026, 9, 1));
 const PERIOD_END = new Date(Date.UTC(2026, 9, 31));
 const VISIBLE_START = new Date(Date.UTC(2026, 8, 28));
 const VISIBLE_END = new Date(Date.UTC(2026, 10, 1));
-const NOTHING_FROZEN: IPeriodHoursRecalculationResult = { accepted: true, frozenSkipped: 0 };
-const TWO_FROZEN: IPeriodHoursRecalculationResult = { accepted: true, frozenSkipped: 2 };
+const NOTHING_FROZEN: IPeriodHoursRecalculationResult = { accepted: true, frozenSkipped: 0, nothingToRecalculate: false };
+const TWO_FROZEN: IPeriodHoursRecalculationResult = { accepted: true, frozenSkipped: 2, nothingToRecalculate: false };
 const FROZEN_REASON_CONTEXT = 'schedule-header-frozen-period-reason';
 
 interface WorkFilterStub {
@@ -611,12 +611,52 @@ describe('ScheduleHeaderComponent (characterization)', () => {
 
     const confirmOverride = () => (modal.openModal.mock.calls[0][0] as { onConfirm: () => void }).onConfirm();
 
-    it('is offered only to admins', () => {
+    beforeEach(() => granted.set([ROLE_ADMIN]));
+
+    it('offers the recalculation to everyone who may edit the schedule, planners included', () => {
+      granted.set([]);
       createComponent();
       expect(recalculation().canRecalculate()).toBe(false);
 
-      granted.set([ROLE_ADMIN]);
+      granted.set([PERMISSIONS.CanEditSchedule]);
       expect(recalculation().canRecalculate()).toBe(true);
+    });
+
+    it('only tells a non-admin how many frozen periods were skipped, without dialog or override', async () => {
+      granted.set([PERMISSIONS.CanEditSchedule]);
+      createComponent();
+
+      const pending = recalculation().onRecalculatePeriodHours();
+      recalcNormal.resolve(TWO_FROZEN);
+      await pending;
+
+      expect(modal.openModal).not.toHaveBeenCalled();
+      expect(modal.openModel).not.toHaveBeenCalled();
+      expect(toast['showInfo']).toHaveBeenCalledWith(
+        'schedule.recalculate.frozen.adminOnly|{"count":2}',
+        'recalculate-frozen',
+        '',
+        TOAST_ICONS.INFO,
+      );
+      expect(dataWorkSchedule['recalculatePeriodHours']).toHaveBeenCalledTimes(1);
+    });
+
+    it('only tells a non-admin about skipped frozen periods after a thorough run as well', async () => {
+      granted.set([PERMISSIONS.CanEditSchedule]);
+      createComponent();
+
+      const pending = recalculation().onThoroughRecalculateConfirmed();
+      recalcThorough.resolve(TWO_FROZEN);
+      await pending;
+
+      expect(modal.openModal).not.toHaveBeenCalled();
+      expect(toast['showInfo']).toHaveBeenCalledWith(
+        'schedule.recalculate.frozen.adminOnly|{"count":2}',
+        'recalculate-frozen',
+        '',
+        TOAST_ICONS.INFO,
+      );
+      expect(dataWorkSchedule['recalculatePeriodHoursThorough']).toHaveBeenCalledTimes(1);
     });
 
     it('offers no override when nothing was frozen', async () => {
@@ -796,7 +836,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       createComponent();
 
       const pending = recalculation().onThoroughRecalculateConfirmed();
-      recalcThorough.resolve({ accepted: false, frozenSkipped: 0 });
+      recalcThorough.resolve({ accepted: false, frozenSkipped: 0, nothingToRecalculate: false });
       await pending;
 
       expect(recalculation().isRecalculating()).toBe(false);
@@ -809,8 +849,33 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       );
     });
 
+    it('resets the flag without waiting for a completion when the server found nobody to recalculate', async () => {
+      createComponent();
+
+      const pending = recalculation().onThoroughRecalculateConfirmed();
+      recalcThorough.resolve({ accepted: true, frozenSkipped: 0, nothingToRecalculate: true });
+      await pending;
+
+      expect(recalculation().isRecalculating()).toBe(false);
+      expect(toast['showError']).not.toHaveBeenCalled();
+      expect(toast['showInfo']).toHaveBeenCalledWith(
+        'schedule.recalculate.thorough.completed',
+        'recalculate-thorough',
+        '',
+        TOAST_ICONS.INFO,
+      );
+      expect(toast['showInfo']).not.toHaveBeenCalledWith(
+        'schedule.recalculate.thorough.started',
+        'recalculate-thorough',
+        '',
+        TOAST_ICONS.INFO,
+      );
+      expect(modal.openModal).not.toHaveBeenCalled();
+    });
+
     describe('with a frozen override next to the first run', () => {
       const startFirstRunAndOverride = async () => {
+        granted.set([ROLE_ADMIN]);
         createComponent();
         const pending = recalculation().onThoroughRecalculateConfirmed();
         recalcThorough.resolve(TWO_FROZEN);

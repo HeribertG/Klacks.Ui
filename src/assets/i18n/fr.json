@@ -899,6 +899,7 @@
   "schedule.recalculate.frozen.message": "{{count}} périodes de paie sont scellées et déjà exportées. Leurs heures n'ont pas été recalculées. Les recalculer quand même ? L'opération est consignée avec votre justification dans le journal des périodes.",
   "schedule.recalculate.frozen.include": "Recalculer quand même",
   "schedule.recalculate.frozen.reason": "Justification du recalcul des périodes exportées",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} périodes de paie sont scellées et déjà exportées. Leurs heures n'ont pas été recalculées. Seul un administrateur peut les recalculer quand même.",
   "schedule.recalculate.thorough.start": "Démarrer",
   "schedule.recalculate.thorough.started": "Le recalcul approfondi a été lancé. Vous serez averti lorsqu'il sera terminé.",
   "schedule.recalculate.thorough.completed": "Recalcul approfondi terminé.",

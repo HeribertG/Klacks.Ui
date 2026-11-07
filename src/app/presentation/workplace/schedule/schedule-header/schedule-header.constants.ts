@@ -34,6 +34,7 @@ export const SCHEDULE_HEADER_FIRST_WEEK = 1;
 
 export const SCHEDULE_HEADER_RECALCULATE_TOAST = 'recalculate';
 export const SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST = 'recalculate-thorough';
+export const SCHEDULE_HEADER_RECALCULATE_FROZEN_TOAST = 'recalculate-frozen';
 export const SCHEDULE_HEADER_BULK_SEND_TOAST = 'bulk-send';
 export const SCHEDULE_HEADER_BULK_SEND_CLIENT_NAME = 'Bulk';
 

@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Period-hours recalculation from the schedule header (admins only): the normal run resets its busy flag when the
- * request returns, every thorough run (after confirmation) counts as open from its request until a matching SignalR
- * completion arrives, or until its own request fails or is not queued by the server; the busy flag stays on while any
- * run is open. When the backend reports frozen (sealed and exported) client periods it left unchanged, the admin is
- * offered to include them; that asks for a mandatory reason and sends the same run again with the override. The
+ * Period-hours recalculation from the schedule header (everyone who may edit the schedule): the normal run resets its
+ * busy flag when the request returns, every thorough run (after confirmation) counts as open from its request until a
+ * matching SignalR completion arrives, or until its own request fails, is not queued by the server or finds nobody the
+ * caller may see (nothing queued, no completion follows); the busy flag stays on while any run is open. When the backend reports frozen (sealed and exported) client periods it left
+ * unchanged, an admin is offered to include them; that asks for a mandatory reason and sends the same run again with
+ * the override. Everybody else only learns how many were skipped and that only an admin may recalculate them. The
  * thorough override is sent even while the first thorough run still waits for its completion.
  * @param destroyRef - Lifetime of the header component that ends the completion and dialog subscriptions
  */
@@ -14,7 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IThoroughRecalculationCompletedNotification } from 'src/app/domain/interfaces/thorough-recalculation-completed-notification.interface';
 import { IFrozenPeriodOverride } from 'src/app/domain/models/schedule/frozen-period-override.interface';
@@ -28,6 +29,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import {
   SCHEDULE_HEADER_FROZEN_REASON_CONTEXT,
+  SCHEDULE_HEADER_RECALCULATE_FROZEN_TOAST,
   SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST,
   SCHEDULE_HEADER_RECALCULATE_TOAST,
 } from '../schedule-header.constants';
@@ -49,7 +51,7 @@ export class ScheduleHeaderRecalculationService {
   private readonly openThoroughRuns = signal(0);
 
   readonly isRecalculating = computed(() => this.isNormalRunning() || this.openThoroughRuns() > 0);
-  readonly canRecalculate = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
+  readonly canRecalculate = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule));
 
   private pendingOverride: RecalculationKind | null = null;
 
@@ -116,6 +118,16 @@ export class ScheduleHeaderRecalculationService {
       if (!result.accepted) {
         return this.failThorough();
       }
+      if (result.nothingToRecalculate) {
+        this.closeThoroughRun();
+        this.toastShowService.showInfo(
+          this.translateService.instant('schedule.recalculate.thorough.completed'),
+          SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST,
+          '',
+          TOAST_ICONS.INFO,
+        );
+        return null;
+      }
 
       this.toastShowService.showInfo(
         this.translateService.instant('schedule.recalculate.thorough.started'),
@@ -172,6 +184,16 @@ export class ScheduleHeaderRecalculationService {
 
   private offerFrozenOverride(kind: RecalculationKind, result: IPeriodHoursRecalculationResult): void {
     if (!result.frozenSkipped) return;
+
+    if (!this.authorizationService.hasPermission(ROLE_ADMIN)) {
+      this.toastShowService.showInfo(
+        this.translateService.instant('schedule.recalculate.frozen.adminOnly', { count: result.frozenSkipped }),
+        SCHEDULE_HEADER_RECALCULATE_FROZEN_TOAST,
+        '',
+        TOAST_ICONS.INFO,
+      );
+      return;
+    }
 
     this.modalService.openModal({
       type: ModalType.Confirmation,

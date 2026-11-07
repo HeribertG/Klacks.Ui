@@ -899,6 +899,7 @@
   "schedule.recalculate.frozen.message": "{{count}} periodi di paga sono sigillati e già esportati. Le loro ore non sono state ricalcolate. Ricalcolarli comunque? L'operazione viene registrata con la motivazione nel registro dei periodi.",
   "schedule.recalculate.frozen.include": "Ricalcola comunque",
   "schedule.recalculate.frozen.reason": "Motivazione per il ricalcolo dei periodi esportati",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} periodi di paga sono sigillati e già esportati. Le loro ore non sono state ricalcolate. Solo un amministratore può ricalcolarli comunque.",
   "schedule.recalculate.thorough.start": "Avvia",
   "schedule.recalculate.thorough.started": "Il ricalcolo approfondito è stato avviato. Riceverai una notifica al termine.",
   "schedule.recalculate.thorough.completed": "Ricalcolo approfondito completato.",
