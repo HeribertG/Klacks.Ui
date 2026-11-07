@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Period navigation of the schedule header: shows the selected week, biweekly pair or month and steps it back
- * and forth along the payment interval of the schedule filter, wrapping across ISO years.
+ * Period navigation of the schedule header: shows the selected week, biweekly period or month and steps it back
+ * and forth along the payment interval of the schedule filter, wrapping across ISO years. Biweekly steps move the
+ * pay period by 14 days (CalendarUtilService.getAdjacentBiweeklyStart) and store the ISO year/week of its start week,
+ * so the 53-week ISO year 2026 is crossed without overlapping periods.
  * @param data - Period from the calendar dropdown; month and week are only applied when set
  */
 import { inject, Injectable } from '@angular/core';
@@ -14,14 +16,11 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { AllScheduleStateService } from '../../services/all-schedule-state.service';
 import {
-  SCHEDULE_HEADER_BIWEEKLY_STEP,
   SCHEDULE_HEADER_DECEMBER_MONTH_INDEX,
   SCHEDULE_HEADER_FIRST_MONTH,
   SCHEDULE_HEADER_FIRST_WEEK,
   SCHEDULE_HEADER_LAST_DAY_OF_DECEMBER,
   SCHEDULE_HEADER_LAST_MONTH,
-  SCHEDULE_HEADER_ODD_REMAINDER,
-  SCHEDULE_HEADER_WEEK_PARITY_MODULUS,
   SCHEDULE_HEADER_WEEK_LABEL,
   SCHEDULE_HEADER_WEEKS_IN_SHORT_ISO_YEAR,
 } from '../schedule-header.constants';
@@ -46,8 +45,10 @@ export class ScheduleHeaderPeriodNavigationService {
     switch (this.paymentInterval) {
       case PaymentInterval.Weekly:
         return `${SCHEDULE_HEADER_WEEK_LABEL} ${this.selectedWeek}`;
-      case PaymentInterval.Biweekly:
-        return `${SCHEDULE_HEADER_WEEK_LABEL} ${this.selectedWeek}-${Math.min(this.selectedWeek + 1, this.getWeeksInYear(this.currentYear))}`;
+      case PaymentInterval.Biweekly: {
+        const weeks = this.calendarUtil.getBiweeklyWeeks(this.currentYear, this.selectedWeek);
+        return `${SCHEDULE_HEADER_WEEK_LABEL} ${weeks.start.week}-${weeks.end.week}`;
+      }
       case PaymentInterval.Monthly:
       default:
         return this.gridSettingsService.monthsName[
@@ -160,24 +161,17 @@ export class ScheduleHeaderPeriodNavigationService {
   }
 
   private goToPreviousBiweekly(): void {
-    if (this.selectedWeek <= SCHEDULE_HEADER_BIWEEKLY_STEP) {
-      this.currentYear--;
-      const weeksInYear = this.getWeeksInYear(this.currentYear);
-      this.selectedWeek = weeksInYear % SCHEDULE_HEADER_WEEK_PARITY_MODULUS === SCHEDULE_HEADER_ODD_REMAINDER ? weeksInYear : weeksInYear - 1;
-    } else {
-      this.selectedWeek -= SCHEDULE_HEADER_BIWEEKLY_STEP;
-    }
-    this.applyPeriodChange();
+    this.stepBiweekly(-1);
   }
 
   private goToNextBiweekly(): void {
-    const weeksInYear = this.getWeeksInYear(this.currentYear);
-    if (this.selectedWeek + SCHEDULE_HEADER_BIWEEKLY_STEP > weeksInYear) {
-      this.currentYear++;
-      this.selectedWeek = SCHEDULE_HEADER_FIRST_WEEK;
-    } else {
-      this.selectedWeek += SCHEDULE_HEADER_BIWEEKLY_STEP;
-    }
+    this.stepBiweekly(1);
+  }
+
+  private stepBiweekly(steps: number): void {
+    const key = this.calendarUtil.getAdjacentBiweeklyStart(this.currentYear, this.selectedWeek, steps);
+    this.currentYear = key.year;
+    this.selectedWeek = key.week;
     this.applyPeriodChange();
   }
 

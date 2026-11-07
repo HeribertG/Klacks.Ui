@@ -73,9 +73,9 @@ export class AllScheduleStateService extends BaseStateService<
     const filter = this.dataManagementService.currentFilter;
     if (filter.paymentInterval === PaymentInterval.Weekly
       || filter.paymentInterval === PaymentInterval.Biweekly) {
-      const now = companyToday();
-      filter.currentWeek = this.calendarUtil.getISO8601WeekNumber(now);
-      filter.currentYear = now.getFullYear();
+      const todayWeek = this.calendarUtil.getWeekKeyForInterval(companyToday(), filter.paymentInterval);
+      filter.currentWeek = todayWeek.week;
+      filter.currentYear = todayWeek.year;
     }
   }
 }

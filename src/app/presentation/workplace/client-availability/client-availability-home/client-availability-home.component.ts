@@ -217,17 +217,23 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     if (this.viewMode === PaymentInterval.Monthly) {
       this.calculation.startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     } else {
-      const week = this.calendarUtil.getISO8601WeekNumber(now);
-      this.calculation.startDate = this.calendarUtil.getWeekStartDate(now.getFullYear(), week);
+      const week = this.calendarUtil.getWeekKeyForInterval(now, this.viewMode);
+      this.calculation.startDate = this.weekPeriodStart(week.year, week.week);
     }
   }
 
   private setStartDateFromPeriod(data: PeriodResetData): void {
     if (data.week !== undefined) {
-      this.calculation.startDate = this.calendarUtil.getWeekStartDate(data.year, data.week);
+      this.calculation.startDate = this.weekPeriodStart(data.year, data.week);
     } else if (data.month !== undefined) {
       this.calculation.startDate = new Date(data.year, data.month - 1, 1);
     }
+  }
+
+  private weekPeriodStart(year: number, week: number): Date {
+    return this.viewMode === PaymentInterval.Biweekly
+      ? this.calendarUtil.getBiweeklyPeriodOfWeek(year, week).start
+      : this.calendarUtil.getWeekStartDate(year, week);
   }
 
   private async loadAvailabilityData(): Promise<void> {

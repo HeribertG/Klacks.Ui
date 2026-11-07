@@ -90,8 +90,6 @@ const SCENARIO_QUERY_PARAM = 'scenarioId';
 const SHOW_AVAILABILITY_QUERY_PARAM = 'showAvailability';
 const SHOW_COMMANDS_QUERY_PARAM = 'showCommands';
 const DISPLAY_ON_VALUE = 'true';
-const ISO_WEEK_THURSDAY_OFFSET = 4;
-const SUNDAY_AS_ISO_WEEKDAY = 7;
 const MONTH_INDEX_OFFSET = 1;
 
 @Component({
@@ -297,8 +295,9 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
    * Opens the period that contains the calendar day of a one-click action (date query param, e.g. the
    * first unstaffed day of a collective proactive message). Runs after the stored filter was restored and
    * after the group was applied, so neither can move the period again. The period type follows the
-   * selected group's payment interval exactly like the group selection does; weekly and biweekly periods
-   * are addressed by ISO week and ISO week-year, every other interval by calendar month.
+   * selected group's payment interval exactly like the group selection does; weekly periods are addressed by
+   * ISO week and ISO week-year, biweekly ones by the ISO week and week-year of their start week
+   * (CalendarUtilService.getWeekKeyForInterval), every other interval by calendar month.
    * The value is parsed with parseCalendarDate, so the day never shifts with the browser time zone.
    */
   private applyDateQueryParam(): void {
@@ -312,19 +311,14 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     }
 
     if (filter.paymentInterval === PaymentInterval.Weekly || filter.paymentInterval === PaymentInterval.Biweekly) {
-      filter.currentWeek = this.calendarUtil.getISO8601WeekNumber(day);
-      filter.currentYear = this.isoWeekYear(day);
+      const week = this.calendarUtil.getWeekKeyForInterval(day, filter.paymentInterval);
+      filter.currentWeek = week.week;
+      filter.currentYear = week.year;
       return;
     }
 
     filter.currentMonth = day.getMonth() + MONTH_INDEX_OFFSET;
     filter.currentYear = day.getFullYear();
-  }
-
-  private isoWeekYear(day: Date): number {
-    const isoWeekday = day.getDay() || SUNDAY_AS_ISO_WEEKDAY;
-    const thursday = new Date(day.getFullYear(), day.getMonth(), day.getDate() + ISO_WEEK_THURSDAY_OFFSET - isoWeekday);
-    return thursday.getFullYear();
   }
 
   /**

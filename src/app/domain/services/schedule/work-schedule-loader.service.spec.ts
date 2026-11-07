@@ -11,6 +11,7 @@ import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/dat
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ScheduleChangeService } from './schedule-change.service';
@@ -119,6 +120,7 @@ describe('WorkScheduleLoaderService calendar dates', () => {
         },
         { provide: DataManagementGroupService, useValue: { flatNodeList: [] } },
         { provide: CalendarUtilService, useValue: {} },
+        { provide: WeekConfigurationService, useValue: { weekStartDay: signal(1) } },
         {
           provide: SCHEDULE_SIGNALR,
           useValue: {
@@ -153,12 +155,11 @@ describe('WorkScheduleLoaderService calendar dates', () => {
     const WEEK_50 = 50;
 
     beforeEach(() => {
-      const calendar = new CalendarUtilService();
+      const calendar = TestBed.runInInjectionContext(() => new CalendarUtilService());
       Object.assign(TestBed.inject(CalendarUtilService), {
         getWeekStartDate: calendar.getWeekStartDate.bind(calendar),
         getWeekEndDate: calendar.getWeekEndDate.bind(calendar),
-        getBiweeklyStartDate: calendar.getBiweeklyStartDate.bind(calendar),
-        getBiweeklyEndDate: calendar.getBiweeklyEndDate.bind(calendar),
+        getBiweeklyPeriodOfWeek: calendar.getBiweeklyPeriodOfWeek.bind(calendar),
       });
     });
 
@@ -170,6 +171,18 @@ describe('WorkScheduleLoaderService calendar dates', () => {
       [4, '2026-12-01', '2026-12-31'],
     ])('payment interval %i runs from %s to %s', (paymentInterval, from, until) => {
       const filter = { ...createWorkFilter(), currentYear: 2026, currentMonth: 12, currentWeek: WEEK_50, paymentInterval };
+
+      expect(formatDateOnly(service.getPeriodStartDate(filter))).toBe(from);
+      expect(formatDateOnly(service.getPeriodEndDate(filter))).toBe(until);
+    });
+
+    it.each([
+      [2026, 51, '2026-12-14', '2026-12-27'],
+      [2026, 53, '2026-12-28', '2027-01-10'],
+      [2027, 1, '2026-12-28', '2027-01-10'],
+      [2027, 2, '2027-01-11', '2027-01-24'],
+    ])('biweekly %i W%i asks for the pay period %s to %s across the 53-week year end', (year, week, from, until) => {
+      const filter = { ...createWorkFilter(), currentYear: year, currentMonth: 1, currentWeek: week, paymentInterval: 1 };
 
       expect(formatDateOnly(service.getPeriodStartDate(filter))).toBe(from);
       expect(formatDateOnly(service.getPeriodEndDate(filter))).toBe(until);

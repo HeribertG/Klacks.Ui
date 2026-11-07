@@ -109,10 +109,10 @@ export class AvailableShiftsCalculatorService {
           filter.currentWeek ?? 1,
         );
       case 1:
-        return this.calendarUtil.getBiweeklyStartDate(
+        return this.calendarUtil.getBiweeklyPeriodOfWeek(
           year,
           filter.currentWeek ?? 1,
-        );
+        ).start;
       case 2:
       default:
         return new Date(year, filter.currentMonth - 1, 1);

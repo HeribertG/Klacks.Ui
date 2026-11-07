@@ -94,7 +94,11 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   public readonly quickPrintSourceId = 'client-availability';
 
   async ngOnInit(): Promise<void> {
-    this.currentWeek = this.calendarUtil.getISO8601WeekNumber(companyToday());
+    const todayWeek = this.calendarUtil.getWeekKeyForInterval(companyToday(), this.viewMode());
+    this.currentWeek = todayWeek.week;
+    if (this.viewMode() !== PaymentInterval.Monthly) {
+      this.currentYear = todayWeek.year;
+    }
     this.groupingOptions.set(this.buildGroupingOptions());
 
     const rebuildOptions = () => {
@@ -163,8 +167,10 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
     switch (this.viewMode()) {
       case PaymentInterval.Weekly:
         return `${cw} ${this.currentWeek}`;
-      case PaymentInterval.Biweekly:
-        return `${cw} ${this.currentWeek}-${Math.min(this.currentWeek + 1, this.getWeeksInYear(this.currentYear))}`;
+      case PaymentInterval.Biweekly: {
+        const weeks = this.calendarUtil.getBiweeklyWeeks(this.currentYear, this.currentWeek);
+        return `${cw} ${weeks.start.week}-${weeks.end.week}`;
+      }
       case PaymentInterval.Monthly:
       default:
         return this.translateService.instant(this.gridSettingsService.monthsName[this.currentMonth - 1]);
@@ -260,24 +266,17 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   private goToPreviousBiweekly(): void {
-    if (this.currentWeek <= 2) {
-      this.currentYear--;
-      const weeksInYear = this.getWeeksInYear(this.currentYear);
-      this.currentWeek = weeksInYear % 2 === 1 ? weeksInYear : weeksInYear - 1;
-    } else {
-      this.currentWeek -= 2;
-    }
-    this.emitPeriodChange();
+    this.stepBiweekly(-1);
   }
 
   private goToNextBiweekly(): void {
-    const weeksInYear = this.getWeeksInYear(this.currentYear);
-    if (this.currentWeek + 2 > weeksInYear) {
-      this.currentYear++;
-      this.currentWeek = 1;
-    } else {
-      this.currentWeek += 2;
-    }
+    this.stepBiweekly(1);
+  }
+
+  private stepBiweekly(steps: number): void {
+    const key = this.calendarUtil.getAdjacentBiweeklyStart(this.currentYear, this.currentWeek, steps);
+    this.currentYear = key.year;
+    this.currentWeek = key.week;
     this.emitPeriodChange();
   }
 

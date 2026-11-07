@@ -16,6 +16,7 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
@@ -293,6 +294,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
         { provide: ScheduleDataService, useValue: dataService },
         { provide: AllScheduleStateService, useValue: allScheduleState },
         { provide: AppSettingsManagementService, useValue: { emailSettings } },
+        { provide: WeekConfigurationService, useValue: { weekStartDay: signal(1) } },
         { provide: ScheduleReportContextService, useValue: reportContext },
         { provide: ToastShowService, useValue: toast },
         { provide: TranslateService, useValue: { instant: vi.fn(translateInstant) } },
@@ -362,12 +364,12 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       expect(period().displayYear).toBe('2026');
     });
 
-    it('caps the second biweekly week at the last week of the year', () => {
+    it('shows the ISO weeks of the first and the second week of the biweekly period, across the year end', () => {
       workFilter.paymentInterval = PaymentInterval.Biweekly;
       workFilter.currentWeek = 53;
       createComponent();
 
-      expect(period().displayPeriod).toBe('KW 53-53');
+      expect(period().displayPeriod).toBe('KW 53-1');
 
       workFilter.currentWeek = 51;
       expect(period().displayPeriod).toBe('KW 51-52');
@@ -456,7 +458,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       expect(workFilter.currentWeek).toBe(9);
     });
 
-    it('lands biweekly backwards on the last odd week of the previous year', () => {
+    it('steps biweekly backwards by 14 days into the previous ISO year', () => {
       workFilter.paymentInterval = PaymentInterval.Biweekly;
       workFilter.currentYear = 2027;
       workFilter.currentWeek = 2;
@@ -465,6 +467,9 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       period().goToPrevious();
       expect(workFilter.currentYear).toBe(2026);
       expect(workFilter.currentWeek).toBe(53);
+      period().goToPrevious();
+      expect(workFilter.currentYear).toBe(2026);
+      expect(workFilter.currentWeek).toBe(51);
 
       workFilter.currentWeek = 1;
       period().goToPrevious();
@@ -472,7 +477,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       expect(workFilter.currentWeek).toBe(51);
     });
 
-    it('steps biweekly by two weeks and wraps when the next pair leaves the year', () => {
+    it('steps biweekly by 14 days from 2026 W49 to 2027 W2 without overlap at the 53-week year end', () => {
       workFilter.paymentInterval = PaymentInterval.Biweekly;
       workFilter.currentWeek = 49;
       createComponent();
@@ -481,9 +486,11 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       expect(workFilter.currentWeek).toBe(51);
       period().goToNext();
       expect(workFilter.currentWeek).toBe(53);
+      expect(period().displayPeriod).toBe('KW 53-1');
       period().goToNext();
-      expect(workFilter.currentWeek).toBe(1);
+      expect(workFilter.currentWeek).toBe(2);
       expect(workFilter.currentYear).toBe(2027);
+      expect(period().displayPeriod).toBe('KW 2-3');
 
       period().goToPrevious();
       expect(workFilter.currentYear).toBe(2026);
@@ -491,6 +498,18 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       workFilter.currentWeek = 7;
       period().goToPrevious();
       expect(workFilter.currentWeek).toBe(5);
+    });
+
+    it('steps biweekly from a week stored by the former odd-week rule onto the next real period', () => {
+      workFilter.paymentInterval = PaymentInterval.Biweekly;
+      workFilter.currentYear = 2027;
+      workFilter.currentWeek = 1;
+      createComponent();
+
+      period().goToNext();
+
+      expect(workFilter.currentYear).toBe(2027);
+      expect(workFilter.currentWeek).toBe(2);
     });
 
     it('applies a calendar reset with a week and keeps the month', () => {

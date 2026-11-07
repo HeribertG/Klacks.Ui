@@ -27,6 +27,7 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import { CALENDAR_TEST_ZONES, currentTimeZone, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 
 describe('ScheduleHomeComponent', () => {
   const clientId = '131e24fe-2acf-4bd5-b70c-5af888321338';
@@ -40,6 +41,7 @@ describe('ScheduleHomeComponent', () => {
   let activatedRoute: any;
   let showAvailability: WritableSignal<boolean>;
   let showScheduleCommands: WritableSignal<boolean>;
+  let weekStartDay: WritableSignal<number>;
 
   function navigateTo(queryParams: Record<string, string>): void {
     activatedRoute.snapshot.queryParamMap = convertToParamMap(queryParams);
@@ -56,6 +58,7 @@ describe('ScheduleHomeComponent', () => {
     };
     mockSearchStateService = { setRestoreSearch: vi.fn() };
     showAvailability = signal(false);
+    weekStartDay = signal(1);
     showScheduleCommands = signal(false);
 
     queryParamMap$ = new BehaviorSubject<any>(convertToParamMap(queryParams));
@@ -81,6 +84,7 @@ describe('ScheduleHomeComponent', () => {
         { provide: HolidayCollectionService, useValue: {} },
         { provide: CalendarChipsResolverService, useValue: {} },
         { provide: AllScheduleStateService, useValue: {} },
+        { provide: WeekConfigurationService, useValue: { weekStartDay } },
         { provide: SCHEDULE_SIGNALR, useValue: {} },
         { provide: SchedulePdfExportService, useValue: {} },
         { provide: TimelinePdfExportService, useValue: {} },
@@ -249,6 +253,23 @@ describe('ScheduleHomeComponent', () => {
       // Assert
       expect(filter.currentWeek).toBe(43);
       expect(filter.currentYear).toBe(2026);
+    });
+
+    it.each([
+      ['2026-10-26', 1, 2026, 43],
+      ['2027-01-05', 1, 2026, 53],
+      ['2027-01-10', 0, 2027, 2],
+    ])('opens the start week of the biweekly period that contains %s (week start %i)', (date, startDay, year, week) => {
+      // Arrange
+      const filter = setupDate({ groupId, date }, 1);
+      weekStartDay.set(startDay);
+
+      // Act
+      applyDateQueryParam();
+
+      // Assert
+      expect(filter.currentYear).toBe(year);
+      expect(filter.currentWeek).toBe(week);
     });
 
     it('treats a monthly-target-hours group as monthly', () => {
