@@ -56,6 +56,10 @@ const AUDIT_ACTION_DISPLAY: Record<PeriodAuditAction, AuditActionDisplay> = {
   [PeriodAuditAction.ApproveDay]: { labelKey: 'periodClosing.audit.action.approveDay', badgeClass: 'badge-approve-day' },
   [PeriodAuditAction.ConfirmWork]: { labelKey: 'periodClosing.audit.action.confirmWork', badgeClass: 'badge-confirm-work' },
   [PeriodAuditAction.ConfirmBreak]: { labelKey: 'periodClosing.audit.action.confirmBreak', badgeClass: 'badge-confirm-break' },
+  [PeriodAuditAction.RecalculateExportedPeriod]: {
+    labelKey: 'periodClosing.audit.action.recalculateExportedPeriod',
+    badgeClass: 'badge-recalculate-exported',
+  },
 };
 
 @Component({

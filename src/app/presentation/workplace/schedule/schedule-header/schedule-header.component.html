@@ -194,30 +194,32 @@
       </button>
     }
 
-    <div ngbDropdown class="recalculate-dropdown">
-      <button
-        id="schedule-recalculate-btn"
-        type="button"
-        class="recalculate-button"
-        [class.disabled]="recalculation.isRecalculating()"
-        ngbDropdownToggle
-      >
-        @if (recalculation.isRecalculating()) {
-          <span class="spinner-border spinner-border-sm"></span>
-        } @else {
-          <app-icon-calc />
-        }
-        <span class="tool-label">{{ "schedule.recalculate.tooltip" | translate }}</span>
-      </button>
-      <div ngbDropdownMenu aria-labelledby="schedule-recalculate-btn">
-        <button ngbDropdownItem (click)="recalculation.onRecalculatePeriodHours()">
-          {{ "schedule.recalculate.menu.normal" | translate }}
+    @if (recalculation.canRecalculate()) {
+      <div ngbDropdown class="recalculate-dropdown">
+        <button
+          id="schedule-recalculate-btn"
+          type="button"
+          class="recalculate-button"
+          [class.disabled]="recalculation.isRecalculating()"
+          ngbDropdownToggle
+        >
+          @if (recalculation.isRecalculating()) {
+            <span class="spinner-border spinner-border-sm"></span>
+          } @else {
+            <app-icon-calc />
+          }
+          <span class="tool-label">{{ "schedule.recalculate.tooltip" | translate }}</span>
         </button>
-        <button ngbDropdownItem (click)="recalculation.onThoroughRecalculateClick()">
-          {{ "schedule.recalculate.menu.thorough" | translate }}
-        </button>
+        <div ngbDropdownMenu aria-labelledby="schedule-recalculate-btn">
+          <button ngbDropdownItem (click)="recalculation.onRecalculatePeriodHours()">
+            {{ "schedule.recalculate.menu.normal" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="recalculation.onThoroughRecalculateClick()">
+            {{ "schedule.recalculate.menu.thorough" | translate }}
+          </button>
+        </div>
       </div>
-    </div>
+    }
 
     <div class="tool-scenario">
       <app-scenario-selector ngbTooltip="{{ 'scenario.select' | translate }}" />

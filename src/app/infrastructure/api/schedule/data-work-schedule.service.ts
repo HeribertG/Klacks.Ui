@@ -4,7 +4,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { IFrozenPeriodOverride } from 'src/app/domain/models/schedule/frozen-period-override.interface';
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
+import { IPeriodHoursRecalculationResult } from 'src/app/domain/models/schedule/period-hours-recalculation-result.interface';
 import { IPeriodHoursRequest } from 'src/app/domain/models/schedule/period-hours-request.interface';
 import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
 import { IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-response.interface';
@@ -27,12 +29,18 @@ export class DataWorkScheduleService {
       .pipe(retry(2));
   }
 
-  recalculatePeriodHours(startDate: string, endDate: string, selectedGroup?: string) {
+  recalculatePeriodHours(
+    startDate: string,
+    endDate: string,
+    selectedGroup?: string,
+    frozenOverride?: IFrozenPeriodOverride,
+  ) {
     return this.httpClient
-      .post<boolean>(`${environment.baseUrl}Works/RecalculatePeriodHours`, {
+      .post<IPeriodHoursRecalculationResult>(`${environment.baseUrl}Works/RecalculatePeriodHours`, {
         startDate,
         endDate,
         selectedGroup: selectedGroup || null,
+        ...frozenOverride,
       });
   }
 
@@ -41,13 +49,15 @@ export class DataWorkScheduleService {
     endDate: string,
     selectedGroup?: string,
     analyseToken?: string | null,
+    frozenOverride?: IFrozenPeriodOverride,
   ) {
     return this.httpClient
-      .post<{ queued: boolean }>(`${environment.baseUrl}Works/RecalculatePeriodHoursThorough`, {
+      .post<IPeriodHoursRecalculationResult>(`${environment.baseUrl}Works/RecalculatePeriodHoursThorough`, {
         startDate,
         endDate,
         selectedGroup: selectedGroup || null,
         analyseToken: analyseToken ?? null,
+        ...frozenOverride,
       });
   }
 }

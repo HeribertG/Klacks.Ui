@@ -135,6 +135,22 @@ describe('ModalService', () => {
     expect(modalService.reasonSignal()).toBe(modalType);
   });
 
+  it('emits reasonEvent for every dismissal, also the second dismissal of the same modal type', () => {
+    const dismissed: ModalType[] = [];
+    modalService.reasonEvent.subscribe((type) => dismissed.push(type));
+
+    modalService.openModel(ModalType.Input);
+    TestBed.tick();
+    modalService.failedReason(ModalType.Input);
+    TestBed.tick();
+    modalService.openModel(ModalType.Input);
+    TestBed.tick();
+    modalService.failedReason(ModalType.Input);
+    TestBed.tick();
+
+    expect(dismissed).toEqual([ModalType.Input, ModalType.Input]);
+  });
+
   it('should emit reasonEvent when failedReason is called', async () => {
     // Arrange
     const modalType = ModalType.Message;

@@ -2,7 +2,8 @@
 
 /**
  * Fixed values of the schedule header: zoom and timeline row height sliders, the period navigation bounds,
- * the toast names, the bulk-send error placeholder, the tools overlay selectors and the wizard dropdown shortcut.
+ * the toast names, the frozen-period reason dialog context, the bulk-send error placeholder, the tools overlay selectors
+ * and the wizard dropdown shortcut.
  */
 import { Options } from '@angular-slider/ngx-slider';
 
@@ -44,3 +45,4 @@ export const SCHEDULE_HEADER_TOOLS_TOGGLE_SELECTOR = '.header-tools-toggle';
 
 export const SCHEDULE_HEADER_WIZARD_DROPDOWN_SHORTCUT_KEY = 'h';
 export const SCHEDULE_HEADER_TEXT_INPUT_TAGS: readonly string[] = ['INPUT', 'TEXTAREA'];
+export const SCHEDULE_HEADER_FROZEN_REASON_CONTEXT = 'schedule-header-frozen-period-reason';

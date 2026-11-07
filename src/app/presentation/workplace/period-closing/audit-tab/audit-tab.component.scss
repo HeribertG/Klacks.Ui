@@ -182,6 +182,11 @@
   color: var(--onAccent);
 }
 
+.badge-recalculate-exported {
+  background-color: var(--standartRedColor);
+  color: var(--onAccent);
+}
+
 .badge-skipped {
   margin-left: 6px;
   background-color: var(--standartOrangeColor);

@@ -11,6 +11,7 @@ import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IThoroughRecalculationCompletedNotification } from 'src/app/domain/interfaces/thorough-recalculation-completed-notification.interface';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
+import { IPeriodHoursRecalculationResult } from 'src/app/domain/models/schedule/period-hours-recalculation-result.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
@@ -67,6 +68,9 @@ const PERIOD_START = new Date(Date.UTC(2026, 9, 1));
 const PERIOD_END = new Date(Date.UTC(2026, 9, 31));
 const VISIBLE_START = new Date(Date.UTC(2026, 8, 28));
 const VISIBLE_END = new Date(Date.UTC(2026, 10, 1));
+const NOTHING_FROZEN: IPeriodHoursRecalculationResult = { accepted: true, frozenSkipped: 0 };
+const TWO_FROZEN: IPeriodHoursRecalculationResult = { accepted: true, frozenSkipped: 2 };
+const FROZEN_REASON_CONTEXT = 'schedule-header-frozen-period-reason';
 
 interface WorkFilterStub {
   paymentInterval: number;
@@ -90,6 +94,7 @@ interface PeriodApi {
 
 interface RecalculationApi {
   isRecalculating: () => boolean;
+  canRecalculate: () => boolean;
   onRecalculatePeriodHours(): Promise<void>;
   onThoroughRecalculateClick(): void;
   onThoroughRecalculateConfirmed(): Promise<void>;
@@ -156,13 +161,21 @@ describe('ScheduleHeaderComponent (characterization)', () => {
   let workloadEligible: ReturnType<typeof signal<boolean>>;
   let startBlocked: ReturnType<typeof signal<boolean>>;
   let completed$: Subject<IThoroughRecalculationCompletedNotification>;
-  let recalcNormal: Deferred<boolean>;
-  let recalcThorough: Deferred<{ queued: boolean }>;
+  let recalcNormal: Deferred<IPeriodHoursRecalculationResult>;
+  let recalcThorough: Deferred<IPeriodHoursRecalculationResult>;
   let sendDeferred: Deferred<{ success: number; failed: number; noEmail: number }>;
 
   let dataWorkSchedule: Record<string, ReturnType<typeof vi.fn>>;
   let toast: Record<string, ReturnType<typeof vi.fn>>;
-  let modal: { openModal: ReturnType<typeof vi.fn> };
+  let modal: {
+    openModal: ReturnType<typeof vi.fn>;
+    openModel: ReturnType<typeof vi.fn>;
+    resultEvent: Subject<ModalType>;
+    reasonEvent: Subject<ModalType>;
+    componentContext: string;
+    contentInputTitle: string;
+    contentInputString: string;
+  };
   let reportContext: { sendForAllClients: ReturnType<typeof vi.fn> };
   let viewMode: Record<string, unknown> & {
     isTimelineMode: ReturnType<typeof signal<boolean>>;
@@ -248,17 +261,17 @@ describe('ScheduleHeaderComponent (characterization)', () => {
     workloadEligible = signal(false);
     startBlocked = signal(false);
     completed$ = new Subject<IThoroughRecalculationCompletedNotification>();
-    recalcNormal = deferred<boolean>();
-    recalcThorough = deferred<{ queued: boolean }>();
+    recalcNormal = deferred<IPeriodHoursRecalculationResult>();
+    recalcThorough = deferred<IPeriodHoursRecalculationResult>();
     sendDeferred = deferred<{ success: number; failed: number; noEmail: number }>();
 
     dataWorkSchedule = {
       recalculatePeriodHours: vi.fn(() => ({
-        subscribe: (observer: { next: (v: boolean) => void; error: (e: unknown) => void }) =>
+        subscribe: (observer: { next: (v: IPeriodHoursRecalculationResult) => void; error: (e: unknown) => void }) =>
           recalcNormal.promise.then(observer.next, observer.error),
       })),
       recalculatePeriodHoursThorough: vi.fn(() => ({
-        subscribe: (observer: { next: (v: { queued: boolean }) => void; error: (e: unknown) => void }) =>
+        subscribe: (observer: { next: (v: IPeriodHoursRecalculationResult) => void; error: (e: unknown) => void }) =>
           recalcThorough.promise.then(observer.next, observer.error),
       })),
     };
@@ -266,7 +279,15 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       showInfo: vi.fn((...args: unknown[]) => calls.push(`info:${String(args[1])}`)),
       showError: vi.fn((...args: unknown[]) => calls.push(`error:${String(args[1])}`)),
     };
-    modal = { openModal: vi.fn() };
+    modal = {
+      openModal: vi.fn(),
+      openModel: vi.fn(),
+      resultEvent: new Subject<ModalType>(),
+      reasonEvent: new Subject<ModalType>(),
+      componentContext: '',
+      contentInputTitle: '',
+      contentInputString: '',
+    };
     reportContext = { sendForAllClients: vi.fn(() => sendDeferred.promise) };
     viewMode = {
       isTimelineMode: signal(false),
@@ -544,9 +565,10 @@ describe('ScheduleHeaderComponent (characterization)', () => {
         formatDateOnly(PERIOD_START),
         formatDateOnly(PERIOD_END),
         SELECTED_GROUP,
+        undefined,
       );
 
-      recalcNormal.resolve(true);
+      recalcNormal.resolve(NOTHING_FROZEN);
       await pending;
 
       expect(recalculation().isRecalculating()).toBe(false);
@@ -576,8 +598,108 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       const pending = recalculation().onRecalculatePeriodHours();
       await recalculation().onRecalculatePeriodHours();
       expect(dataWorkSchedule['recalculatePeriodHours']).toHaveBeenCalledTimes(1);
-      recalcNormal.resolve(true);
+      recalcNormal.resolve(NOTHING_FROZEN);
       await pending;
+    });
+  });
+
+  describe('frozen periods', () => {
+    const enterReason = (reason: string) => {
+      modal.contentInputString = reason;
+      modal.resultEvent.next(ModalType.Input);
+    };
+
+    const confirmOverride = () => (modal.openModal.mock.calls[0][0] as { onConfirm: () => void }).onConfirm();
+
+    it('is offered only to admins', () => {
+      createComponent();
+      expect(recalculation().canRecalculate()).toBe(false);
+
+      granted.set([ROLE_ADMIN]);
+      expect(recalculation().canRecalculate()).toBe(true);
+    });
+
+    it('offers no override when nothing was frozen', async () => {
+      createComponent();
+
+      const pending = recalculation().onRecalculatePeriodHours();
+      recalcNormal.resolve(NOTHING_FROZEN);
+      await pending;
+
+      expect(modal.openModal).not.toHaveBeenCalled();
+    });
+
+    it('offers the override, asks for a reason and sends the normal run again with it', async () => {
+      createComponent();
+      const pending = recalculation().onRecalculatePeriodHours();
+      recalcNormal.resolve(TWO_FROZEN);
+      await pending;
+
+      expect(modal.openModal).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ModalType.Confirmation,
+          title: 'schedule.recalculate.frozen.title',
+          message: 'schedule.recalculate.frozen.message|{"count":2}',
+          confirmText: 'schedule.recalculate.frozen.include',
+        }),
+      );
+      confirmOverride();
+      expect(modal.openModel).toHaveBeenCalledWith(ModalType.Input);
+      expect(modal.componentContext).toBe(FROZEN_REASON_CONTEXT);
+      expect(modal.contentInputTitle).toBe('schedule.recalculate.frozen.reason');
+
+      recalcNormal = deferred<IPeriodHoursRecalculationResult>();
+      enterReason('  payroll correction  ');
+      expect(dataWorkSchedule['recalculatePeriodHours']).toHaveBeenLastCalledWith(
+        formatDateOnly(PERIOD_START),
+        formatDateOnly(PERIOD_END),
+        SELECTED_GROUP,
+        { confirmFrozen: true, reason: 'payroll correction' },
+      );
+      expect(modal.componentContext).toBe('');
+      recalcNormal.resolve(NOTHING_FROZEN);
+    });
+
+    it('sends the thorough override even while the first thorough run waits for its completion', async () => {
+      createComponent();
+      const pending = recalculation().onThoroughRecalculateConfirmed();
+      recalcThorough.resolve(TWO_FROZEN);
+      await pending;
+      expect(recalculation().isRecalculating()).toBe(true);
+
+      confirmOverride();
+      recalcThorough = deferred<IPeriodHoursRecalculationResult>();
+      enterReason('late correction');
+
+      expect(dataWorkSchedule['recalculatePeriodHoursThorough']).toHaveBeenLastCalledWith(
+        formatDateOnly(PERIOD_START),
+        formatDateOnly(PERIOD_END),
+        SELECTED_GROUP,
+        ACTIVE_TOKEN,
+        { confirmFrozen: true, reason: 'late correction' },
+      );
+      recalcThorough.resolve(NOTHING_FROZEN);
+    });
+
+    it('ignores a blank reason, a dismissed reason dialog and input dialogs of other components', async () => {
+      createComponent();
+      const pending = recalculation().onRecalculatePeriodHours();
+      recalcNormal.resolve(TWO_FROZEN);
+      await pending;
+
+      confirmOverride();
+      enterReason('   ');
+      expect(dataWorkSchedule['recalculatePeriodHours']).toHaveBeenCalledTimes(1);
+      expect(modal.componentContext).toBe('');
+
+      confirmOverride();
+      modal.reasonEvent.next(ModalType.Input);
+      expect(modal.componentContext).toBe('');
+
+      modal.componentContext = 'inbox-create-folder';
+      enterReason('not mine');
+      expect(dataWorkSchedule['recalculatePeriodHours']).toHaveBeenCalledTimes(1);
+      expect(modal.componentContext).toBe('inbox-create-folder');
     });
   });
 
@@ -605,7 +727,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       recalculation().onThoroughRecalculateClick();
 
       expect(modal.openModal).not.toHaveBeenCalled();
-      recalcNormal.resolve(true);
+      recalcNormal.resolve(NOTHING_FROZEN);
       await pending;
     });
 
@@ -620,8 +742,9 @@ describe('ScheduleHeaderComponent (characterization)', () => {
         formatDateOnly(PERIOD_END),
         SELECTED_GROUP,
         ACTIVE_TOKEN,
+        undefined,
       );
-      recalcThorough.resolve({ queued: true });
+      recalcThorough.resolve(NOTHING_FROZEN);
       await pending;
 
       expect(recalculation().isRecalculating()).toBe(true);
