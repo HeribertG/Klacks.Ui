@@ -183,6 +183,25 @@ describe('PeriodsTabComponent', () => {
       });
     });
 
+    it('seals exactly the bounds of the period row, never the surrounding calendar month', () => {
+      const biweeklyRowLabelledMonthly: UsedPeriod = {
+        ...PERIOD,
+        startDate: '2026-12-28',
+        endDate: '2027-01-10',
+        paymentInterval: 2,
+      };
+      api.getUsedPeriods.mockReturnValue(of([biweeklyRowLabelledMonthly]));
+      const created = TestBed.createComponent(PeriodsTabComponent);
+      created.detectChanges();
+
+      created.componentInstance.onBulkSeal();
+      lastModalOptions().onConfirm();
+
+      expect(api.seal).toHaveBeenLastCalledWith(
+        expect.objectContaining({ startDate: '2026-12-28', endDate: '2027-01-10' }),
+      );
+    });
+
     it('does not seal when the dialog is cancelled', () => {
       component.onBulkSeal();
 

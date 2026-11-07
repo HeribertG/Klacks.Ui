@@ -525,18 +525,7 @@ export class PeriodsTabComponent implements OnInit {
   }
 
   private getPeriodBounds(p: UsedPeriod): { start: string; end: string } {
-    if (p.paymentInterval !== 2) {
-      return { start: p.startDate, end: p.endDate };
-    }
-    const s = new Date(`${p.startDate}T00:00:00`);
-    const e = new Date(`${p.endDate}T00:00:00`);
-    const mid = new Date((s.getTime() + e.getTime()) / 2);
-    const firstDay = new Date(mid.getFullYear(), mid.getMonth(), 1);
-    const lastDay = new Date(mid.getFullYear(), mid.getMonth() + 1, 0);
-    return {
-      start: this.toLocalIso(firstDay),
-      end: this.toLocalIso(lastDay),
-    };
+    return { start: p.startDate, end: p.endDate };
   }
 
   private toLocalIso(d: Date): string {
