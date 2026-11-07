@@ -11,7 +11,7 @@ import { AvailabilityCalculationService } from '../services/render-availability-
 import { RenderAvailabilityGridService } from '../services/render-availability-grid';
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
-import { ClientAvailabilitySurfaceComponent } from '../client-availability-surface/client-availability-surface.component';
+import { AVAILABILITY_SURFACE_SCROLL_NOTIFIER } from './availability-surface-scroll-notifier.token';
 import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
@@ -73,7 +73,7 @@ describe('AvailabilitySurfaceEventsDirective - Ctrl+Click and context menu', () 
         { provide: DataManagementClientAvailabilityService, useValue: dataManagement },
         { provide: DrawAvailabilityGridService, useValue: drawGrid },
         { provide: AvailabilitySelectionService, useValue: { select: vi.fn() } },
-        { provide: ClientAvailabilitySurfaceComponent, useValue: {} },
+        { provide: AVAILABILITY_SURFACE_SCROLL_NOTIFIER, useValue: {} },
         AvailabilityEditService,
         { provide: AuthorizationService, useValue: authorization },
         { provide: AvailabilityCoordinateService, useValue: { mouseToColumn: vi.fn().mockReturnValue(0) } },
@@ -154,7 +154,7 @@ describe('AvailabilitySurfaceEventsDirective - touch predicate and pan', () => {
         { provide: DataManagementClientAvailabilityService, useValue: { setHourRange: vi.fn(), getNextGroupValue: vi.fn().mockReturnValue(true) } },
         { provide: DrawAvailabilityGridService, useValue: drawGrid },
         { provide: AvailabilitySelectionService, useValue: selection },
-        { provide: ClientAvailabilitySurfaceComponent, useValue: surface },
+        { provide: AVAILABILITY_SURFACE_SCROLL_NOTIFIER, useValue: surface },
         AvailabilityEditService,
         { provide: AuthorizationService, useValue: authorization },
         { provide: AvailabilityCoordinateService, useValue: { mouseToColumn: vi.fn().mockReturnValue(3) } },
@@ -266,7 +266,7 @@ describe('AvailabilitySurfaceEventsDirective - drag painting', () => {
         { provide: DataManagementClientAvailabilityService, useValue: dataManagement },
         { provide: DrawAvailabilityGridService, useValue: { drawGrid: vi.fn(), getScrollY: vi.fn().mockReturnValue(0), getScrollX: vi.fn().mockReturnValue(0) } },
         { provide: AvailabilitySelectionService, useValue: { select: vi.fn() } },
-        { provide: ClientAvailabilitySurfaceComponent, useValue: {} },
+        { provide: AVAILABILITY_SURFACE_SCROLL_NOTIFIER, useValue: {} },
         AvailabilityEditService,
         { provide: AuthorizationService, useValue: authorization },
         { provide: AvailabilityCoordinateService, useValue: coord },
@@ -370,7 +370,7 @@ describe('AvailabilitySurfaceEventsDirective - mixed cell tooltip', () => {
           },
         },
         { provide: AvailabilitySelectionService, useValue: { select: vi.fn() } },
-        { provide: ClientAvailabilitySurfaceComponent, useValue: { notifyScrollChanged: vi.fn() } },
+        { provide: AVAILABILITY_SURFACE_SCROLL_NOTIFIER, useValue: { notifyScrollChanged: vi.fn() } },
         AvailabilityEditService,
         { provide: AuthorizationService, useValue: authorization },
         { provide: AvailabilityCoordinateService, useValue: { mouseToColumn: vi.fn().mockReturnValue(3) } },
@@ -484,7 +484,7 @@ describe('AvailabilitySurfaceEventsDirective - edit right and Delete key', () =>
         { provide: DataManagementClientAvailabilityService, useValue: dataManagement },
         { provide: DrawAvailabilityGridService, useValue: { drawGrid: vi.fn(), getScrollX: vi.fn().mockReturnValue(0), getScrollY: vi.fn().mockReturnValue(0) } },
         { provide: AvailabilitySelectionService, useValue: selection },
-        { provide: ClientAvailabilitySurfaceComponent, useValue: {} },
+        { provide: AVAILABILITY_SURFACE_SCROLL_NOTIFIER, useValue: {} },
         AvailabilityEditService,
         { provide: AuthorizationService, useValue: authorization },
         { provide: AvailabilityCoordinateService, useValue: { mouseToColumn: vi.fn().mockReturnValue(SELECTED_COL) } },

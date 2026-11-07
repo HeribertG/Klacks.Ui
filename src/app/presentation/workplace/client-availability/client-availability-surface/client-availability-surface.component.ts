@@ -10,9 +10,12 @@ import {
   output,
   viewChild,
   ChangeDetectionStrategy,
+  forwardRef,
 } from '@angular/core';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { AvailabilitySurfaceEventsDirective } from '../directives/availability-surface-events.directive';
+import { AVAILABILITY_SURFACE_SCROLL_NOTIFIER } from '../directives/availability-surface-scroll-notifier.token';
+import { IAvailabilitySurfaceScrollNotifier } from '../directives/availability-surface-scroll-notifier.interface';
 import { TouchGestureDirective } from 'src/app/presentation/directives/touch-gesture.directive';
 import { TouchPanEvent } from 'src/app/presentation/directives/touch-pan-event.interface';
 import { AvailabilityCanvasManagerService } from '../services/availability-canvas-manager.service';
@@ -29,9 +32,15 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   standalone: true,
   imports: [ResizeDirective, AvailabilitySurfaceEventsDirective, TouchGestureDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: AVAILABILITY_SURFACE_SCROLL_NOTIFIER,
+      useExisting: forwardRef(() => ClientAvailabilitySurfaceComponent),
+    },
+  ],
 })
 export class ClientAvailabilitySurfaceComponent
-  implements AfterViewInit, OnDestroy
+  implements AfterViewInit, OnDestroy, IAvailabilitySurfaceScrollNotifier
 {
   private canvasManager = inject(AvailabilityCanvasManagerService);
   public drawGrid = inject(DrawAvailabilityGridService);

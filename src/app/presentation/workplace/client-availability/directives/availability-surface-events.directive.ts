@@ -15,7 +15,7 @@ import { RenderAvailabilityGridService } from '../services/render-availability-g
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
-import { ClientAvailabilitySurfaceComponent } from '../client-availability-surface/client-availability-surface.component';
+import { AVAILABILITY_SURFACE_SCROLL_NOTIFIER } from './availability-surface-scroll-notifier.token';
 import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -42,7 +42,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   private dataManagement = inject(DataManagementClientAvailabilityService);
   private drawGrid = inject(DrawAvailabilityGridService);
   private selection = inject(AvailabilitySelectionService);
-  private surface = inject(ClientAvailabilitySurfaceComponent);
+  private surface = inject(AVAILABILITY_SURFACE_SCROLL_NOTIFIER);
   private coord = inject(AvailabilityCoordinateService);
   private tooltipService = inject(TooltipService);
   private translate = inject(TranslateService);
