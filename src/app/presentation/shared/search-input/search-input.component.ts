@@ -9,7 +9,7 @@
  * @param disabled - Disable the input
  * @param buttonDisabled - Disable only the search button
  * @param isLoading - Visual loading state for the search button
- * @param debounceMs - Debounce delay in ms for valueChange and search emissions
+ * @param debounceMs - Debounce delay in ms for valueChange; a submit emits the pending value before searchSubmit
  * @param inputId - Optional id for the underlying input element
  * @param klacksyTarget - Optional data-klacksy-target value applied to the input (and `.submit` on the button) so Klacksy skills can drive it via UiActionEngine
  */
@@ -27,7 +27,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import { Subject, debounceTime } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 
 const DEFAULT_PLACEHOLDER_KEY = 'placeholder.search';
 
@@ -57,14 +57,11 @@ export class SearchInputComponent implements OnDestroy {
 
   faSearch = faSearch;
 
-  private debounceSubject = new Subject<string>();
-  private debounceSub = this.debounceSubject
-    .pipe(debounceTime(0))
-    .subscribe();
+  private pendingValue: string | null = null;
+  private debounceSub: Subscription | null = null;
 
   ngOnDestroy(): void {
-    this.debounceSub.unsubscribe();
-    this.debounceSubject.complete();
+    this.cancelPending();
   }
 
   get translatedPlaceholder(): string {
@@ -94,15 +91,27 @@ export class SearchInputComponent implements OnDestroy {
 
   onSubmit(): void {
     if (this.disabled() || this.buttonDisabled() || this.isLoading()) return;
+    this.flushPending();
     this.searchSubmit.emit(this.value);
   }
 
   private scheduleDebounced(next: string): void {
-    this.debounceSub.unsubscribe();
-    this.debounceSubject = new Subject<string>();
-    this.debounceSub = this.debounceSubject
-      .pipe(debounceTime(this.debounceMs()))
-      .subscribe(v => this.valueChange.emit(v));
-    this.debounceSubject.next(next);
+    this.cancelPending();
+    this.pendingValue = next;
+    this.debounceSub = timer(this.debounceMs()).subscribe(() => this.flushPending());
+  }
+
+  private flushPending(): void {
+    const pending = this.pendingValue;
+    this.cancelPending();
+    if (pending !== null) {
+      this.valueChange.emit(pending);
+    }
+  }
+
+  private cancelPending(): void {
+    this.debounceSub?.unsubscribe();
+    this.debounceSub = null;
+    this.pendingValue = null;
   }
 }

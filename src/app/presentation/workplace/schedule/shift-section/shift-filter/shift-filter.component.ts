@@ -49,6 +49,12 @@ export class ShiftFilterComponent {
     }
   }
 
+  onShiftSearchSubmit(value: string): void {
+    if (value) {
+      this.onShiftFilterChange();
+    }
+  }
+
   clearShiftFilters(): void {
     this.dataManagement.shiftScheduleFilter.searchString = undefined;
     this.dataManagement.shiftScheduleFilter.isSporadic = true;
