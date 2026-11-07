@@ -108,8 +108,9 @@ export class ScheduleCellDropHandlerService {
       .confirmBreak(breakEntry)
       .then(async (agreed) => {
         if (!agreed) return;
-        await this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
-        this.deleteEntry(src);
+        if (await this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry)) {
+          this.deleteEntry(src);
+        }
       })
       .catch((error: unknown) => this.showMoveFailed(error, MOVE_BREAK_FAILED_KEY));
   }

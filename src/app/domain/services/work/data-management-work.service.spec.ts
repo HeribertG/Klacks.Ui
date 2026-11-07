@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { EMPTY, of } from 'rxjs';
 import { vi } from 'vitest';
 import { DataManagementWorkService } from './data-management-work.service';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
@@ -47,6 +47,23 @@ describe('DataManagementWorkService', () => {
     expect(newWork.analyseToken).toBeUndefined();
     expect(editedWork.analyseToken).toBeUndefined();
     expect(next.mock.calls).toEqual([[added], [updated]]);
+  });
+
+  it('resolves a created work with null when an identical create is still in flight', async () => {
+    api.addWork.mockReturnValue(EMPTY);
+
+    const created = await service.createWork({
+      clientId: 'client-1',
+      shiftId: 'shift-1',
+      date: new Date(2025, 0, 15),
+      workTime: 8,
+      startTime: '08:00:00',
+      endTime: '16:00:00',
+      periodStart: '2025-01-01',
+      periodEnd: '2025-01-31',
+    });
+
+    expect(created).toBeNull();
   });
 
   it('confirms a work through the API and hands back its response', () => {

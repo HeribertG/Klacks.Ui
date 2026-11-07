@@ -73,8 +73,12 @@ export class ScheduleEntryCrudService {
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
 
-  async addBreakScheduleEntry(breakEntry: Break): Promise<void> {
-    const response = await firstValueFrom(this.breakService.addBreak(breakEntry));
+  /** Resolves false when the absence was not created because an identical create is still in flight. */
+  async addBreakScheduleEntry(breakEntry: Break): Promise<boolean> {
+    const response = await firstValueFrom(this.breakService.addBreak(breakEntry), { defaultValue: null });
+    if (!response) {
+      return false;
+    }
     if (response.periodHours) {
       this.workScheduleLoader.periodHours.set(breakEntry.clientId, response.periodHours);
     }
@@ -84,6 +88,7 @@ export class ScheduleEntryCrudService {
       this.workScheduleLoader.replaceClientEntriesForDays(breakEntry.clientId, startDate, endDate, response.scheduleEntries);
       this.triggerScheduleRefresh();
     }
+    return true;
   }
 
   async previewTakenWorks(entries: BreakCellParams[]): Promise<RemovableWork[]> {
@@ -194,6 +199,12 @@ export class ScheduleEntryCrudService {
       this.reloadSporadicState([params.shiftId]);
       throw error;
     });
+
+    if (!response) {
+      this.updateShiftEngagedLocally(params.shiftId, params.date, -1, workFilter);
+      this.reloadSporadicState([params.shiftId]);
+      return;
+    }
 
     if (response.periodHours) {
       this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);

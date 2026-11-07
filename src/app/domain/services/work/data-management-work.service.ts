@@ -78,7 +78,7 @@ export class DataManagementWorkService {
     endTime: string;
     periodStart: string;
     periodEnd: string;
-  }): Promise<IWork> {
+  }): Promise<IWork | null> {
     return new Promise((resolve, reject) => {
       const work = new Work();
       work.clientId = params.clientId;
@@ -99,6 +99,7 @@ export class DataManagementWorkService {
             console.error('Error creating work entry:', err);
             reject(err);
           },
+          complete: () => resolve(null),
         });
     });
   }

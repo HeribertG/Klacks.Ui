@@ -7,6 +7,8 @@ import { environment } from 'src/environments/environment';
 import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
+import { idempotentRequestOptions } from 'src/app/infrastructure/helpers/idempotency-key.helper';
+import { IdenticalCreateGuardService } from 'src/app/infrastructure/helpers/identical-create-guard.service';
 import { HttpClient } from '@angular/common/http';
 import { BulkDeleteWorksRequest } from 'src/app/domain/models/dtos/bulk-delete-works-request.dto';
 import { BulkAddWorksRequest } from 'src/app/domain/models/dtos/bulk-add-works-request.dto';
@@ -18,6 +20,7 @@ import { ReassignWorkClientResponse } from 'src/app/domain/models/dtos/reassign-
 })
 export class DataScheduleService {
   private httpClient = inject(HttpClient);
+  private identicalCreateGuard = inject(IdenticalCreateGuardService);
 
   getWork(id: string) {
     return this.httpClient
@@ -26,9 +29,14 @@ export class DataScheduleService {
   }
 
   addWork(value: Work) {
-    return defer(() => this.httpClient
-      .post<IWork>(`${environment.baseUrl}Works/`, this.toWirePayload(value))
-      .pipe(retryTransientHttpErrors()));
+    const options = idempotentRequestOptions();
+    const url = `${environment.baseUrl}Works/`;
+    return defer(() => {
+      const payload = this.toWirePayload(value);
+      return this.identicalCreateGuard.run(url, payload, () => this.httpClient
+        .post<IWork>(url, payload, options)
+        .pipe(retryTransientHttpErrors()));
+    });
   }
 
   updateWork(value: Work) {
@@ -58,7 +66,7 @@ export class DataScheduleService {
 
   bulkAddWorks(request: BulkAddWorksRequest) {
     return this.httpClient
-      .post<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, request)
+      .post<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, request, idempotentRequestOptions())
       .pipe(retryTransientHttpErrors());
   }
 

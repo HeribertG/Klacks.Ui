@@ -35,7 +35,11 @@ export class DataManagementBreakService {
         error: (err) => {
           this.isCreating.set(false);
           observer.error(err);
-        }
+        },
+        complete: () => {
+          this.isCreating.set(false);
+          observer.complete();
+        },
       });
     });
   }

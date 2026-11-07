@@ -3,7 +3,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
+import { EMPTY, of, Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ScheduleEntryCrudService } from './schedule-entry-crud.service';
 import { ScheduleCellParams } from './schedule-cell-params.interface';
@@ -18,6 +18,7 @@ import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
 import { SporadicStatus } from '../../enums/sporadic-status.enum';
 import { IWorkFilter } from '../../models/schedule/work-filter.interface';
 import { DataManagementBreakService } from '../break/data-management-break.service';
+import { Break } from '../../models/break/break-class';
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -384,6 +385,59 @@ describe('ScheduleEntryCrudService', () => {
 
       // Assert
       expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(3);
+    });
+  });
+
+  describe('addWorkScheduleEntry ignored as an identical create still in flight', () => {
+    const params: ScheduleCellParams = {
+      clientId: 'client-1',
+      date: new Date(2025, 0, 15),
+      shiftId: 'shift-1',
+      workTime: 480,
+      startTime: '08:00:00',
+      endTime: '16:00:00',
+    };
+
+    beforeEach(() => {
+      shiftLoaderMock.shiftSchedules = [
+        createMockShiftSchedule({ shiftId: 'shift-1', date: new Date(2025, 0, 15), engaged: 2 }),
+      ];
+      workCrudMock.createWork.mockResolvedValue(null);
+    });
+
+    it('resolves without touching the grid and rolls the optimistic engaged count back', async () => {
+      await service.addWorkScheduleEntry(params, createMockWorkFilter());
+
+      expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(2);
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).not.toHaveBeenCalled();
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1']);
+    });
+  });
+
+  describe('addBreakScheduleEntry', () => {
+    const breakEntry = (): Break => {
+      const value = new Break();
+      value.clientId = 'client-1';
+      value.currentDate = new Date(2025, 0, 15);
+      return value;
+    };
+
+    it('reports a created absence and applies its entries', async () => {
+      breakServiceMock.addBreak.mockReturnValue(of({ periodHours: {}, scheduleEntries: [{ clientId: 'client-1' }] }));
+
+      const created = await service.addBreakScheduleEntry(breakEntry());
+
+      expect(created).toBe(true);
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports nothing created when an identical create is still in flight', async () => {
+      breakServiceMock.addBreak.mockReturnValue(EMPTY);
+
+      const created = await service.addBreakScheduleEntry(breakEntry());
+
+      expect(created).toBe(false);
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).not.toHaveBeenCalled();
     });
   });
 

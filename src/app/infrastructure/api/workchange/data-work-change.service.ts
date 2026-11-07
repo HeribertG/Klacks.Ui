@@ -6,15 +6,20 @@ import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WorkChangeRequest } from 'src/app/domain/models/workchange/work-change';
 import { WorkChangeResource } from 'src/app/domain/models/workchange/work-change-resource.interface';
+import { idempotentRequestOptions } from 'src/app/infrastructure/helpers/idempotency-key.helper';
+import { IdenticalCreateGuardService } from 'src/app/infrastructure/helpers/identical-create-guard.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataWorkChangeService {
   private httpClient = inject(HttpClient);
+  private identicalCreateGuard = inject(IdenticalCreateGuardService);
 
   create(request: WorkChangeRequest): Observable<WorkChangeResource> {
-    return this.httpClient.post<WorkChangeResource>(`${environment.baseUrl}Works/Changes`, request);
+    const url = `${environment.baseUrl}Works/Changes`;
+    const options = idempotentRequestOptions();
+    return this.identicalCreateGuard.run(url, request, () => this.httpClient.post<WorkChangeResource>(url, request, options));
   }
 
   update(request: WorkChangeResource): Observable<WorkChangeResource> {

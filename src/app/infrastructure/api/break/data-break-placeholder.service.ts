@@ -9,12 +9,16 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder
 import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
+import { idempotentRequestOptions } from 'src/app/infrastructure/helpers/idempotency-key.helper';
+import { IdenticalCreateGuardService } from 'src/app/infrastructure/helpers/identical-create-guard.service';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataBreakPlaceholderService {
   private httpClient = inject(HttpClient);
+  private identicalCreateGuard = inject(IdenticalCreateGuardService);
 
   getBreak(id: string) {
     return this.httpClient
@@ -23,9 +27,14 @@ export class DataBreakPlaceholderService {
   }
 
   addBreak(value: BreakPlaceholder) {
-    return defer(() => this.httpClient
-      .post<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/`, this.toWirePayload(value))
-      .pipe(retry(3)));
+    const options = idempotentRequestOptions();
+    const url = `${environment.baseUrl}BreakPlaceholders/`;
+    return defer(() => {
+      const payload = this.toWirePayload(value);
+      return this.identicalCreateGuard.run(url, payload, () => this.httpClient
+        .post<IBreakPlaceholder>(url, payload, options)
+        .pipe(retryTransientHttpErrors()));
+    });
   }
 
   updateBreak(value: BreakPlaceholder) {

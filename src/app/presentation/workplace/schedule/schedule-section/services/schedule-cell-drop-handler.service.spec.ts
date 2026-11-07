@@ -88,7 +88,7 @@ describe('ScheduleCellDropHandlerService', () => {
     };
 
     scheduleEntryCrud = {
-      addBreakScheduleEntry: vi.fn().mockResolvedValue(undefined),
+      addBreakScheduleEntry: vi.fn().mockResolvedValue(true),
     };
     takenWorksConfirm = { confirmBreak: vi.fn().mockResolvedValue(true) };
 
@@ -246,6 +246,16 @@ describe('ScheduleCellDropHandlerService', () => {
     expect(arg.startTime).toBe(NO_TIMES_RECORDED);
     expect(arg.endTime).toBe(NO_TIMES_RECORDED);
     expect(arg.workTime).toBe(DURATION_MODE_HOURS);
+  });
+
+  it('move Break skips delete when the add was ignored as an identical create still in flight', async () => {
+    scheduleEntryCrud.addBreakScheduleEntry.mockResolvedValueOnce(false);
+
+    service.handleDrop({ source: breakSource, action: 'move', targetClientId: 'client-target' });
+    await flushPromises();
+
+    expect(scheduleEntryCrud.addBreakScheduleEntry).toHaveBeenCalledTimes(1);
+    expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
   });
 
   it('move Break skips delete if add rejects', async () => {

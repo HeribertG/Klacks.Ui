@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataBreakPlaceholderService } from './data-break-placeholder.service';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
@@ -26,6 +26,30 @@ describe('DataBreakPlaceholderService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    describe('creating an absence gantt entry', () => {
+        const url = `${environment.baseUrl}BreakPlaceholders/`;
+
+        it('sends an entry the server refused (409) only once', () => {
+            let status: number | undefined;
+            service.addBreak(new BreakPlaceholder()).subscribe({ error: (e: HttpErrorResponse) => (status = e.status) });
+
+            httpTestingController.expectOne(url).flush({ title: 'Conflict' }, { status: 409, statusText: 'Conflict' });
+
+            expect(status).toBe(409);
+            httpTestingController.expectNone(url);
+        });
+
+        it('still retries a transient server error', () => {
+            let result: unknown;
+            service.addBreak(new BreakPlaceholder()).subscribe((value) => (result = value));
+
+            httpTestingController.expectOne(url).flush(null, { status: 503, statusText: 'Unavailable' });
+            httpTestingController.expectOne(url).flush({ id: 'server-id' });
+
+            expect(result).toEqual({ id: 'server-id' });
+        });
     });
 
     const mockBreakPlaceholder = (): BreakPlaceholder => {

@@ -11,12 +11,15 @@ import { BulkAddBreaksRequest } from 'src/app/domain/models/dtos/bulk-add-breaks
 import { BulkDeleteBreaksRequest } from 'src/app/domain/models/dtos/bulk-delete-breaks-request.dto';
 import { BulkBreaksResponse } from 'src/app/domain/models/dtos/bulk-breaks-response.dto';
 import { RemovableWork } from 'src/app/domain/models/dtos/removable-work.dto';
+import { idempotentRequestOptions } from 'src/app/infrastructure/helpers/idempotency-key.helper';
+import { IdenticalCreateGuardService } from 'src/app/infrastructure/helpers/identical-create-guard.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataBreakService {
   private httpClient = inject(HttpClient);
+  private identicalCreateGuard = inject(IdenticalCreateGuardService);
 
   getBreak(id: string) {
     return this.httpClient
@@ -25,8 +28,12 @@ export class DataBreakService {
   }
 
   addBreak(value: Break) {
-    return defer(() => this.httpClient
-      .post<IBreak>(`${environment.baseUrl}Breaks/`, this.toWirePayload(value)));
+    const options = idempotentRequestOptions();
+    const url = `${environment.baseUrl}Breaks/`;
+    return defer(() => {
+      const payload = this.toWirePayload(value);
+      return this.identicalCreateGuard.run(url, payload, () => this.httpClient.post<IBreak>(url, payload, options));
+    });
   }
 
   updateBreak(value: Break) {
@@ -49,7 +56,7 @@ export class DataBreakService {
 
   bulkAddBreaks(request: BulkAddBreaksRequest) {
     return this.httpClient
-      .post<BulkBreaksResponse>(`${environment.baseUrl}Breaks/Bulk`, request);
+      .post<BulkBreaksResponse>(`${environment.baseUrl}Breaks/Bulk`, request, idempotentRequestOptions());
   }
 
   bulkDeleteBreaks(request: BulkDeleteBreaksRequest) {
