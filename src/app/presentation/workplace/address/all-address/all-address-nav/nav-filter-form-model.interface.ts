@@ -8,6 +8,7 @@ export interface NavFilterFormModel {
   employee: boolean;
   externEmp: boolean;
   customer: boolean;
+  standIn: boolean;
   activeMembership: boolean;
   formerMembership: boolean;
   futureMembership: boolean;

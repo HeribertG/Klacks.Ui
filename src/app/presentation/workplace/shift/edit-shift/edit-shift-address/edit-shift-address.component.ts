@@ -173,6 +173,7 @@ export class EditShiftAddressComponent implements OnInit {
 
   private refreshList(term: string) {
     this.dataManagementShiftService.currentClientFilter.searchString = term;
+    this.dataManagementShiftService.currentClientFilter.standIn = false;
 
     this.dataClientService
       .readClientList(this.dataManagementShiftService.currentClientFilter)

@@ -55,6 +55,7 @@ function createMockWorkFilter(): IWorkFilter {
     isNextPage: undefined,
     showEmployees: true,
     showExtern: true,
+    showStandIns: true,
     individualSort: false,
   };
 }

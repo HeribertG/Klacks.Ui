@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
-import { ClientType } from 'src/app/domain/models/dashboard/client-type.enum';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { GeocodingSearchStatus } from 'src/app/domain/models/geo/geocoding-search-status.model';
 import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
@@ -11,7 +11,7 @@ import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.
 import { DashboardLocationsService } from './dashboard-locations.service';
 
 const client = (
-  type: ClientType,
+  type: EntityTypeEnum,
   city: string | null,
   country: string | null,
   latitude: number | null = null,
@@ -36,11 +36,11 @@ describe('DashboardLocationsService', () => {
       getVisibilityStatus: vi.fn(),
       getClientsLocationsData: vi.fn(() =>
         of([
-          client(ClientType.Customer, 'Bern', 'CH', 46, 7),
-          client(ClientType.Employee, 'Bern', 'CH', 48, 9),
-          client(ClientType.ExternEmp, 'Bern', 'CH'),
-          client(ClientType.Customer, 'Basel', 'CH'),
-          client(ClientType.Customer, null, 'CH'),
+          client(EntityTypeEnum.customer, 'Bern', 'CH', 46, 7),
+          client(EntityTypeEnum.employee, 'Bern', 'CH', 48, 9),
+          client(EntityTypeEnum.externEmp, 'Bern', 'CH'),
+          client(EntityTypeEnum.customer, 'Basel', 'CH'),
+          client(EntityTypeEnum.customer, null, 'CH'),
         ])
       ),
       getClientsOverviewData: vi.fn(() => of({ nodes: [group('small', 1, [group('big', 5)]), group('none', 0)] })),

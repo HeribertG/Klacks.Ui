@@ -43,4 +43,5 @@ export interface IFilter extends IBaseFilter {
   employee: boolean;
   externEmp: boolean;
   customer: boolean;
+  standIn: boolean;
 }

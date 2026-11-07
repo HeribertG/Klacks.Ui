@@ -58,6 +58,7 @@ export class Filter extends BaseFilter implements IFilter {
   employee = true;
   externEmp = true;
   customer = true;
+  standIn = true;
 
   emptyPlaceholder(): boolean {
     return (
@@ -84,6 +85,7 @@ export class Filter extends BaseFilter implements IFilter {
       this.employee &&
       this.externEmp &&
       this.customer &&
+      this.standIn &&
       !this.withoutGroup
     );
   }

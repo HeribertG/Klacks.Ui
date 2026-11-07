@@ -481,6 +481,20 @@ describe('ResponseInterceptor', () => {
       expect(toastShowService.showError).toHaveBeenCalledWith('shift.cut-shift.reset-refused', 'shift-reset-refused');
     });
 
+    it('explains the refused delete of a stand-in with its name and number of services, once', () => {
+      const DELETE_URL = '/api/backend/Clients/stand-in-1';
+      const translateService = TestBed.inject(TranslateService) as unknown as { instant: ReturnType<typeof vi.fn> };
+      httpClient.delete(DELETE_URL).subscribe({ error: () => undefined });
+
+      httpMock
+        .expectOne(DELETE_URL)
+        .flush({ detail: 'English detail', errorCode: 'STAND_IN_HAS_WORKS', standInName: 'Messe 1', workCount: 4 }, CONFLICT);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith('address.delete.standInHasWorks', 'stand-in-delete-refused');
+      expect(translateService.instant).toHaveBeenCalledWith('address.delete.standInHasWorks', { name: 'Messe 1', count: 4 });
+    });
+
     it('keeps the unsaved changes when a key refuses a shift save, the user may still save them elsewhere', () => {
       const SHIFT_URL = '/api/backend/Shifts/';
       workplaceStateService.isDirty = true;

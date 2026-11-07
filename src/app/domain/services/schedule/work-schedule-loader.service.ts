@@ -342,6 +342,7 @@ export class WorkScheduleLoaderService {
       sortOrder: workFilter.sortOrder || 'asc',
       showEmployees: workFilter.showEmployees ?? true,
       showExtern: workFilter.showExtern ?? true,
+      showStandIns: workFilter.showStandIns ?? true,
       individualSort: workFilter.individualSort ?? false,
       startRow: 0,
       rowCount: this.INITIAL_CHUNK_SIZE,

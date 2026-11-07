@@ -627,6 +627,8 @@ describe('ReportDataProviderService (characterization)', () => {
       expect(resolve('client.list.gender', { gender: 2 })).toBe('');
       expect(resolve('client.list.type')).toBe('address.edit-address.membership.type.employee');
       expect(resolve('client.list.type', { type: 9 })).toBe('');
+      expect(resolve('client.list.type', { type: 3, gender: 1 })).toBe('address.edit-address.membership.type.standIn');
+      expect(resolve('client.list.gender', { type: 3, gender: 1 })).toBe('');
       expect(resolve('client.list.birthdate')).toBe('12.05.1990');
       expect(resolve('client.list.unknown')).toBe('');
       expect(provider.resolveFooterValue(field('client.totalCount'), [row] as never[])).toBe('1');
@@ -653,6 +655,9 @@ describe('ReportDataProviderService (characterization)', () => {
       expect(provider.resolveHeaderValue(field('client.employmentType'), { client: { type: 2 } } as never))
         .toBe('address.edit-address.membership.type.customer');
       expect(provider.resolveHeaderValue(field('client.employmentType'), { client: { type: 7 } } as never)).toBe('');
+      expect(provider.resolveHeaderValue(field('client.employmentType'), { client: { type: 3 } } as never))
+        .toBe('address.edit-address.membership.type.standIn');
+      expect(provider.resolveHeaderValue(field('client.employmentType'), { client: {} } as never)).toBe('');
       expect(provider.resolveHeaderValue(field('client.photo'), { client: { clientImage: { imageData: 'AA' } } } as never)).toBe('');
     });
 

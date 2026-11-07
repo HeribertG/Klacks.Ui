@@ -13,6 +13,7 @@ export interface IWorkScheduleFilter {
   sortOrder?: string;
   showEmployees?: boolean;
   showExtern?: boolean;
+  showStandIns?: boolean;
   individualSort?: boolean;
   startRow?: number;
   rowCount?: number;

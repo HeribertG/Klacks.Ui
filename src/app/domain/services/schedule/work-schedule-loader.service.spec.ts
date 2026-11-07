@@ -52,6 +52,7 @@ function createWorkFilter(): IWorkFilter {
     isNextPage: undefined,
     showEmployees: true,
     showExtern: true,
+    showStandIns: true,
     individualSort: false,
   };
 }
@@ -195,6 +196,14 @@ describe('WorkScheduleLoaderService calendar dates', () => {
 
       expect(formatDateOnly(service.getPeriodStartDate(filter))).toBe(from);
       expect(formatDateOnly(service.getPeriodEndDate(filter))).toBe(until);
+    });
+  });
+
+  describe('stand-in rows', () => {
+    it.each([true, false])('sends showStandIns %s from the work filter', (showStandIns) => {
+      service.load({ ...createWorkFilter(), showStandIns });
+
+      expect(getWorkSchedule).toHaveBeenCalledWith(expect.objectContaining({ showStandIns }));
     });
   });
 

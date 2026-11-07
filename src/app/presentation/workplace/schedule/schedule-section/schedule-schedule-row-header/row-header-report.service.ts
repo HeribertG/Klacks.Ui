@@ -2,6 +2,7 @@
 
 /**
  * Service for report generation and context menu actions in the schedule row header.
+ * A stand-in row offers neither sending its plan nor covering its absence: it is no person.
  * @param scheduleReportCtx - Context service for schedule report generation and sending
  * @param reportDefaults - Default report templates
  * @param appSettings - Email configuration for send verification
@@ -32,6 +33,8 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { collectClientIdsWithWork } from 'src/app/domain/helpers/schedule-work-clients.helper';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 
 @Injectable()
 export class RowHeaderReportService {
@@ -61,18 +64,19 @@ export class RowHeaderReportService {
     this.reportDefaults.load();
   }
 
-  createContextMenu(clientId?: string): Menu {
+  createContextMenu(client?: Pick<IClientWork, 'id' | 'type'>): Menu {
+    const isStandIn = client?.type === EntityTypeEnum.standIn;
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.goToAddress());
     if (this.reportDefaults.hasDefault('schedule')) {
       menuData.list.push(...MenuDataTemplate.staffSchedule());
-      if (this.isEmailConfigured()) {
+      if (this.isEmailConfigured() && !isStandIn) {
         menuData.list.push(...MenuDataTemplate.sendStaffSchedule());
       }
     }
     menuData.list.push(...MenuDataTemplate.divider());
     menuData.list.push(...MenuDataTemplate.shiftPreferences());
-    if (this.canCoverAbsence() && this.hasWork(clientId)) {
+    if (this.canCoverAbsence() && !isStandIn && this.hasWork(client?.id)) {
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.coverAbsence());
     }

@@ -7,4 +7,5 @@ export enum PayrollExportBlockReason {
   EntryNotClosed = 'EntryNotClosed',
   DayNotLocked = 'DayNotLocked',
   OverlappingExport = 'OverlappingExport',
+  StandInAssigned = 'StandInAssigned',
 }

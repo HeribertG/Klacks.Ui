@@ -83,6 +83,7 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
     employee: true,
     externEmp: true,
     customer: true,
+    standIn: true,
     activeMembership: true,
     formerMembership: false,
     futureMembership: false,
@@ -118,6 +119,7 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
       cf.employee = f.employee;
       cf.externEmp = f.externEmp;
       cf.customer = f.customer;
+      cf.standIn = f.standIn;
       cf.activeMembership = f.activeMembership;
       cf.formerMembership = f.formerMembership;
       cf.futureMembership = f.futureMembership;
@@ -193,6 +195,7 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
       employee: true,
       externEmp: true,
       customer: true,
+      standIn: true,
       activeMembership: true,
       formerMembership: false,
       futureMembership: false,
@@ -233,6 +236,7 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
       employee: cf.employee,
       externEmp: cf.externEmp,
       customer: cf.customer,
+      standIn: cf.standIn ?? true,
       activeMembership: cf.activeMembership ?? true,
       formerMembership: cf.formerMembership ?? false,
       futureMembership: cf.futureMembership ?? false,

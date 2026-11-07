@@ -53,6 +53,15 @@ describe('ClientSearchStrategy', () => {
         expect(mockClientService.readPage).toHaveBeenCalled();
     });
 
+    it('narrows to the one requested type and leaves stand-ins out', () => {
+        strategy.search('test', { typeFilter: 'customer' });
+
+        expect(mockClientService.currentFilter.customer).toBe(true);
+        expect(mockClientService.currentFilter.employee).toBe(false);
+        expect(mockClientService.currentFilter.externEmp).toBe(false);
+        expect(mockClientService.currentFilter.standIn).toBe(false);
+    });
+
     it('should reset filter correctly', () => {
         strategy.resetFilter();
 

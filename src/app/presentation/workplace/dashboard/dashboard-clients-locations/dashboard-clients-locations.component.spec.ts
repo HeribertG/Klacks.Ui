@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { DashboardClientsLocationsComponent } from './dashboard-clients-locations.component';
-import { ClientType } from 'src/app/domain/models/dashboard/client-type.enum';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { LocationData } from 'src/app/domain/models/dashboard/location-data.interface';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.service';
@@ -36,9 +36,9 @@ interface MarkerRenderingAccess {
 }
 
 const CLIENTS: IClientLocationResource[] = [
-  { id: '1', type: ClientType.Customer, currentAddress: { city: 'Bern', country: 'CH', zip: '3000', latitude: 46.9, longitude: 7.4 } },
-  { id: '2', type: ClientType.Customer, currentAddress: { city: 'Bern', country: 'CH', zip: '3001', latitude: 47.1, longitude: 7.6 } },
-  { id: '3', type: ClientType.Employee, currentAddress: { city: 'Bern', country: 'CH', zip: '3002', latitude: null, longitude: null } },
+  { id: '1', type: EntityTypeEnum.customer, currentAddress: { city: 'Bern', country: 'CH', zip: '3000', latitude: 46.9, longitude: 7.4 } },
+  { id: '2', type: EntityTypeEnum.customer, currentAddress: { city: 'Bern', country: 'CH', zip: '3001', latitude: 47.1, longitude: 7.6 } },
+  { id: '3', type: EntityTypeEnum.employee, currentAddress: { city: 'Bern', country: 'CH', zip: '3002', latitude: null, longitude: null } },
 ];
 
 describe('DashboardClientsLocationsComponent', () => {

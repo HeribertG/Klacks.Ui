@@ -2,7 +2,7 @@
 
 /**
  * Rule table defining which address types a client may have, depending on the client type.
- * @param ALLOWED_ADDRESS_TYPES_BY_ENTITY_TYPE - Allowed address types per client type (employee, external employee, customer)
+ * @param ALLOWED_ADDRESS_TYPES_BY_ENTITY_TYPE - Allowed address types per client type (employee, external employee, customer; a stand-in has none)
  * @param ALL_ADDRESS_TYPES - Every address type, used when the client type is unknown
  */
 import { AddressTypeEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
@@ -21,4 +21,5 @@ export const ALLOWED_ADDRESS_TYPES_BY_ENTITY_TYPE: Readonly<Record<EntityTypeEnu
     AddressTypeEnum.workplace,
     AddressTypeEnum.invoicingAddress,
   ],
+  [EntityTypeEnum.standIn]: [],
 };

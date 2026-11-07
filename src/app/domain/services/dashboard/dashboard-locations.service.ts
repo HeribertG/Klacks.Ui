@@ -15,7 +15,7 @@ import { catchError, forkJoin, map, Observable, of } from 'rxjs';
 import { flattenGroupTree } from 'src/app/domain/helpers/group-tree.helper';
 import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
 import { AddressSearchOutcome } from 'src/app/domain/models/dashboard/address-search-outcome.interface';
-import { ClientType } from 'src/app/domain/models/dashboard/client-type.enum';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { CoordinateAccumulator } from 'src/app/domain/models/dashboard/coordinate-accumulator.interface';
 import { DashboardLocations } from 'src/app/domain/models/dashboard/dashboard-locations.interface';
 import { LocationData } from 'src/app/domain/models/dashboard/location-data.interface';
@@ -122,11 +122,11 @@ export class DashboardLocationsService {
       };
 
       location.count++;
-      if (clientType === ClientType.Employee) {
+      if (clientType === EntityTypeEnum.employee) {
         location.employeeCount++;
-      } else if (clientType === ClientType.ExternEmp) {
+      } else if (clientType === EntityTypeEnum.externEmp) {
         location.externEmpCount++;
-      } else if (clientType === ClientType.Customer) {
+      } else if (clientType === EntityTypeEnum.customer) {
         location.customerCount++;
       }
       locationMap.set(key, location);

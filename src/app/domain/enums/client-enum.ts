@@ -4,6 +4,7 @@ export enum EntityTypeEnum {
   employee = 0,
   externEmp = 1,
   customer = 2,
+  standIn = 3,
 }
 
 export enum AddressTypeEnum {

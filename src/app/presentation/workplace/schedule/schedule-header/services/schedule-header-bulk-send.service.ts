@@ -2,12 +2,13 @@
 
 /**
  * Bulk e-mail send of the visible schedule range to every loaded client, offered only when outgoing mail is
- * configured and enabled only while schedule changes are unsent.
+ * configured and enabled only while schedule changes are unsent. A stand-in is no person and gets nothing.
  */
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -75,7 +76,7 @@ export class ScheduleHeaderBulkSendService {
 
   private toRecipients(clients: IClientWork[]): { id: string; name: string }[] {
     return clients
-      .filter((c) => !!c.id)
+      .filter((c) => !!c.id && c.type !== EntityTypeEnum.standIn)
       .map((c) => ({
         id: c.id,
         name: `${c.firstName ?? ''} ${c.name ?? ''}`.trim(),

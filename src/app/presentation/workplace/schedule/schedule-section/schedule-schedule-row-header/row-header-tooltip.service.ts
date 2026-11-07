@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Service for managing tooltip display in the schedule row header.
+ * Service for managing tooltip display in the schedule row header. The sign in the top corner explains a missing
+ * contract, or a stand-in (placeholder) row.
  * @param tooltipService - Global tooltip service for show/hide
  * @param translateService - Translation service for tooltip texts
  * @param dataService - Grid data (rows, groups, clients)
@@ -17,6 +18,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { computeQualificationBubbleLayout } from '../services/qualification-bubble-layout';
 import { QualificationBubbleTooltipService } from '../../shared/qualification-bubbles/qualification-bubble-tooltip.service';
 
@@ -51,7 +53,8 @@ export class RowHeaderTooltipService {
     if (clientIndex === undefined) return false;
 
     const client = this.dataService.getGroupIndex(clientIndex);
-    if (!client || client.hasContract) return false;
+    const isStandIn = client?.type === EntityTypeEnum.standIn;
+    if (!client || (client.hasContract && !isStandIn)) return false;
 
     const firstRow = this.dataService.indexGroupRow[clientIndex];
     const cellHeight = this.settings.cellHeight;
@@ -63,7 +66,7 @@ export class RowHeaderTooltipService {
 
     if (localY >= 0 && localY <= sectionHeight && pos.x >= 0 && pos.x <= 24) {
       const tooltipText = this.translateService.instant(
-        'schedule.row-header.no-contract.tooltip',
+        isStandIn ? 'schedule.row-header.stand-in.tooltip' : 'schedule.row-header.no-contract.tooltip',
       );
       this.tooltipService.show({
         text: tooltipText,

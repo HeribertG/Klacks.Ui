@@ -6,6 +6,8 @@
  * @description
  * Service responsible for creating and rendering row header content.
  * Draws client information including name, ID, gender icon, and period hours.
+ * A stand-in (placeholder for a person not in the system yet) gets a marker instead of the gender icon and the
+ * missing-contract sign.
  * Creates cached canvas images for performance optimization.
  *
  * @relations
@@ -26,7 +28,7 @@ import {
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
 import { ClientWork } from 'src/app/domain/models/schedule/client-work-class';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
-import { GenderEnum } from 'src/app/domain/enums/client-enum';
+import { EntityTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { GridRowHeader } from '../../classes/grid-row-header';
 import { BaseDataService } from '../../../../shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
@@ -38,6 +40,10 @@ import { FilterIconResult } from './filter-icon-result.interface';
 import { drawQualificationBubbles } from '../../shared/qualification-bubbles/qualification-bubble-renderer';
 
 const INFO_SPOT_FONT_COLOR = '#000000';
+const NO_CONTRACT_SYMBOL = '⊘';
+const NO_CONTRACT_COLOR = '#ef4444';
+const STAND_IN_SYMBOL = '◌';
+const STAND_IN_COLOR = '#2563eb';
 
 @Injectable()
 export class BaseCreateRowHeaderService {
@@ -200,15 +206,16 @@ export class BaseCreateRowHeaderService {
     );
     const secondLineY = Math.round(firstLineY + fontHeight + lineSpacing);
 
-    if (client && !client.hasContract) {
+    const isStandIn = client?.type === EntityTypeEnum.standIn;
+    if (client && (isStandIn || !client.hasContract)) {
       const iconTopPadding = 2;
       const contractIconX = isRtl ? leftPadding : 4 + infoOffset;
       ctx.save();
       ctx.font = `${symbolSize}px Arial`;
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = isStandIn ? STAND_IN_COLOR : NO_CONTRACT_COLOR;
       ctx.textAlign = textAlign;
       ctx.textBaseline = 'top';
-      ctx.fillText('⊘', Math.round(contractIconX), iconTopPadding);
+      ctx.fillText(isStandIn ? STAND_IN_SYMBOL : NO_CONTRACT_SYMBOL, Math.round(contractIconX), iconTopPadding);
       ctx.restore();
     }
 
@@ -294,10 +301,7 @@ export class BaseCreateRowHeaderService {
 
   private getName(value: ClientWork): string {
     if (!value.legalEntity) {
-      const name = value.firstName + ' ' + value.name;
-      if (name) {
-        return name;
-      }
+      return `${value.firstName ?? ''} ${value.name ?? ''}`.trim();
     } else {
       if (value.company) {
         return value.company;
@@ -308,7 +312,7 @@ export class BaseCreateRowHeaderService {
   }
 
   private getGenderSymbols(value: ClientWork): string {
-    if (!value.legalEntity) {
+    if (!value.legalEntity && value.type !== EntityTypeEnum.standIn) {
       if (value.gender === GenderEnum.male) {
         return '\u2642';
       }

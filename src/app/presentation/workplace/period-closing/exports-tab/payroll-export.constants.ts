@@ -6,6 +6,7 @@ export const PAYROLL_BLOCK_REASON_KEYS: Readonly<Record<PayrollExportBlockReason
   [PayrollExportBlockReason.EntryNotClosed]: 'periodClosing.payroll.reason.entryNotClosed',
   [PayrollExportBlockReason.DayNotLocked]: 'periodClosing.payroll.reason.dayNotLocked',
   [PayrollExportBlockReason.OverlappingExport]: 'periodClosing.payroll.reason.overlappingExport',
+  [PayrollExportBlockReason.StandInAssigned]: 'periodClosing.payroll.reason.standInAssigned',
 };
 
 export const PAYROLL_EMPTY_PLACEHOLDER = '–';

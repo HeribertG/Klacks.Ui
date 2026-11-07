@@ -74,6 +74,7 @@ export class ClientReportDataProviderService {
             employee: true,
             externEmp: true,
             customer: true,
+            standIn: true,
           };
         const response = await firstValueFrom(this.clientService.readClientList(filter));
         const rows = applyClientSelection(response.clients, params.clientSelection);
@@ -85,7 +86,7 @@ export class ClientReportDataProviderService {
           case 'client.list.company': return row.company ?? '';
           case 'client.list.firstName': return row.firstName ?? '';
           case 'client.list.name': return row.name ?? '';
-          case 'client.list.gender': return this.resolveGender(row.gender);
+          case 'client.list.gender': return Number(row.type) === EntityTypeEnum.standIn ? '' : this.resolveGender(row.gender);
           case 'client.list.type': return this.resolveClientType(row.type);
           case 'client.list.birthdate': return this.formatter.formatDate(row.birthdate);
           default: return '';
@@ -212,6 +213,7 @@ export class ClientReportDataProviderService {
       case EntityTypeEnum.employee: return this.translate.instant('address.edit-address.membership.type.employee');
       case EntityTypeEnum.externEmp: return this.translate.instant('address.edit-address.membership.type.externEmp');
       case EntityTypeEnum.customer: return this.translate.instant('address.edit-address.membership.type.customer');
+      case EntityTypeEnum.standIn: return this.translate.instant('address.edit-address.membership.type.standIn');
       default: return '';
     }
   }
@@ -252,12 +254,7 @@ export class ClientReportDataProviderService {
   }
 
   private resolveEmploymentType(type: number | string | undefined): string {
-    switch (Number(type)) {
-      case 0: return this.translate.instant('address.edit-address.membership.type.employee');
-      case 1: return this.translate.instant('address.edit-address.membership.type.externEmp');
-      case 2: return this.translate.instant('address.edit-address.membership.type.customer');
-      default: return '';
-    }
+    return type === undefined ? '' : this.resolveClientType(type);
   }
 
   private buildContractsSummary(client: IClient | undefined, contracts: IContract[]): string {

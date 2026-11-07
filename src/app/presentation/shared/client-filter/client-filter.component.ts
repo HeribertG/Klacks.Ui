@@ -2,7 +2,7 @@
 
 /**
  * Shared filter panel for client lists: sort by name/first name/company/guaranteed hours,
- * individual sort toggle (uses saved drag-and-drop order), and employee/extern toggles.
+ * individual sort toggle (uses saved drag-and-drop order), and employee/extern toggles, plus a stand-in toggle where the filter carries showStandIns.
  * @param filter - Bound IClientTypeFilter object; mutated in place on every change
  */
 import {
@@ -40,6 +40,7 @@ export class ClientFilterComponent implements OnInit {
 
   protected showEmployees = true;
   protected showExtern = true;
+  protected showStandIns: boolean | undefined = undefined;
   protected individualSort = false;
 
   ngOnInit(): void {
@@ -52,6 +53,7 @@ export class ClientFilterComponent implements OnInit {
 
     this.showEmployees = this.filter.showEmployees;
     this.showExtern = this.filter.showExtern;
+    this.showStandIns = this.filter.showStandIns;
     this.individualSort = this.filter.individualSort ?? false;
 
     if (!this.individualSort && this.filter.orderBy) {
@@ -73,6 +75,9 @@ export class ClientFilterComponent implements OnInit {
     this.filter.individualSort = this.individualSort;
     this.filter.showEmployees = this.showEmployees;
     this.filter.showExtern = this.showExtern;
+    if (this.showStandIns !== undefined) {
+      this.filter.showStandIns = this.showStandIns;
+    }
     this.filterChange.emit();
   }
 
@@ -101,6 +106,11 @@ export class ClientFilterComponent implements OnInit {
 
   protected onShowExternChange(event: Event): void {
     this.showExtern = (event.target as HTMLInputElement).checked;
+    this.updateFilter();
+  }
+
+  protected onShowStandInsChange(event: Event): void {
+    this.showStandIns = (event.target as HTMLInputElement).checked;
     this.updateFilter();
   }
 }

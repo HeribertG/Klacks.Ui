@@ -2,7 +2,7 @@
 
 /**
  * Search strategy for the client/address list.
- * Handles the optional typeFilter option to narrow the Typ-dropdown to a single address type.
+ * Handles the optional typeFilter option to narrow the Typ-dropdown to a single address type; stand-ins are then left out.
  */
 
 import { Injectable, inject } from '@angular/core';
@@ -39,6 +39,7 @@ export class ClientSearchStrategy extends BaseEntitySearchStrategy {
     this.dataManagementService.currentFilter.customer = isCustomer;
     this.dataManagementService.currentFilter.employee = isEmployee;
     this.dataManagementService.currentFilter.externEmp = isExtern;
+    this.dataManagementService.currentFilter.standIn = false;
   }
 
   protected refreshData(): void {

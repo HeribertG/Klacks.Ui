@@ -278,6 +278,11 @@ describe('ExportsTabComponent payroll export', () => {
       blockerTotal: 2,
     });
 
+    it('names a service on a stand-in as its own blocker reason', () => {
+      expect(component.blockerReasonKey(blocker({ reason: PayrollExportBlockReason.StandInAssigned })))
+        .toBe('periodClosing.payroll.reason.standInAssigned');
+    });
+
     it('renders the blocker table and keeps the export disabled', () => {
       api.getPayrollExportPreview.mockReturnValue(of(blockedPreview()));
 

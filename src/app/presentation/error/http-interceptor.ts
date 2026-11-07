@@ -272,7 +272,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     // A coded refusal (codedRefusalToast), explained in the user's language.
     const refusal = codedRefusalToast(error);
     if (refusal) {
-      this.toastShowService.showError(this.translateService.instant(refusal.key), refusal.name);
+      this.toastShowService.showError(this.translateService.instant(refusal.key, refusal.params), refusal.name);
       return throwError(() => error);
     }
 

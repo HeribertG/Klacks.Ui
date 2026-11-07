@@ -36,5 +36,6 @@ export class WorkFilter implements IWorkFilter {
   selectedGroup: string | undefined = undefined;
   showEmployees = true;
   showExtern = true;
+  showStandIns = true;
   individualSort = false;
 }

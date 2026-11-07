@@ -2,7 +2,7 @@
 
 /**
  * Tests for the ClientFilterComponent.
- * Verifies individual sort toggle, header click behavior, and CSS class binding.
+ * Verifies individual sort toggle, header click behavior, CSS class binding and the optional stand-in toggle.
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientFilterComponent } from './client-filter.component';
@@ -96,5 +96,32 @@ describe('ClientFilterComponent', () => {
     individualBtn.click();
     fixture.detectChanges();
     expect(individualBtn.classList).toContain('individual-active');
+  });
+
+  it('offers no stand-in toggle when the filter carries no showStandIns', () => {
+    expect(fixture.nativeElement.querySelectorAll('input[type="checkbox"]').length).toBe(2);
+  });
+
+  it('offers a stand-in toggle that writes showStandIns into the filter', () => {
+    const recreated = TestBed.createComponent(ClientFilterComponent);
+    recreated.componentInstance.filter = makeFilter({ showStandIns: true });
+    recreated.detectChanges();
+    let emitCount = 0;
+    recreated.componentInstance.filterChange.subscribe(() => emitCount++);
+
+    const checkboxes = recreated.nativeElement.querySelectorAll('input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
+    expect(checkboxes.length).toBe(3);
+    checkboxes[2].click();
+
+    expect(recreated.componentInstance.filter.showStandIns).toBe(false);
+    expect(emitCount).toBe(1);
+  });
+
+  it('leaves showStandIns undefined when another toggle changes a filter without it', () => {
+    const extern = fixture.nativeElement.querySelectorAll('input[type="checkbox"]')[1] as HTMLInputElement;
+    extern.click();
+
+    expect(component.filter.showExtern).toBe(false);
+    expect('showStandIns' in component.filter).toBe(false);
   });
 });

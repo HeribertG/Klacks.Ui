@@ -3,10 +3,11 @@
 /**
  * Reads the 409 answers of a period seal. errorCountToReconfirm decides whether a failed seal should be re-offered
  * for confirmation, and with which error count: it returns undefined when it must not - anything but a 409, the
- * conflict about unconfirmed services (which no confirmation lifts), or a repeated refusal reporting the very count
- * that was just confirmed, which would loop forever. A 409 without a machine-readable count comes from a backend that
- * does not re-check and is confirmed the legacy way (count null). parseUnsealedWorksConflict reads the conflict about
- * unconfirmed services, unsealedWorksMessage turns it into the sentence shown to the user.
+ * conflict about unconfirmed services or about services on stand-ins (which no confirmation lifts), or a repeated
+ * refusal reporting the very count that was just confirmed, which would loop forever. A 409 without a machine-readable
+ * count comes from a backend that does not re-check and is confirmed the legacy way (count null). parseUnsealedWorksConflict
+ * reads the conflict about unconfirmed services, unsealedWorksMessage turns it into the sentence shown to the user;
+ * sealErrorMessage also names the number of services on stand-ins.
  * @param err - The failed HTTP response
  * @param acknowledgeViolations - Whether this attempt already carried a confirmation
  * @param acknowledgedErrorCount - The count that confirmation was issued for
@@ -21,6 +22,8 @@ const HTTP_STATUS_CONFLICT = 409;
 const MAX_LISTED_WORKS = 5;
 const HOUR_MINUTE_LENGTH = 5;
 export const UNSEALED_WORKS_ERROR_CODE = 'PERIOD_UNSEALED_WORKS';
+export const STAND_IN_WORKS_ERROR_CODE = 'PERIOD_STAND_IN_WORKS';
+const NOT_CONFIRMABLE_ERROR_CODES: readonly string[] = [UNSEALED_WORKS_ERROR_CODE, STAND_IN_WORKS_ERROR_CODE];
 
 interface SealConflictBody {
   detail?: string;
@@ -28,6 +31,7 @@ interface SealConflictBody {
   errorCode?: string;
   currentErrorCount?: number;
   unsealedWorkCount?: number;
+  standInWorkCount?: number;
   works?: UnsealedWork[];
 }
 
@@ -38,7 +42,7 @@ export function errorCountToReconfirm(
   acknowledgeViolations: boolean,
   acknowledgedErrorCount: number | null,
 ): number | null | undefined {
-  if (err?.status !== HTTP_STATUS_CONFLICT || err?.error?.errorCode === UNSEALED_WORKS_ERROR_CODE) {
+  if (err?.status !== HTTP_STATUS_CONFLICT || NOT_CONFIRMABLE_ERROR_CODES.includes(err?.error?.errorCode ?? '')) {
     return undefined;
   }
   const reported = err?.error?.currentErrorCount;
@@ -76,6 +80,9 @@ export function sealErrorMessage(err: (SealFailure & { message?: string }) | nul
   const unsealed = parseUnsealedWorksConflict(err);
   if (unsealed) {
     return unsealedWorksMessage(unsealed, translate);
+  }
+  if (err?.status === HTTP_STATUS_CONFLICT && err.error?.errorCode === STAND_IN_WORKS_ERROR_CODE) {
+    return translate.instant('periodClosing.error.standInWorks', { count: err.error.standInWorkCount ?? 0 });
   }
   return err?.error?.detail ?? err?.error?.message ?? err?.message ?? 'Error';
 }

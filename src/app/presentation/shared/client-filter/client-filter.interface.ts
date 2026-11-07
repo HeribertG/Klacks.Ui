@@ -2,6 +2,7 @@
 
 /**
  * Filter state for the shared client-filter component.
+ * @param showStandIns - Whether stand-ins are shown; undefined where the view never lists stand-ins, then no toggle is offered
  */
 export interface IClientTypeFilter {
   orderBy: string;
@@ -9,4 +10,5 @@ export interface IClientTypeFilter {
   individualSort: boolean;
   showEmployees: boolean;
   showExtern: boolean;
+  showStandIns?: boolean;
 }

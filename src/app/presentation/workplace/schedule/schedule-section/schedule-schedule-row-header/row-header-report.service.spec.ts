@@ -14,16 +14,19 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 
 describe('RowHeaderReportService - cover absence', () => {
   let service: RowHeaderReportService;
   let held: Set<string>;
   let requestOpen: ReturnType<typeof vi.fn>;
   let workScheduleEntries: { clientId: string; entryType: number }[];
+  let hasScheduleDefault: boolean;
 
   beforeEach(() => {
     held = new Set<string>();
     workScheduleEntries = [];
+    hasScheduleDefault = false;
     requestOpen = vi.fn();
     const hasPermission = (permission: string): boolean => held.has(permission);
 
@@ -31,8 +34,11 @@ describe('RowHeaderReportService - cover absence', () => {
       providers: [
         RowHeaderReportService,
         { provide: ScheduleReportContextService, useValue: {} },
-        { provide: ReportDefaultsService, useValue: { hasDefault: () => false } },
-        { provide: AppSettingsManagementService, useValue: { emailSettings: () => ({}) } },
+        { provide: ReportDefaultsService, useValue: { hasDefault: () => hasScheduleDefault } },
+        {
+          provide: AppSettingsManagementService,
+          useValue: { emailSettings: () => ({ outgoingServer: 'smtp', outgoingServerPort: '587', username: 'u', password: 'p' }) },
+        },
         { provide: ToastShowService, useValue: {} },
         { provide: TranslateService, useValue: { instant: (key: string) => key } },
         { provide: Router, useValue: { navigate: vi.fn() } },
@@ -60,7 +66,8 @@ describe('RowHeaderReportService - cover absence', () => {
     service = TestBed.inject(RowHeaderReportService);
   });
 
-  const menuKeys = (clientId?: string): string[] => service.createContextMenu(clientId).list.map((item) => item.key);
+  const menuKeys = (clientId?: string, type = EntityTypeEnum.employee): string[] =>
+    service.createContextMenu(clientId === undefined ? undefined : { id: clientId, type }).list.map((item) => item.key);
 
   it('offers "cover absence" in the row menu to anyone who may edit the schedule (planner floor)', () => {
     held.add(PERMISSIONS.CanEditSchedule);
@@ -75,6 +82,17 @@ describe('RowHeaderReportService - cover absence', () => {
     expect(menuKeys('client-with-work')).toContain('coverAbsence');
     expect(menuKeys('client-with-break')).not.toContain('coverAbsence');
     expect(menuKeys('client-without-entries')).not.toContain('coverAbsence');
+  });
+
+  it('offers neither "cover absence" nor "send plan" for a stand-in row', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+    hasScheduleDefault = true;
+    workScheduleEntries.push({ clientId: 'stand-in', entryType: 0 }, { clientId: 'person', entryType: 0 });
+
+    expect(menuKeys('person')).toEqual(expect.arrayContaining(['sendStaffSchedule', 'coverAbsence']));
+    expect(menuKeys('stand-in', EntityTypeEnum.standIn)).not.toContain('sendStaffSchedule');
+    expect(menuKeys('stand-in', EntityTypeEnum.standIn)).not.toContain('coverAbsence');
+    expect(menuKeys('stand-in', EntityTypeEnum.standIn)).toContain('staffSchedule');
   });
 
   it('hides "cover absence" from a read-only user without the schedule edit right', () => {

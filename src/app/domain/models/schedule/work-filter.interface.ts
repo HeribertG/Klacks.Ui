@@ -12,5 +12,6 @@ export interface IWorkFilter extends IBaseFilter {
   selectedGroup: string | undefined;
   showEmployees: boolean;
   showExtern: boolean;
+  showStandIns: boolean;
   individualSort: boolean;
 }

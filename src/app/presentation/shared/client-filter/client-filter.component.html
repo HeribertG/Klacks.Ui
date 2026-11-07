@@ -80,6 +80,12 @@
       <input type="checkbox" [checked]="showExtern" (change)="onShowExternChange($event)" />
       {{ "schedule.filter.extern" | translate }}
     </label>
+    @if (showStandIns !== undefined) {
+      <label class="checkbox-label">
+        <input type="checkbox" [checked]="showStandIns" (change)="onShowStandInsChange($event)" />
+        {{ "schedule.filter.standIns" | translate }}
+      </label>
+    }
   </div>
 
 </div>

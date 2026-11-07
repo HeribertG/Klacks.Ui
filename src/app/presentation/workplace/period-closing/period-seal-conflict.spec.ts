@@ -27,6 +27,13 @@ describe('period-seal-conflict', () => {
       expect(errorCountToReconfirm(unsealed, true, 0)).toBeUndefined();
     });
 
+    it('never offers "close anyway" for the conflict about services on stand-ins', () => {
+      const standIns = conflict({ errorCode: 'PERIOD_STAND_IN_WORKS', standInWorkCount: 3 });
+
+      expect(errorCountToReconfirm(standIns, false, null)).toBeUndefined();
+      expect(errorCountToReconfirm(standIns, true, 0)).toBeUndefined();
+    });
+
     it('ignores anything but a 409', () => {
       expect(errorCountToReconfirm({ status: 500, error: {} }, false, null)).toBeUndefined();
     });
@@ -75,6 +82,11 @@ describe('period-seal-conflict', () => {
       expect(sealErrorMessage({ status: 400, error: { detail: 'Start date must be before the end date.' } }, translate)).toBe(
         'Start date must be before the end date.',
       );
+    });
+
+    it('explains the stand-in refusal translated, with its count', () => {
+      expect(sealErrorMessage(conflict({ errorCode: 'PERIOD_STAND_IN_WORKS', standInWorkCount: 3, detail: 'English' }), translate))
+        .toBe('periodClosing.error.standInWorks|{"count":3}');
     });
 
     it('names the count and lists at most five services of the unconfirmed-services refusal', () => {

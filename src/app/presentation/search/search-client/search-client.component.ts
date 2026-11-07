@@ -2,7 +2,7 @@
 
 /**
  * Client search component with datalist autocomplete for the header bar.
- * Searches clients by name/number and emits the selected client.
+ * Searches clients by name/number (stand-ins left out) and emits the selected client.
  * @param clientSelected - Emits the selected IClient when user picks from datalist
  */
 import {
@@ -121,6 +121,7 @@ export class SearchClientComponent {
       searchString: term,
       numberOfItemsPerPage: MAX_RESULTS,
       firstItemOnLastPage: 0,
+      standIn: false,
     };
 
     this.dataClientService
