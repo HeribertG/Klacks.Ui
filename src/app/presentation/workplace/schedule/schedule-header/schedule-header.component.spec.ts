@@ -111,6 +111,9 @@ interface WizardMenuApi {
   isWizardDropdownMode: () => boolean;
   isAutoWizardVisible: () => boolean;
   canUseAutofill: () => boolean;
+  canUseWizardDropdown: () => boolean;
+  showsWizardDropdown: () => boolean;
+  showsAutofillButton: () => boolean;
   canCoverAbsence: () => boolean;
   onAutoWizardClick(): Promise<void>;
 }
@@ -326,7 +329,9 @@ describe('ScheduleHeaderComponent (characterization)', () => {
         { provide: AnalyseScenarioService, useValue: { activeToken } },
         {
           provide: AuthorizationService,
-          useValue: { hasPermission: (permission: string) => granted().includes(permission) },
+          useValue: {
+            hasPermission: (permission: string) => granted().includes(ROLE_ADMIN) || granted().includes(permission),
+          },
         },
         { provide: AutoWizardOrchestratorService, useValue: orchestrator },
         { provide: AutofillRunPresenceService, useValue: { isRunningForCurrentView: signal(false) } },
@@ -1065,18 +1070,63 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       textarea.remove();
     });
 
-    it('allows autofill for admins and absence cover for schedule editors with a selected work', () => {
+    it('allows autofill and absence cover for schedule editors, the wizard dropdown only for admins', () => {
       createComponent();
       expect(wizardMenu().canUseAutofill()).toBe(false);
+      expect(wizardMenu().canUseWizardDropdown()).toBe(false);
       expect(wizardMenu().canCoverAbsence()).toBe(false);
 
       granted.set([PERMISSIONS.CanEditSchedule]);
+      expect(wizardMenu().canUseAutofill()).toBe(true);
+      expect(wizardMenu().canUseWizardDropdown()).toBe(false);
       expect(wizardMenu().canCoverAbsence()).toBe(false);
       selectedWork.set({ clientId: 'c1', date: PERIOD_START });
       expect(wizardMenu().canCoverAbsence()).toBe(true);
 
       granted.set([ROLE_ADMIN]);
+      expect(wizardMenu().canUseWizardDropdown()).toBe(true);
       expect(wizardMenu().canUseAutofill()).toBe(true);
+    });
+
+    it('shows a planner the autofill button but never the wizard dropdown', () => {
+      granted.set([PERMISSIONS.CanEditSchedule]);
+      workloadEligible.set(true);
+      createComponent();
+
+      expect(wizardMenu().showsAutofillButton()).toBe(true);
+      expect(wizardMenu().showsWizardDropdown()).toBe(false);
+
+      shortcut();
+      expect(wizardMenu().showsWizardDropdown()).toBe(false);
+      expect(wizardMenu().showsAutofillButton()).toBe(true);
+    });
+
+    it('shows an admin the dropdown in dropdown mode and the autofill button otherwise', () => {
+      granted.set([ROLE_ADMIN]);
+      workloadEligible.set(true);
+      createComponent();
+
+      expect(wizardMenu().showsAutofillButton()).toBe(true);
+      shortcut();
+      expect(wizardMenu().showsWizardDropdown()).toBe(true);
+      expect(wizardMenu().showsAutofillButton()).toBe(false);
+    });
+
+    it('hides the autofill button without the planning right', () => {
+      workloadEligible.set(true);
+      createComponent();
+
+      expect(wizardMenu().showsAutofillButton()).toBe(false);
+    });
+
+    it('keeps the Ctrl+Shift+H dropdown closed for a planner who may use autofill', () => {
+      granted.set([PERMISSIONS.CanEditSchedule]);
+      createComponent();
+
+      const event = shortcut();
+
+      expect(wizardMenu().isWizardDropdownMode()).toBe(false);
+      expect(event.defaultPrevented).toBe(false);
     });
 
     it('shows the auto wizard when the workload is eligible or a start is blocked', () => {

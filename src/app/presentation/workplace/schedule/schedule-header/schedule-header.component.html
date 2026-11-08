@@ -87,55 +87,53 @@
       </button>
     }
 
-    @if (wizardMenu.canUseAutofill()) {
-      @if (wizardMenu.isWizardDropdownMode()) {
-        <div ngbDropdown class="wizard-dropdown">
-          <button
-            id="schedule-wizard-btn"
-            type="button"
-            class="icon-button wizard-button"
-            ngbDropdownToggle
-          >
-            <app-icon-wizard />
-            <span class="tool-label">{{ "autoWizard.dropdown.tooltip" | translate }}</span>
-          </button>
-          <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
-            <button ngbDropdownItem (click)="onWizardClick()">
-              {{ "autoWizard.menu.plan" | translate }}
-            </button>
-            <button ngbDropdownItem (click)="onHarmonizerClick()">
-              {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
-            </button>
-            <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
-              {{ "autoWizard.menu.holisticHarmonizer" | translate }}
-            </button>
-            <button ngbDropdownItem (click)="onWizard4Click()">
-              {{ "autoWizard.menu.backgroundOptimizer" | translate }}
-            </button>
-            <button ngbDropdownItem (click)="onRecoveryClick()">
-              {{ "autoWizard.menu.recovery" | translate }}
-            </button>
-          </div>
-        </div>
-      } @else if (wizardMenu.isAutoWizardVisible()) {
+    @if (wizardMenu.showsWizardDropdown()) {
+      <div ngbDropdown class="wizard-dropdown">
         <button
           id="schedule-wizard-btn"
           type="button"
           class="icon-button wizard-button"
-          [class.disabled]="wizardMenu.isAutoWizardStartBlocked()"
-          (click)="wizardMenu.onAutoWizardClick()"
-          [ngbTooltip]="wizardMenu.autoWizardBusyGroupName() !== null
-            ? ('autoWizard.runningForGroupTooltip' | translate: { group: wizardMenu.autoWizardBusyGroupName() })
-            : ('autoWizard.tooltip' | translate)"
+          ngbDropdownToggle
         >
-          @if (wizardMenu.isAutoWizardRunningForCurrentGroup()) {
-            <span class="spinner-border spinner-border-sm"></span>
-          } @else {
-            <app-icon-wizard />
-          }
+          <app-icon-wizard />
           <span class="tool-label">{{ "autoWizard.dropdown.tooltip" | translate }}</span>
         </button>
-      }
+        <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
+          <button ngbDropdownItem (click)="onWizardClick()">
+            {{ "autoWizard.menu.plan" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onHarmonizerClick()">
+            {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
+            {{ "autoWizard.menu.holisticHarmonizer" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onWizard4Click()">
+            {{ "autoWizard.menu.backgroundOptimizer" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onRecoveryClick()">
+            {{ "autoWizard.menu.recovery" | translate }}
+          </button>
+        </div>
+      </div>
+    } @else if (wizardMenu.showsAutofillButton()) {
+      <button
+        id="schedule-wizard-btn"
+        type="button"
+        class="icon-button wizard-button"
+        [class.disabled]="wizardMenu.isAutoWizardStartBlocked()"
+        (click)="wizardMenu.onAutoWizardClick()"
+        [ngbTooltip]="wizardMenu.autoWizardBusyGroupName() !== null
+          ? ('autoWizard.runningForGroupTooltip' | translate: { group: wizardMenu.autoWizardBusyGroupName() })
+          : ('autoWizard.tooltip' | translate)"
+      >
+        @if (wizardMenu.isAutoWizardRunningForCurrentGroup()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+          <app-icon-wizard />
+        }
+        <span class="tool-label">{{ "autoWizard.dropdown.tooltip" | translate }}</span>
+      </button>
     }
 
 
