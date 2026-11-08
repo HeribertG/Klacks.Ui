@@ -40,6 +40,7 @@ import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
+import { canEditGroupDetails } from 'src/app/domain/helpers/group-write-access.helper';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -321,6 +322,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isPreviousPage,
       this.isNextPage
     );
+  }
+
+  canEditGroup(data: IGroup): boolean {
+    return canEditGroupDetails(this.authorizationService, data);
   }
 
   onClickEdit(data: IGroup) {

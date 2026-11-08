@@ -99,7 +99,7 @@ export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'escalations', route: '/workplace/escalations', requiredPermission: null, hasEntityParam: false, llmHint: 'open escalation interventions list' },
   { pageKey: 'group-list', route: '/workplace/group', requiredPermission: PERMISSIONS.CanViewGroups, hasEntityParam: false },
   { pageKey: 'new-group', route: '/workplace/edit-group', requiredPermission: PERMISSIONS.CanViewGroups, actionPermission: PERMISSIONS.CanCreateGroups, hasEntityParam: false, llmHint: 'create group form' },
-  { pageKey: 'edit-group', route: '/workplace/edit-group', requiredPermission: PERMISSIONS.CanViewGroups, actionPermission: PERMISSIONS.CanEditGroups, hasEntityParam: true, llmHint: 'edit existing group' },
+  { pageKey: 'edit-group', route: '/workplace/edit-group', requiredPermission: PERMISSIONS.CanViewGroups, actionPermission: PERMISSIONS.CanEditSubgroups, hasEntityParam: true, llmHint: 'edit existing group' },
   { pageKey: 'shift-list', route: '/workplace/shift', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'new-shift', route: '/workplace/new-shift', requiredPermission: PERMISSIONS.CanCreateShifts, hasEntityParam: false, llmHint: 'create shift template' },
   { pageKey: 'new-plannable-shift', route: '/workplace/shift?create=plannable', requiredPermission: null, actionPermission: PERMISSIONS.CanCreateShifts, hasEntityParam: false, llmHint: 'create a plannable duty without a customer' },

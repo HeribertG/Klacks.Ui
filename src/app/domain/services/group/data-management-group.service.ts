@@ -322,13 +322,16 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   /* #region   edit Group */
 
-  createGroup(parentId?: string) {
+  createGroup(parent?: IGroup) {
     this._showProgressSpinner.set(true);
     const c = new Group({
       name: '',
       description: '',
       validFrom: companyToday(),
-      parent: parentId,
+      parent: parent?.id,
+      paymentInterval: parent?.paymentInterval,
+      calendarSelectionId: parent?.calendarSelectionId,
+      calendarSelection: parent?.calendarSelection,
       depth: 0,
       clientsCount: 0,
       groupItems: [],

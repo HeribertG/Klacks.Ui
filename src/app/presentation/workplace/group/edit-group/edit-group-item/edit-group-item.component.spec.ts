@@ -6,15 +6,16 @@ import { EditGroupItemComponent } from './edit-group-item.component';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 
 describe('EditGroupItemComponent - group form disabled state', () => {
   let held: Set<string>;
 
-  const createComponent = (): EditGroupItemComponent => {
+  const createComponent = (editGroup?: Partial<IGroup>): EditGroupItemComponent => {
     TestBed.configureTestingModule({
       imports: [EditGroupItemComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: DataManagementGroupService, useValue: { availableCalendars: [] } },
+        { provide: DataManagementGroupService, useValue: { availableCalendars: [], editGroup } },
         {
           provide: AuthorizationService,
           useValue: { hasPermission: (permission: string) => held.has(permission) },
@@ -35,10 +36,26 @@ describe('EditGroupItemComponent - group form disabled state', () => {
     expect(component.groupForm().disabled()).toBe(true);
   });
 
-  it('enables the group item form for a supervisor with CanEditGroups', () => {
+  it('enables the group item form for an admin with CanEditGroups', () => {
     held.add(PERMISSIONS.CanEditGroups);
     const component = createComponent();
 
     expect(component.groupForm().disabled()).toBe(false);
+  });
+
+  it('enables the group item form for a supervisor with CanEditSubgroups on a subgroup', () => {
+    held.add(PERMISSIONS.CanEditSubgroups);
+    const component = createComponent({ id: 'sub', parent: 'root' });
+
+    expect(component.groupForm().disabled()).toBe(false);
+    expect(component.canEditDetails()).toBe(true);
+  });
+
+  it('disables the group item form for a supervisor with CanEditSubgroups on a root group', () => {
+    held.add(PERMISSIONS.CanEditSubgroups);
+    const component = createComponent({ id: 'root' });
+
+    expect(component.groupForm().disabled()).toBe(true);
+    expect(component.canEditDetails()).toBe(false);
   });
 });

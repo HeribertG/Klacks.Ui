@@ -17,7 +17,10 @@ describe('EditGroupMembersComponent - permission gating', () => {
   let fixture: ComponentFixture<EditGroupMembersComponent>;
   let component: EditGroupMembersComponent;
   let held: Set<string>;
-  let dataManagementGroupService: { editGroup: { groupItems: IGroupItem[] }; add: ReturnType<typeof vi.fn> };
+  let dataManagementGroupService: {
+    editGroup: { groupItems: IGroupItem[]; parent?: string };
+    add: ReturnType<typeof vi.fn>;
+  };
 
   const client: IClient = { id: 'client-1' } as IClient;
   const groupItem: IGroupItem = { clientId: 'client-2' } as IGroupItem;
@@ -64,7 +67,7 @@ describe('EditGroupMembersComponent - permission gating', () => {
     expect(dataManagementGroupService.add).not.toHaveBeenCalled();
   });
 
-  it('lets a supervisor with CanEditGroups add the selected client on click', () => {
+  it('lets an admin with CanEditGroups add the selected client on click', () => {
     held.add(PERMISSIONS.CanEditGroups);
 
     component.onClickApply();
@@ -78,11 +81,32 @@ describe('EditGroupMembersComponent - permission gating', () => {
     expect(dataManagementGroupService.editGroup.groupItems).toEqual([groupItem]);
   });
 
-  it('lets a supervisor with CanEditGroups remove a member', () => {
+  it('lets an admin with CanEditGroups remove a member', () => {
     held.add(PERMISSIONS.CanEditGroups);
 
     component.onDeleteClient(groupItem);
 
     expect(dataManagementGroupService.editGroup.groupItems).toEqual([]);
+  });
+
+  it('lets a supervisor with CanEditSubgroups add and remove members of a subgroup', () => {
+    held.add(PERMISSIONS.CanEditSubgroups);
+    dataManagementGroupService.editGroup.parent = 'parent-1';
+
+    component.onClickApply();
+    component.onDeleteClient(groupItem);
+
+    expect(dataManagementGroupService.add).toHaveBeenCalledWith(client);
+    expect(dataManagementGroupService.editGroup.groupItems).toEqual([]);
+  });
+
+  it('ignores member changes of a supervisor with CanEditSubgroups on a root group', () => {
+    held.add(PERMISSIONS.CanEditSubgroups);
+
+    component.onClickApply();
+    component.onDeleteClient(groupItem);
+
+    expect(dataManagementGroupService.add).not.toHaveBeenCalled();
+    expect(dataManagementGroupService.editGroup.groupItems).toEqual([groupItem]);
   });
 });

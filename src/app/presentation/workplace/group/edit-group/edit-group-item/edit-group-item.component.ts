@@ -30,6 +30,7 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/presentation/helpers/ngb-date.helper';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { canEditGroupDetails } from 'src/app/domain/helpers/group-write-access.helper';
 import { EditGroupItemFormModel } from './edit-group-item-form-model.interface';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
@@ -76,9 +77,12 @@ export class EditGroupItemComponent
   calendarSelectionId = signal<string | undefined>(undefined);
   paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
 
+  public canEditDetails = signal(
+    canEditGroupDetails(this.authorizationService, this.dataManagementGroupService.editGroup),
+  );
   public groupFormModel = signal<EditGroupItemFormModel>({ name: '' });
   public groupForm = form(this.groupFormModel, (f) => {
-    disabled(f, { when: () => !this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups) });
+    disabled(f, { when: () => !this.canEditDetails() });
   });
 
   private isFormLoaded = false;
@@ -132,6 +136,7 @@ export class EditGroupItemComponent
           this.internalValidUntil = group.validUntil ? transformDateToNgbDateStruct(group.validUntil) : undefined;
           this.paymentInterval.set(group.paymentInterval ?? PaymentInterval.Monthly);
           this.calendarSelectionId.set(group.calendarSelectionId);
+          this.canEditDetails.set(canEditGroupDetails(this.authorizationService, group));
           this.calcValidation();
           this.initSkipCount++;
           this.groupFormModel.set({ name: group.name ?? '' });

@@ -15,6 +15,7 @@ export const PERMISSIONS = {
   CanCreateGroups: 'CanCreateGroups',
   CanEditGroups: 'CanEditGroups',
   CanDeleteGroups: 'CanDeleteGroups',
+  CanEditSubgroups: 'CanEditSubgroups',
 
   CanViewContracts: 'CanViewContracts',
   CanCreateContracts: 'CanCreateContracts',

@@ -18,10 +18,10 @@ import { DataClientService } from 'src/app/infrastructure/api/client/data-client
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { isNumeric } from 'src/app/domain/helpers/number.helper';
+import { canEditGroupDetails } from 'src/app/domain/helpers/group-write-access.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -42,7 +42,6 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 })
 export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);
-  public readonly PERMISSIONS = PERMISSIONS;
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastShowService = inject(ToastShowService);
   public groupSelectionService = inject(GroupSelectionService);
@@ -185,8 +184,12 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
     }, 50);
   }
 
+  canEditMembers(): boolean {
+    return canEditGroupDetails(this.authorizationService, this.dataManagementGroupService.editGroup);
+  }
+
   onDeleteClient(value: IGroupItem) {
-    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
+    if (!this.canEditMembers()) {
       return;
     }
 
@@ -200,7 +203,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   }
 
   private applyClient() {
-    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
+    if (!this.canEditMembers()) {
       return;
     }
 

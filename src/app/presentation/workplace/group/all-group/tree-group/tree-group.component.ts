@@ -33,6 +33,7 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
+import { canAddSubgroup as mayAddSubgroup, canEditGroupDetails } from 'src/app/domain/helpers/group-write-access.helper';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -177,8 +178,20 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
     this.navigationService.navigateToEditGroup();
   }
 
+  canEditNode(node: IGroup): boolean {
+    return canEditGroupDetails(this.authorizationService, node);
+  }
+
+  canAddSubgroup(): boolean {
+    return mayAddSubgroup(this.authorizationService);
+  }
+
   addChildNode(parentNode: Group): void {
-    this.dataManagementGroupService.createGroup(parentNode.id);
+    if (!this.canAddSubgroup()) {
+      return;
+    }
+
+    this.dataManagementGroupService.createGroup(parentNode);
     this.navigationService.navigateToEditGroup();
   }
 

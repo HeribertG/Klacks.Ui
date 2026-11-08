@@ -15,6 +15,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Group } from 'src/app/domain/models/group/group-class';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 
 describe('TreeGroupComponent - Drag and Drop', () => {
     let component: TreeGroupComponent;
@@ -570,5 +571,127 @@ describe('TreeGroupComponent - Descendant Check Logic', () => {
 
         // Act & Assert
         expect(isDescendantLogic(node, node)).toBe(false);
+    });
+});
+
+describe('TreeGroupComponent - group write actions per role', () => {
+    let fixture: ComponentFixture<TreeGroupComponent>;
+    let component: TreeGroupComponent;
+    let held: Set<string>;
+    let groupService: { createGroup: Mock; moveGroup: Mock; [member: string]: unknown };
+
+    const rootGroup = (): Group => {
+        const child = new Group({ id: 'sub', name: 'Event', parent: 'root', depth: 1, lft: 2, rgt: 3 });
+        const root = new Group({ id: 'root', name: 'Root', depth: 0, lft: 1, rgt: 4 });
+        root.children = [child];
+        return root;
+    };
+
+    const button = (id: string): HTMLElement | null => fixture.nativeElement.querySelector(`#${id}`);
+
+    const render = (...permissions: string[]): Group => {
+        permissions.forEach((permission) => held.add(permission));
+        const root = rootGroup();
+        component.hierarchicalTree = [root];
+        fixture.detectChanges();
+        return root;
+    };
+
+    beforeEach(async () => {
+        vi.restoreAllMocks();
+        held = new Set<string>();
+        groupService = {
+            init: vi.fn(),
+            initTree: vi.fn(),
+            createGroup: vi.fn(),
+            prepareGroup: vi.fn(),
+            moveGroup: vi.fn(),
+            isRead: vi.fn().mockReturnValue(false),
+            selectedNode: signal(null),
+            expandedNodes: signal(new Set<string>(['root'])),
+            groupTree: { nodes: [] },
+            showTree: vi.fn().mockReturnValue(true),
+        };
+
+        await TestBed.configureTestingModule({
+            imports: [TreeGroupComponent, TranslateModule.forRoot(), DragDropModule],
+            providers: [
+                { provide: DataManagementGroupService, useValue: groupService },
+                {
+                    provide: AuthorizationService,
+                    useValue: {
+                        hasPermission: (permission: string) => held.has(permission),
+                        hasAnyPermission: (...permissions: string[]) => permissions.some((p) => held.has(p)),
+                    },
+                },
+                { provide: NavigationService, useValue: { navigateToEditGroup: vi.fn() } },
+                { provide: ModalService, useValue: { openModel: vi.fn(), resultEvent: of(null) } },
+            ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(TreeGroupComponent);
+        component = fixture.componentInstance;
+    });
+
+    afterEach(() => {
+        fixture?.destroy();
+        TestBed.resetTestingModule();
+    });
+
+    it('shows the supervisor add-subgroup everywhere and edit only on the subgroup, never root, copy, delete or move', () => {
+        render(PERMISSIONS.CanViewGroups, PERMISSIONS.CanEditSubgroups);
+
+        expect(button('tree-node-add-btn-root')).not.toBeNull();
+        expect(button('tree-node-add-btn-sub')).not.toBeNull();
+        expect(button('tree-node-edit-btn-sub')).not.toBeNull();
+        expect(button('tree-node-edit-btn-root')).toBeNull();
+        expect(button('tree-node-view-btn-root')).not.toBeNull();
+        expect(button('tree-node-copy-btn-sub')).toBeNull();
+        expect(button('tree-node-delete-btn-sub')).toBeNull();
+        expect(button('tree-group-add-root-button')).toBeNull();
+    });
+
+    it('refuses a drop of the supervisor and moves nothing', () => {
+        const root = render(PERMISSIONS.CanViewGroups, PERMISSIONS.CanEditSubgroups);
+        const sub = root.children![0];
+
+        component.onDrop({
+            previousContainer: { id: 'a' },
+            container: { id: 'b', data: root },
+            item: { data: sub },
+        } as unknown as CdkDragDrop<Group>);
+
+        expect(groupService.moveGroup).not.toHaveBeenCalled();
+    });
+
+    it('creates the subgroup of the supervisor under the clicked group, handing over the group itself', () => {
+        const root = render(PERMISSIONS.CanViewGroups, PERMISSIONS.CanEditSubgroups);
+
+        component.addChildNode(root);
+
+        expect(groupService.createGroup).toHaveBeenCalledWith(root);
+    });
+
+    it('shows the planner neither add nor edit, only the view button', () => {
+        const root = render(PERMISSIONS.CanViewGroups);
+
+        expect(button('tree-node-add-btn-root')).toBeNull();
+        expect(button('tree-node-edit-btn-sub')).toBeNull();
+        expect(button('tree-node-view-btn-sub')).not.toBeNull();
+
+        component.addChildNode(root);
+        expect(groupService.createGroup).not.toHaveBeenCalled();
+    });
+
+    it('shows the admin every action, root groups included', () => {
+        render(
+            PERMISSIONS.CanViewGroups, PERMISSIONS.CanCreateGroups, PERMISSIONS.CanEditGroups,
+            PERMISSIONS.CanDeleteGroups, PERMISSIONS.CanEditSubgroups,
+        );
+
+        expect(button('tree-node-edit-btn-root')).not.toBeNull();
+        expect(button('tree-node-copy-btn-sub')).not.toBeNull();
+        expect(button('tree-node-delete-btn-sub')).not.toBeNull();
+        expect(button('tree-group-add-root-button')).not.toBeNull();
     });
 });

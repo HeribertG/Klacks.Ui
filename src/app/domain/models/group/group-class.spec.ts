@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Group } from './group-class';
+import { PaymentInterval } from '../contract/payment-interval.enum';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import {
   activeJanuaryOffsetMinutes,
@@ -43,4 +44,14 @@ describe('Group', () => {
       });
     });
   }
+
+  it('keeps the stored payment interval and calendar of a server group, Weekly (0) included, so a save sends them back unchanged', () => {
+    const weekly = new Group({ name: 'Event', paymentInterval: PaymentInterval.Weekly, calendarSelectionId: 'cal-1' });
+    const unset = new Group({ name: 'New' });
+
+    expect(weekly.paymentInterval).toBe(PaymentInterval.Weekly);
+    expect(weekly.calendarSelectionId).toBe('cal-1');
+    expect(unset.paymentInterval).toBe(PaymentInterval.Monthly);
+    expect(unset.calendarSelectionId).toBeUndefined();
+  });
 });

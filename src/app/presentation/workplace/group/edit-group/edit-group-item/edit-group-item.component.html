@@ -32,7 +32,7 @@
           (valueChange)="
             internalValidFrom = $event || undefined; onValidFromChange()
           "
-          [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
+          [disabled]="!canEditDetails()"
           [isValid]="validFromValid"
           [touched]="validFromTouched"
         ></app-date-input>
@@ -46,7 +46,7 @@
           (valueChange)="
             internalValidUntil = $event || undefined; onValidUntilChange()
           "
-          [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
+          [disabled]="!canEditDetails()"
           [isValid]="validUntilValid"
           [touched]="validUntilTouched"
         ></app-date-input>
@@ -141,7 +141,7 @@
           <div class="input-text">
             <app-rich-text-editor
               [content]="dataManagementGroupService.editGroup.description"
-              [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
+              [disabled]="!canEditDetails()"
               [showToolbar]="true"
               [showToolbarOnlyOnFocus]="false"
               [height]="'auto'"

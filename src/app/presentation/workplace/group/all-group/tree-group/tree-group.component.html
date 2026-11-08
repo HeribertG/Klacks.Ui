@@ -161,17 +161,22 @@
             >
           </div>
 
-          @if (authorizationService.hasAnyPermission(PERMISSIONS.CanEditGroups, PERMISSIONS.CanCreateGroups, PERMISSIONS.CanDeleteGroups)) {
           <div class="tree-node-actions" [id]="'tree-node-actions-' + node.id">
-            @if (authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
+            @if (canEditNode(node)) {
             <button class="tree-action-btn" [id]="'tree-node-edit-btn-' + node.id" (click)="editNode(node)">
               <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
+            </button>
+            } @else {
+            <button class="tree-action-btn" [id]="'tree-node-view-btn-' + node.id" (click)="editNode(node)">
+              <app-icon-eye-grey></app-icon-eye-grey>
             </button>
             }
             @if (authorizationService.hasPermission(PERMISSIONS.CanCreateGroups)) {
             <button class="tree-action-btn" [id]="'tree-node-copy-btn-' + node.id" (click)="copyNode(node)">
               <app-icon-copy-grey></app-icon-copy-grey>
             </button>
+            }
+            @if (canAddSubgroup()) {
             <button class="tree-action-btn" [id]="'tree-node-add-btn-' + node.id" (click)="addChildNode(node)">
               <app-icon-add></app-icon-add>
             </button>
@@ -182,13 +187,6 @@
             </button>
             }
           </div>
-          } @if (!authorizationService.hasAnyPermission(PERMISSIONS.CanEditGroups, PERMISSIONS.CanCreateGroups, PERMISSIONS.CanDeleteGroups)) {
-          <div class="tree-node-actions" [id]="'tree-node-actions-' + node.id">
-            <button class="tree-action-btn" [id]="'tree-node-view-btn-' + node.id" (click)="editNode(node)">
-              <app-icon-eye-grey></app-icon-eye-grey>
-            </button>
-          </div>
-          }
 
           @if (shouldShowDropZone(node)) {
           <div class="tree-drop-zone-overlay"></div>

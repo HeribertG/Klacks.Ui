@@ -6,6 +6,7 @@ import { AllGroupListComponent } from './all-group-list.component';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
@@ -291,6 +292,17 @@ describe('AllGroupListComponent', () => {
 
             expect(mockDataManagementGroupService.createGroup).not.toHaveBeenCalled();
             expect(mockNavigationService.navigateToEditGroup).not.toHaveBeenCalled();
+        });
+
+        it('should offer a supervisor the edit of a subgroup, but not of a root group or a new root group', () => {
+            grantedPermissions.clear();
+            grantedPermissions.add(PERMISSIONS.CanEditSubgroups);
+
+            expect(component.canEditGroup({ id: 'sub', parent: 'root' } as IGroup)).toBe(true);
+            expect(component.canEditGroup({ id: 'root' } as IGroup)).toBe(false);
+
+            component.onAddGroup();
+            expect(mockDataManagementGroupService.createGroup).not.toHaveBeenCalled();
         });
 
         it('should navigate to edit group with group id', () => {
