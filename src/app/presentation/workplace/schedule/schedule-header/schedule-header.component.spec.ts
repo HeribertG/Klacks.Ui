@@ -98,6 +98,9 @@ interface RecalculationApi {
   onRecalculatePeriodHours(): Promise<void>;
   onThoroughRecalculateClick(): void;
   onThoroughRecalculateConfirmed(): Promise<void>;
+  canRecalculateAllUnsealed: () => boolean;
+  onRecalculateAllUnsealedClick(): void;
+  onRecalculateAllUnsealedConfirmed(): Promise<void>;
 }
 
 interface BulkSendApi {
@@ -166,6 +169,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
   let completed$: Subject<IThoroughRecalculationCompletedNotification>;
   let recalcNormal: Deferred<IPeriodHoursRecalculationResult>;
   let recalcThorough: Deferred<IPeriodHoursRecalculationResult>;
+  let recalcAll: Deferred<{ queued: boolean }>;
   let sendDeferred: Deferred<{ success: number; failed: number; noEmail: number }>;
 
   let dataWorkSchedule: Record<string, ReturnType<typeof vi.fn>>;
@@ -266,6 +270,7 @@ describe('ScheduleHeaderComponent (characterization)', () => {
     completed$ = new Subject<IThoroughRecalculationCompletedNotification>();
     recalcNormal = deferred<IPeriodHoursRecalculationResult>();
     recalcThorough = deferred<IPeriodHoursRecalculationResult>();
+    recalcAll = deferred<{ queued: boolean }>();
     sendDeferred = deferred<{ success: number; failed: number; noEmail: number }>();
 
     dataWorkSchedule = {
@@ -276,6 +281,10 @@ describe('ScheduleHeaderComponent (characterization)', () => {
       recalculatePeriodHoursThorough: vi.fn(() => ({
         subscribe: (observer: { next: (v: IPeriodHoursRecalculationResult) => void; error: (e: unknown) => void }) =>
           recalcThorough.promise.then(observer.next, observer.error),
+      })),
+      recalculateAllUnsealed: vi.fn(() => ({
+        subscribe: (observer: { next: (v: { queued: boolean }) => void; error: (e: unknown) => void }) =>
+          recalcAll.promise.then(observer.next, observer.error),
       })),
     };
     toast = {
@@ -938,6 +947,86 @@ describe('ScheduleHeaderComponent (characterization)', () => {
 
       expect(recalculation().isRecalculating()).toBe(false);
       expect(dataWorkSchedule['recalculatePeriodHoursThorough']).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('all open periods recalculation', () => {
+    beforeEach(() => granted.set([ROLE_ADMIN]));
+
+    it('is offered only to an admin and only outside a scenario', () => {
+      granted.set([PERMISSIONS.CanEditSchedule]);
+      activeToken.set(null);
+      createComponent();
+      expect(recalculation().canRecalculateAllUnsealed()).toBe(false);
+
+      granted.set([ROLE_ADMIN]);
+      expect(recalculation().canRecalculateAllUnsealed()).toBe(true);
+
+      activeToken.set(ACTIVE_TOKEN);
+      expect(recalculation().canRecalculateAllUnsealed()).toBe(false);
+    });
+
+    it('asks for confirmation before it queues anything', () => {
+      activeToken.set(null);
+      createComponent();
+
+      recalculation().onRecalculateAllUnsealedClick();
+
+      expect(modal.openModal).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ModalType.Confirmation,
+          title: 'schedule.recalculate.all.title',
+          message: 'schedule.recalculate.all.warning',
+          confirmText: 'schedule.recalculate.thorough.start',
+        }),
+      );
+      expect(dataWorkSchedule['recalculateAllUnsealed']).not.toHaveBeenCalled();
+    });
+
+    it('stays busy from the queued request until the completion arrives', async () => {
+      activeToken.set(null);
+      createComponent();
+
+      const pending = recalculation().onRecalculateAllUnsealedConfirmed();
+      expect(recalculation().isRecalculating()).toBe(true);
+      recalcAll.resolve({ queued: true });
+      await pending;
+
+      expect(dataWorkSchedule['recalculateAllUnsealed']).toHaveBeenCalledTimes(1);
+      expect(toast['showInfo']).toHaveBeenCalledWith(
+        'schedule.recalculate.thorough.started',
+        'recalculate-thorough',
+        '',
+        TOAST_ICONS.INFO,
+      );
+      expect(recalculation().isRecalculating()).toBe(true);
+
+      completed$.next({} as IThoroughRecalculationCompletedNotification);
+      expect(recalculation().isRecalculating()).toBe(false);
+    });
+
+    it('resets the flag and shows an error when the queue refuses the run', async () => {
+      activeToken.set(null);
+      createComponent();
+
+      const pending = recalculation().onRecalculateAllUnsealedConfirmed();
+      recalcAll.resolve({ queued: false });
+      await pending;
+
+      expect(recalculation().isRecalculating()).toBe(false);
+      expect(toast['showError']).toHaveBeenCalledWith('schedule.recalculate.thorough.error', 'recalculate-thorough');
+    });
+
+    it('resets the flag and shows an error when the request fails', async () => {
+      activeToken.set(null);
+      createComponent();
+
+      const pending = recalculation().onRecalculateAllUnsealedConfirmed();
+      recalcAll.reject(new Error('boom'));
+      await pending;
+
+      expect(recalculation().isRecalculating()).toBe(false);
+      expect(toast['showError']).toHaveBeenCalledWith('schedule.recalculate.thorough.error', 'recalculate-thorough');
     });
   });
 

@@ -231,6 +231,11 @@
           <button ngbDropdownItem (click)="recalculation.onThoroughRecalculateClick()">
             {{ "schedule.recalculate.menu.thorough" | translate }}
           </button>
+          @if (recalculation.canRecalculateAllUnsealed()) {
+            <button ngbDropdownItem (click)="recalculation.onRecalculateAllUnsealedClick()">
+              {{ "schedule.recalculate.menu.all" | translate }}
+            </button>
+          }
         </div>
       </div>
     }

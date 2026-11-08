@@ -7,7 +7,9 @@
  * caller may see (nothing queued, no completion follows); the busy flag stays on while any run is open. When the backend reports frozen (sealed and exported) client periods it left
  * unchanged, an admin is offered to include them; that asks for a mandatory reason and sends the same run again with
  * the override. Everybody else only learns how many were skipped and that only an admin may recalculate them. The
- * thorough override is sent even while the first thorough run still waits for its completion.
+ * thorough override is sent even while the first thorough run still waits for its completion. An admin may also start,
+ * after confirmation, the thorough run over all unsealed entries of the real plan (offered only outside a scenario,
+ * because its completion carries no scenario token); it counts as an open thorough run like the others.
  * @param destroyRef - Lifetime of the header component that ends the completion and dialog subscriptions
  */
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
@@ -52,6 +54,9 @@ export class ScheduleHeaderRecalculationService {
 
   readonly isRecalculating = computed(() => this.isNormalRunning() || this.openThoroughRuns() > 0);
   readonly canRecalculate = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule));
+  readonly canRecalculateAllUnsealed = computed(
+    () => this.authorizationService.hasPermission(ROLE_ADMIN) && !this.analyseScenarioService.activeToken(),
+  );
 
   private pendingOverride: RecalculationKind | null = null;
 
@@ -94,6 +99,40 @@ export class ScheduleHeaderRecalculationService {
     const result = await this.runThorough();
     if (result) {
       this.offerFrozenOverride('thorough', result);
+    }
+  }
+
+  onRecalculateAllUnsealedClick(): void {
+    if (this.isRecalculating()) return;
+
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translateService.instant('schedule.recalculate.all.title'),
+      message: this.translateService.instant('schedule.recalculate.all.warning'),
+      confirmText: this.translateService.instant('schedule.recalculate.thorough.start'),
+      cancelText: this.translateService.instant('cancel'),
+      onConfirm: () => this.onRecalculateAllUnsealedConfirmed(),
+    });
+  }
+
+  async onRecalculateAllUnsealedConfirmed(): Promise<void> {
+    if (this.isRecalculating()) return;
+
+    this.openThoroughRuns.update((count) => count + 1);
+    try {
+      const queued = await this.periodHoursRecalculation.recalculateAllUnsealed();
+      if (!queued) {
+        this.failThorough();
+        return;
+      }
+      this.toastShowService.showInfo(
+        this.translateService.instant('schedule.recalculate.thorough.started'),
+        SCHEDULE_HEADER_RECALCULATE_THOROUGH_TOAST,
+        '',
+        TOAST_ICONS.INFO,
+      );
+    } catch {
+      this.failThorough();
     }
   }
 

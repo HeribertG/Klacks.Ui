@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { IFrozenPeriodOverride } from 'src/app/domain/models/schedule/frozen-period-override.interface';
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
 import { IPeriodHoursRecalculationResult } from 'src/app/domain/models/schedule/period-hours-recalculation-result.interface';
+import { IRecalculateAllUnsealedResult } from 'src/app/domain/models/schedule/recalculate-all-unsealed-result.interface';
 import { IPeriodHoursRequest } from 'src/app/domain/models/schedule/period-hours-request.interface';
 import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
 import { IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-response.interface';
@@ -59,5 +60,9 @@ export class DataWorkScheduleService {
         analyseToken: analyseToken ?? null,
         ...frozenOverride,
       });
+  }
+
+  recalculateAllUnsealed() {
+    return this.httpClient.post<IRecalculateAllUnsealedResult>(`${environment.baseUrl}Works/RecalculateAllUnsealed`, {});
   }
 }
