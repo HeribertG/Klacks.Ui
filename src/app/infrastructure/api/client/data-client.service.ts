@@ -4,6 +4,7 @@
  * API service for client CRUD operations.
  * Uses ClientDataMapper for data transformation before sending to the API; the mapping runs
  * inside defer so an unparsable calendar date surfaces as an observable error, not a throw.
+ * Creating and converting stand-ins send an Idempotency-Key and are never retried (one-time writes).
  */
 import { inject, Injectable } from '@angular/core';
 import { defer } from 'rxjs';
@@ -25,6 +26,11 @@ import { IAddressValidationResult } from 'src/app/domain/models/client/i-address
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { IClientForReplacement } from '../../../domain/models/client/client-for-replacement.interface';
 import { ClientDataMapper } from './client-data.mapper';
+import { idempotentRequestOptions } from 'src/app/infrastructure/helpers/idempotency-key.helper';
+import { ICreateStandInsRequest } from 'src/app/domain/models/client/stand-in/create-stand-ins-request.interface';
+import { ICreatedStandIn } from 'src/app/domain/models/client/stand-in/created-stand-in.interface';
+import { IConvertStandInRequest } from 'src/app/domain/models/client/stand-in/convert-stand-in-request.interface';
+import { STAND_IN_API_PATH, STAND_IN_CONVERT_PATH_SUFFIX } from 'src/app/domain/constants/stand-in.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -142,5 +148,21 @@ export class DataClientService {
         { ...filter, filter: ClientDataMapper.mapFilterDates(filter.filter) },
       )
       .pipe());
+  }
+
+  createStandIns(request: ICreateStandInsRequest) {
+    return this.httpClient.post<ICreatedStandIn[]>(
+      `${environment.baseUrl}${STAND_IN_API_PATH}`,
+      request,
+      idempotentRequestOptions(),
+    );
+  }
+
+  convertStandIn(clientId: string, request: IConvertStandInRequest) {
+    return this.httpClient.post<IClient>(
+      `${environment.baseUrl}${STAND_IN_API_PATH}/${clientId}/${STAND_IN_CONVERT_PATH_SUFFIX}`,
+      request,
+      idempotentRequestOptions(),
+    );
   }
 }

@@ -37,6 +37,8 @@ import { ERP_DROP_FOLDER_PATH, ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.constants';
 import { ACCOUNT_LOGOUT_PATH } from 'src/app/domain/constants/auth-request.constants';
+import { STAND_IN_API_PATH } from 'src/app/domain/constants/stand-in.constants';
+import { readAddressValidationFailure } from 'src/app/domain/helpers/address-validation-failure.helper';
 import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
 import { STT_TRANSCRIBE_ENDPOINT } from 'src/app/domain/constants/stt-endpoints.constants';
@@ -85,6 +87,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     ERP_DROP_FOLDER_PATH,
     PLAYGROUND_STATUS_PATH,
     ACCOUNT_LOGOUT_PATH,
+    STAND_IN_API_PATH,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
@@ -658,10 +661,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private isAddressValidationError(error: HttpErrorResponse): boolean {
-    const errors = error.error?.errors;
-    if (!errors) return false;
-    return Object.values(errors).flat()
-      .some((msg) => typeof msg === 'string' && msg.startsWith('address.validation.failed'));
+    return readAddressValidationFailure(error) !== null;
   }
 
   private handlePasswordChangeError(

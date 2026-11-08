@@ -2,12 +2,13 @@
 
 /**
  * Required-field validity of the address persona card: company for a legal entity, first name, name and gender for
- * a person, zip, city and country of the current address for both. Undefined means the field is not validated.
+ * a person, zip, city and country of the current address for both; a stand-in needs its display name (name) only.
+ * Undefined means the field is not validated.
  */
 
 import { inject, Injectable, signal } from '@angular/core';
 
-import { GenderEnum } from 'src/app/domain/enums/client-enum';
+import { EntityTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 
@@ -26,11 +27,23 @@ export class AddressPersonaValidationService {
   calcValidation(): void {
     const client = this.dataManagementClientService.editClient();
     if (!client) { return; }
-    if (client.legalEntity) {
+    if (client.type === EntityTypeEnum.standIn) {
+      this.calcValidationStandIn(client);
+    } else if (client.legalEntity) {
       this.calcValidationLegalEntity(client);
     } else {
       this.calcValidationNormalClient(client);
     }
+  }
+
+  private calcValidationStandIn(client: IClient): void {
+    this.isNameValid.set(this.isFilled(client.name));
+    this.isCompanyValid.set(undefined);
+    this.isFirstNameValid.set(undefined);
+    this.isGenderValid.set(undefined);
+    this.isZipValid.set(undefined);
+    this.isCityValid.set(undefined);
+    this.isCountryValid.set(undefined);
   }
 
   private calcValidationLegalEntity(client: IClient): void {

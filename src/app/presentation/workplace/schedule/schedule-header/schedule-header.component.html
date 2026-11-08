@@ -66,6 +66,9 @@
   <app-holistic-harmonizer-dialog #holisticHarmonizerDialog />
   <app-wizard4-dialog #wizard4Dialog />
   <app-recovery-dialog #recoveryDialog />
+  @if (canCreateStandIns()) {
+    <app-stand-in-create-dialog #standInCreateDialog (created)="onStandInsCreated()" />
+  }
 
 
   <div id="schedule-header-tools" class="header-tools" [class.header-tools-open]="toolsOverlay.toolsOpen()">
@@ -147,6 +150,19 @@
       >
         <app-icon-absence-cover />
         <span class="tool-label">{{ "recovery.toolbar.label" | translate }}</span>
+      </button>
+    }
+
+    @if (canCreateStandIns()) {
+      <button
+        id="schedule-create-stand-ins-btn"
+        type="button"
+        class="icon-button create-stand-ins-button"
+        (click)="onCreateStandInsClick()"
+        ngbTooltip="{{ 'standIn.create.title' | translate }}"
+      >
+        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+        <span class="tool-label">{{ "standIn.create.title" | translate }}</span>
       </button>
     }
 

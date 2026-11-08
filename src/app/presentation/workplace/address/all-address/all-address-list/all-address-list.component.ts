@@ -45,6 +45,9 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-request.interface';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import { STAND_IN_SYMBOL } from 'src/app/domain/constants/stand-in.constants';
+import { StandInCreateDialogComponent } from '../../stand-in/stand-in-create-dialog/stand-in-create-dialog.component';
 
 @Component({
   selector: 'app-all-address-list',
@@ -63,6 +66,7 @@ import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-re
     IconEyeGreyComponent,
     ResizeTableDirective,
     PaginationComponent,
+    StandInCreateDialogComponent,
   ],
   providers: [TableResizeService, AllAddressStateService, TableSortingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,6 +80,8 @@ export class AllAddressListComponent
 
   public authorizationService = inject(AuthorizationService);
   public readonly PERMISSIONS = PERMISSIONS;
+  protected readonly EntityTypeEnum = EntityTypeEnum;
+  protected readonly standInSymbol = STAND_IN_SYMBOL;
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
   public sortingService = inject(TableSortingService);
@@ -194,6 +200,12 @@ export class AllAddressListComponent
 
   onAddAddress(): void {
     this.navigationService.navigateToEditAddress();
+  }
+
+  onStandInsCreated(): void {
+    this.readPage();
+    this.setLastChangeMetaData();
+    this.cdr.markForCheck();
   }
 
   onChangeCheckBox(i: number, value: Event): void {

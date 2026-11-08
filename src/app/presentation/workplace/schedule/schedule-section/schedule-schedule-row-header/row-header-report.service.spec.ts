@@ -22,12 +22,14 @@ describe('RowHeaderReportService - cover absence', () => {
   let requestOpen: ReturnType<typeof vi.fn>;
   let workScheduleEntries: { clientId: string; entryType: number }[];
   let hasScheduleDefault: boolean;
+  let readDatas: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     held = new Set<string>();
     workScheduleEntries = [];
     hasScheduleDefault = false;
     requestOpen = vi.fn();
+    readDatas = vi.fn();
     const hasPermission = (permission: string): boolean => held.has(permission);
 
     TestBed.configureTestingModule({
@@ -45,12 +47,17 @@ describe('RowHeaderReportService - cover absence', () => {
         {
           provide: BaseDataService,
           useValue: {
-            rows: 2,
-            rowGroupIndex: [0, 1],
-            getGroupIndex: (index: number) => [{ id: 'client-a' }, { id: '' }][index],
+            rows: 3,
+            rowGroupIndex: [0, 1, 2],
+            getGroupIndex: (index: number) =>
+              [
+                { id: 'client-a', type: EntityTypeEnum.employee, name: 'Ackermann' },
+                { id: '' },
+                { id: 'stand-in-row', type: EntityTypeEnum.standIn, name: 'Fair 1' },
+              ][index],
           },
         },
-        { provide: DataManagementScheduleService, useValue: { workScheduleEntries } },
+        { provide: DataManagementScheduleService, useValue: { workScheduleEntries, readDatas } },
         { provide: ScheduleChangeService, useValue: {} },
         {
           provide: AuthorizationService,
@@ -93,6 +100,34 @@ describe('RowHeaderReportService - cover absence', () => {
     expect(menuKeys('stand-in', EntityTypeEnum.standIn)).not.toContain('sendStaffSchedule');
     expect(menuKeys('stand-in', EntityTypeEnum.standIn)).not.toContain('coverAbsence');
     expect(menuKeys('stand-in', EntityTypeEnum.standIn)).toContain('staffSchedule');
+  });
+
+  it('offers no shift preferences for a stand-in row, but for a person', () => {
+    expect(menuKeys('person')).toContain('shiftPreferences');
+    expect(menuKeys('stand-in', EntityTypeEnum.standIn)).not.toContain('shiftPreferences');
+  });
+
+  it('offers "convert into employee" for a stand-in row only to whoever may edit clients', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+
+    expect(menuKeys('stand-in', EntityTypeEnum.standIn)).not.toContain('convertStandIn');
+
+    held.add(PERMISSIONS.CanEditClients);
+
+    expect(menuKeys('stand-in', EntityTypeEnum.standIn)).toContain('convertStandIn');
+    expect(menuKeys('person')).not.toContain('convertStandIn');
+  });
+
+  it('finds the stand-in of a row with its display name and nothing for a person row', () => {
+    expect(service.standInAtRow(2)).toEqual({ id: 'stand-in-row', name: 'Fair 1' });
+    expect(service.standInAtRow(0)).toBeNull();
+    expect(service.standInAtRow(7)).toBeNull();
+  });
+
+  it('reloads the rows after a conversion without resetting the scroll position', () => {
+    service.reloadAfterStandInConversion();
+
+    expect(readDatas).toHaveBeenCalledWith(false);
   });
 
   it('hides "cover absence" from a read-only user without the schedule edit right', () => {

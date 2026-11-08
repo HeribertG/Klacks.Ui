@@ -208,7 +208,19 @@
       </button>
       }
 
-      @if (!state.isDisabled()) {
+      @if (canConvertStandIn()) {
+      <button
+        id="address-persona-convert-stand-in-button"
+        type="button"
+        class="btn btn-outline-primary"
+        [disabled]="dataManagementClientService.areObjectsDirty()"
+        (click)="onConvertStandIn()"
+      >
+        {{ 'standIn.convert.title' | translate }}
+      </button>
+      }
+
+      @if (!state.isDisabled() && !isStandIn()) {
 
       <button
         id="address-persona-options-button"
@@ -260,7 +272,29 @@
     </div>
 
     <div>
-      @if (dataManagementClientService.editClient() !== undefined) {
+      @if (dataManagementClientService.editClient() !== undefined && isStandIn()) {
+      <div class="container-bank-box">
+        <div class="firstColumContainer">
+          <div class="row-line">
+            <div class="form-group firstColumn">
+              <label for="stand-in-display-name">{{ "standIn.persona.displayName" | translate }} *</label>
+              <input
+                type="text"
+                class="form-control default-width"
+                autocomplete="off"
+                id="stand-in-display-name"
+                [formField]="state.personaForm.name"
+                [ngClass]="{
+                  'is-invalid': validation.isNameValid() === false,
+                  'is-valid': validation.isNameValid() === true
+                }"
+              />
+            </div>
+          </div>
+          <p class="stand-in-hint">{{ "standIn.persona.hint" | translate }}</p>
+        </div>
+      </div>
+      } @else if (dataManagementClientService.editClient() !== undefined) {
       <div class="container-bank-box">
         <div class="firstColumContainer">
           <app-address-persona-entity-fields
@@ -301,3 +335,4 @@
     </div>
   </app-expandable-card>
 </form>
+<app-stand-in-convert-dialog #standInConvertDialog (converted)="onStandInConverted()" />

@@ -1,0 +1,54 @@
+.dialog-hint {
+  font-size: 12px;
+  color: var(--colorWorkplaceHeadline);
+  margin-bottom: 12px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  > * {
+    flex: 1 1 160px;
+  }
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.count-field {
+  flex: 0 0 90px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.qualification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.qualification-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.empty-hint {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.dialog-problem {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--standartRedColor);
+}

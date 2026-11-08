@@ -53,6 +53,7 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { RowHeaderReportService } from '../../schedule-schedule-row-header/row-header-report.service';
 import { ShiftPreferencesDialogComponent } from '../../../dialogs/shift-preferences-dialog/shift-preferences-dialog.component';
+import { StandInConvertDialogComponent } from 'src/app/presentation/workplace/address/stand-in/stand-in-convert-dialog/stand-in-convert-dialog.component';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 @Component({
@@ -60,7 +61,7 @@ import { LongPressContextDirective } from 'src/app/presentation/directives/long-
   templateUrl: './schedule-timeline-row-header.component.html',
   styleUrls: ['./schedule-timeline-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, ResizeDirective, ClientFilterComponent, ContextMenuComponent, ShiftPreferencesDialogComponent, LongPressContextDirective],
+  imports: [NgStyle, ResizeDirective, ClientFilterComponent, ContextMenuComponent, ShiftPreferencesDialogComponent, StandInConvertDialogComponent, LongPressContextDirective],
   providers: [
     { provide: BaseCreateRowHeaderService, useClass: TimelineCreateRowHeaderService },
     BaseDrawRowHeaderService,
@@ -76,6 +77,7 @@ export class ScheduleTimelineRowHeaderComponent
   readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
   readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
   readonly shiftPreferencesDialog = viewChild.required(ShiftPreferencesDialogComponent);
+  private readonly standInConvertDialog = viewChild.required(StandInConvertDialogComponent);
 
   readonly valueChangeVScrollbar = input.required<number>();
 
@@ -229,7 +231,22 @@ export class ScheduleTimelineRowHeaderComponent
         this.contextMenu().closeMenu(true);
         this.openShiftPreferencesDialog(this.contextMenuRow);
         break;
+      case 'convertStandIn':
+        this.contextMenu().closeMenu(true);
+        this.openStandInConvertDialog(this.contextMenuRow);
+        break;
     }
+  }
+
+  private openStandInConvertDialog(row: number): void {
+    const standIn = this.reportHelper.standInAtRow(row);
+    if (standIn) {
+      this.standInConvertDialog().open(standIn.id, standIn.name);
+    }
+  }
+
+  protected onStandInConverted(): void {
+    this.reportHelper.reloadAfterStandInConversion();
   }
 
   private openShiftPreferencesDialog(row: number): void {

@@ -29,6 +29,7 @@ import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enum
 import { ClientWork } from 'src/app/domain/models/schedule/client-work-class';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { EntityTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
+import { STAND_IN_SYMBOL } from 'src/app/domain/constants/stand-in.constants';
 import { GridRowHeader } from '../../classes/grid-row-header';
 import { BaseDataService } from '../../../../shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
@@ -42,7 +43,6 @@ import { drawQualificationBubbles } from '../../shared/qualification-bubbles/qua
 const INFO_SPOT_FONT_COLOR = '#000000';
 const NO_CONTRACT_SYMBOL = '⊘';
 const NO_CONTRACT_COLOR = '#ef4444';
-const STAND_IN_SYMBOL = '◌';
 const STAND_IN_COLOR = '#2563eb';
 
 @Injectable()

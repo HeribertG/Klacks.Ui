@@ -1,0 +1,103 @@
+<ng-template #standInCreateModal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="stand-in-create-title">
+      {{ "standIn.create.title" | translate }}
+    </div>
+  </div>
+
+  <div class="modal-body" aria-labelledby="stand-in-create-title">
+    <p class="dialog-hint">{{ "standIn.create.hint" | translate }}</p>
+
+    <div class="form-row">
+      <div class="form-group count-field">
+        <label for="stand-in-create-count">{{ "standIn.create.count" | translate }} *</label>
+        <input
+          id="stand-in-create-count"
+          type="number"
+          class="form-control"
+          [formField]="textForm.count"
+        />
+      </div>
+
+      <div class="form-group pattern-field">
+        <label for="stand-in-create-pattern">{{ "standIn.create.namePattern" | translate }} *</label>
+        <input
+          id="stand-in-create-pattern"
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          [placeholder]="'standIn.create.namePatternExample' | translate"
+          [formField]="textForm.namePattern"
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="stand-in-create-group">{{ "standIn.create.group" | translate }} *</label>
+      <app-group-select
+        id="stand-in-create-group"
+        [showAllGroupsOption]="false"
+        [useGlobalSelection]="false"
+        [ngModel]="groupId()"
+        [ngModelOptions]="{ standalone: true }"
+        (groupSelected)="onGroupSelected($event)"
+      ></app-group-select>
+    </div>
+
+    <div class="form-row">
+      <app-date-input
+        [label]="'standIn.create.validFrom' | translate"
+        inputId="stand-in-create-valid-from"
+        inputName="standInValidFrom"
+        [value]="validFrom()"
+        (valueChange)="validFrom.set($event ?? null)"
+      ></app-date-input>
+      <app-date-input
+        [label]="'standIn.create.validUntil' | translate"
+        inputId="stand-in-create-valid-until"
+        inputName="standInValidUntil"
+        [value]="validUntil()"
+        (valueChange)="validUntil.set($event ?? null)"
+      ></app-date-input>
+    </div>
+
+    <div class="form-group">
+      <span class="field-label">{{ "standIn.create.qualifications" | translate }}</span>
+      <div class="qualification-list">
+        @for (qualification of qualifications(); track qualification.id) {
+          <label class="qualification-item">
+            <input
+              type="checkbox"
+              [checked]="selectedQualificationIds().has(qualification.id ?? '')"
+              (change)="onToggleQualification(qualification.id, $event)"
+            />
+            {{ qualification.name | fallback: currentLang }}
+          </label>
+        } @empty {
+          <span class="empty-hint">{{ "standIn.create.noQualifications" | translate }}</span>
+        }
+      </div>
+    </div>
+
+    @if (problem(); as message) {
+      <div id="stand-in-create-problem" class="dialog-problem" role="alert">
+        {{ message.key | translate: message.params }}
+      </div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button id="stand-in-create-cancel" type="button" class="btn link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </button>
+    <button
+      id="stand-in-create-submit"
+      type="button"
+      class="btn save-btn"
+      [disabled]="isSaving()"
+      (click)="onCreate()"
+    >
+      {{ "standIn.create.submit" | translate }}
+    </button>
+  </div>
+</ng-template>

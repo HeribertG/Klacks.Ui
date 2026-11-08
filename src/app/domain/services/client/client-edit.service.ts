@@ -2,6 +2,8 @@
 
 /**
  * Service for client editing: reading, saving, validation, and dirty state tracking.
+ * A stand-in (placeholder for a person not in the system yet) is valid with a display name alone and is saved without
+ * the empty address and communication rows the form adds for editing, and without contracts (the server refuses them).
  * @param editClient - Signal containing the currently edited client
  * @param lastSaveError - Signal indicating whether the last save operation failed
  * @param onSaveCompleted - Callback invoked after successful save
@@ -19,7 +21,7 @@ import {
   Annotation,
 } from 'src/app/domain/models/client/client-class';
 import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
-import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
+import { AddressTypeEnum, EntityTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
@@ -36,6 +38,7 @@ import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pul
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { WORKPLACE_ROUTE_PREFIX } from 'src/app/domain/constants/navigation-outcome.constants';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+import { readAddressValidationFailure } from 'src/app/domain/helpers/address-validation-failure.helper';
 
 const EDIT_ADDRESS_ROUTE = `${WORKPLACE_ROUTE_PREFIX}${RouteName.EDIT_ADDRESS}`;
 const URL_SYNC_DELAY_MS = 100;
@@ -283,22 +286,11 @@ export class ClientEditService {
   }
 
   private isAddressValidationError(error: unknown): boolean {
-    const httpError = error as { error?: { errors?: Record<string, string[]> } };
-    if (!httpError?.error?.errors) return false;
-    return Object.values(httpError.error.errors).flat()
-      .some((msg) => typeof msg === 'string' && msg.startsWith('address.validation.failed'));
+    return readAddressValidationFailure(error) !== null;
   }
 
   private handleBackendAddressValidationError(error: unknown): void {
-    const httpError = error as { error?: { errors?: Record<string, string[]> } };
-    const messages = httpError?.error?.errors
-      ? Object.values(httpError.error.errors).flat()
-      : [];
-
-    const rawAddress = messages
-      .filter((msg) => typeof msg === 'string' && msg.startsWith('address.validation.failed'))
-      .map((msg) => msg.split('|')[1] || '')
-      .filter(Boolean)[0] || '';
+    const rawAddress = readAddressValidationFailure(error) ?? '';
 
     const parsed = this.parseAddressString(rawAddress);
 
@@ -343,10 +335,11 @@ export class ClientEditService {
       (contract) => contract.contractId && contract.contractId !== ''
     );
 
-    const clientToSave: IClient = {
-      ...this.editClient()!,
-      clientContracts: filteredContracts,
-    };
+    const client = this.editClient()!;
+    const clientToSave: IClient =
+      client.type === EntityTypeEnum.standIn
+        ? { ...client, addresses: [], communications: [], clientContracts: [] }
+        : { ...client, clientContracts: filteredContracts };
 
     if (this._skipAddressValidation) {
       (clientToSave as unknown as Record<string, unknown>)['skipAddressValidation'] = true;
@@ -477,11 +470,23 @@ export class ClientEditService {
       return false;
     }
 
+    if (client.type === EntityTypeEnum.standIn) {
+      return this.isValidStandIn(client);
+    }
+
     if (client.legalEntity) {
       return this.isValidLegalEntity(client);
     } else {
       return this.isValidNormalClient(client);
     }
+  }
+
+  private isValidStandIn(client: IClient): boolean {
+    if (!client.name || client.name.trim() === '') {
+      return false;
+    }
+
+    return this.isValidGroupItems(client);
   }
 
   private isValidLegalEntity(client: IClient): boolean {

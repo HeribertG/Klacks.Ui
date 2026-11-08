@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/**
+ * Membership card of the master data form: client type, entry and exit date. The type of a stand-in is read-only; it
+ * changes only by converting the stand-in into a person.
+ * @param isReadOnly - When true, all fields are disabled
+ * @param isChangingEvent - Emits true when the user changes a field
+ */
+
 import {
   Component,
   effect,
@@ -21,6 +28,7 @@ import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { toNumber } from 'src/app/domain/helpers/number.helper';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 
 @Component({
   selector: 'app-membership',
@@ -42,6 +50,7 @@ export class MembershipComponent {
   readonly isChangingEvent = output<boolean>();
 
   public faCalendar = faCalendar;
+  protected readonly EntityTypeEnum = EntityTypeEnum;
   public now = new Date();
   public isValidFromValid: boolean | undefined;
 
@@ -67,6 +76,10 @@ export class MembershipComponent {
         this.calcValidation();
       }
     });
+  }
+
+  isStandIn(): boolean {
+    return this.dataManagementClientService.editClient()?.type === EntityTypeEnum.standIn;
   }
 
   isDisabled(): boolean {

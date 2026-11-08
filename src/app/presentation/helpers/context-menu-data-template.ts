@@ -353,6 +353,18 @@ export class MenuDataTemplate {
     return [item];
   }
 
+  public static convertStandIn(): MenuItem[] {
+    return [
+      new MenuItem(
+        'convertStandIn',
+        DomainMessages.CONVERT_STAND_IN,
+        false,
+        '',
+        'fa-solid fa-user-check',
+      ),
+    ];
+  }
+
   public static shiftPreferences(): MenuItem[] {
     return [
       new MenuItem(

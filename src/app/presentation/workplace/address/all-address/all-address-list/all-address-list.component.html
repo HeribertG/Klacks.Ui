@@ -16,7 +16,16 @@
         >
           {{ "new-address" | translate }}
         </button>
+        <button
+          id="new-stand-ins-button"
+          type="button"
+          class="btn new-btn"
+          (click)="standInCreateDialog.open()"
+        >
+          {{ "standIn.create.title" | translate }}
+        </button>
       </div>
+      <app-stand-in-create-dialog #standInCreateDialog (created)="onStandInsCreated()" />
     }
     @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
       <div
@@ -186,7 +195,17 @@
                 aria-label="checkbox"
               />
             </td>
-            <td class="table-cell">{{ data.typeAbbreviation }}</td>
+            <td class="table-cell">
+              @if (data.type === EntityTypeEnum.standIn) {
+                <span
+                  class="stand-in-marker"
+                  [ngbTooltip]="'address.edit-address.membership.type.standIn' | translate"
+                  [attr.aria-label]="'address.edit-address.membership.type.standIn' | translate"
+                >{{ standInSymbol }}</span>
+              } @else {
+                {{ data.typeAbbreviation }}
+              }
+            </td>
             <td
               [ngClass]="{
                 'table-cell': data.isDeleted === false,

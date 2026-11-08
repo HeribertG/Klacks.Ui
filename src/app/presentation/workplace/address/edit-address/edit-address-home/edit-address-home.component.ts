@@ -7,6 +7,7 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  computed,
   signal,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -49,6 +50,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-request.interface';
 import { EditAddressCardVisibilityService } from '../edit-address-card-visibility.service';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -99,6 +101,11 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
   isReadOnly = false;
   isQuickPrinting = signal(false);
+
+  /** A stand-in has no address list, no contract and no messenger contact; a customer has no contracts or qualifications. */
+  readonly isStandIn = computed(() => this.dataManagementClientService.editClient()?.type === EntityTypeEnum.standIn);
+  readonly isCustomer = computed(() => this.dataManagementClientService.editClient()?.type === EntityTypeEnum.customer);
+  readonly showsContracts = computed(() => !this.isCustomer() && !this.isStandIn());
   private returnUrl: string | null = null;
 
   ngOnInit(): void {

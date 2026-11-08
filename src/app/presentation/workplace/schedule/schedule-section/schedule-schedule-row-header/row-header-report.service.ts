@@ -2,7 +2,8 @@
 
 /**
  * Service for report generation and context menu actions in the schedule row header.
- * A stand-in row offers neither sending its plan nor covering its absence: it is no person.
+ * A stand-in row offers neither sending its plan, shift preferences nor covering its absence: it is no person. It offers
+ * converting it into an employee instead, to whoever may edit clients (supervisor, admin).
  * @param scheduleReportCtx - Context service for schedule report generation and sending
  * @param reportDefaults - Default report templates
  * @param appSettings - Email configuration for send verification
@@ -12,7 +13,8 @@
  * @param dataService - Grid data (rows, groups, clients)
  * @param dataManagementSchedule - Visible time period for report
  * @param scheduleChangeService - Tracks and clears per-client dirty state after schedule send
- * @param authService - Decides whether the "cover absence" entry is offered (anyone who may edit the schedule)
+ * @param authService - Decides whether "cover absence" (anyone who may edit the schedule) and "convert into employee"
+ *   (CanEditClients) are offered
  * @param recoveryLauncher - Opens the recovery dialog pre-filled with the row's employee
  */
 import { inject, Injectable, computed } from '@angular/core';
@@ -74,9 +76,16 @@ export class RowHeaderReportService {
         menuData.list.push(...MenuDataTemplate.sendStaffSchedule());
       }
     }
+    if (isStandIn) {
+      if (this.canConvertStandIn()) {
+        menuData.list.push(...MenuDataTemplate.divider());
+        menuData.list.push(...MenuDataTemplate.convertStandIn());
+      }
+      return menuData;
+    }
     menuData.list.push(...MenuDataTemplate.divider());
     menuData.list.push(...MenuDataTemplate.shiftPreferences());
-    if (this.canCoverAbsence() && !isStandIn && this.hasWork(client?.id)) {
+    if (this.canCoverAbsence() && this.hasWork(client?.id)) {
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.coverAbsence());
     }
@@ -108,9 +117,34 @@ export class RowHeaderReportService {
     return clientId === undefined || collectClientIdsWithWork(this.dataManagementSchedule.workScheduleEntries).has(clientId);
   }
 
+  /** Converting a stand-in edits person master data, which is supervisor and admin work (CanEditClients). */
+  private canConvertStandIn(): boolean {
+    return this.authService.hasPermission(PERMISSIONS.CanEditClients);
+  }
+
   /** Whoever may edit the schedule may ask for a cover proposal; the backend endpoint is open to every authenticated user. */
   private canCoverAbsence(): boolean {
     return this.authService.hasPermission(PERMISSIONS.CanEditSchedule);
+  }
+
+  /** The stand-in in the clicked row with its display name, or null when the row holds a person or nothing. */
+  standInAtRow(contextMenuRow: number): { id: string; name: string } | null {
+    if (contextMenuRow < 0 || contextMenuRow >= this.dataService.rows) {
+      return null;
+    }
+
+    const groupIndex = this.dataService.rowGroupIndex[contextMenuRow];
+    const client = groupIndex === undefined ? undefined : this.dataService.getGroupIndex(groupIndex);
+    if (!client?.id || client.type !== EntityTypeEnum.standIn) {
+      return null;
+    }
+
+    return { id: client.id, name: client.name ?? '' };
+  }
+
+  /** Reloads the rows after a conversion, so the row header loses its stand-in sign and shows the person. */
+  reloadAfterStandInConversion(): void {
+    this.dataManagementSchedule.readDatas(false);
   }
 
   navigateToAddress(contextMenuRow: number): void {

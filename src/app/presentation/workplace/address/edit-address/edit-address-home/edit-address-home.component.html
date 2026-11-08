@@ -15,7 +15,7 @@
       </button>
     </div>
     }
-    @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
+    @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients) && !isStandIn()) {
     <app-nav-toggle
       id="edit-address-nav-toggle"
       label="accessibility.menu"
@@ -24,7 +24,7 @@
     }
   </div>
 
-  @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
+  @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients) && !isStandIn()) {
   <div
     class="container-address-nav nav-collapsible border-right-card border-bottom-card"
     [class.nav-open]="navOpen()"
@@ -51,7 +51,7 @@
     </app-membership>
   </div>
 
-  @if (dataManagementClientService.editClient()?.type !== 2) {
+  @if (showsContracts()) {
   <div class="container-profilline" data-klacksy-target="address-contracts">
     <app-client-contracts
       (isChangingEvent)="onIsChanging($event)"
@@ -73,7 +73,7 @@
   </div>
   }
 
-  @if (dataManagementClientService.editClient()?.type !== 2) {
+  @if (!isCustomer()) {
   <div class="container-profilline" data-klacksy-target="address-qualifications">
     <app-client-qualifications
       (isChangingEvent)="onIsChanging($event)"
@@ -84,7 +84,7 @@
   </div>
   }
 
-  @if (featurePluginState.isPluginEnabled(messagingPluginName) && dataManagementClientService.editClient()?.id) {
+  @if (featurePluginState.isPluginEnabled(messagingPluginName) && dataManagementClientService.editClient()?.id && !isStandIn()) {
   <div class="container-profilline">
     <lib-client-messenger-contacts
       [clientId]="dataManagementClientService.editClient()!.id!"

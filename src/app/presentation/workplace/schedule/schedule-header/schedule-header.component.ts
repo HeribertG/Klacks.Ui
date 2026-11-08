@@ -10,6 +10,8 @@
  * @param wizardMenu - Auto-wizard state, wizard dropdown shortcut and the autofill / absence cover permissions
  * @param toolsOverlay - Open state of the collapsed toolbar overlay
  * @param displayToggles - Break placeholder, schedule command and availability toggles with their icon colours
+ * "Create placeholders" (stand-ins for persons not in the system yet) is offered to whoever may create clients
+ * (supervisor, admin); it starts with the selected group and the shown period and reloads the rows afterwards.
  * @param zoomChange - Emits the zoom factor of the table view
  * @param pdfExportRequested - Emits when the PDF export button is clicked
  */
@@ -49,6 +51,10 @@ import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmoniz
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
 import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
 import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dialog.component';
+import { StandInCreateDialogComponent } from 'src/app/presentation/workplace/address/stand-in/stand-in-create-dialog/stand-in-create-dialog.component';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
 import { ScheduleSelectionService } from '../services/schedule-selection.service';
@@ -99,6 +105,7 @@ import {
     RecoveryDialogComponent,
     IconAbsenceCoverComponent,
     ScenarioSelectorComponent,
+    StandInCreateDialogComponent,
   ],
   providers: [
     ScheduleHeaderPeriodNavigationService,
@@ -124,6 +131,7 @@ export class ScheduleHeaderComponent implements OnInit {
   readonly holisticHarmonizerDialog = viewChild.required<HolisticHarmonizerDialogComponent>('holisticHarmonizerDialog');
   readonly wizard4Dialog = viewChild.required<Wizard4DialogComponent>('wizard4Dialog');
   readonly recoveryDialog = viewChild.required<RecoveryDialogComponent>('recoveryDialog');
+  private readonly standInCreateDialog = viewChild<StandInCreateDialogComponent>('standInCreateDialog');
 
   private directionService = inject(DirectionService);
   readonly isRtl = computed(() => this.directionService.direction() === 'rtl');
@@ -150,6 +158,8 @@ export class ScheduleHeaderComponent implements OnInit {
   private timelineRangeService = inject(ScheduleTimelineRangeService);
   private scheduleSelection = inject(ScheduleSelectionService);
   private destroyRef = inject(DestroyRef);
+  private authorizationService = inject(AuthorizationService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
 
   public readonly isTimelineMode = this.viewModeService.isTimelineMode;
   public readonly timelineViewRange = this.timelineRangeService.viewRange;
@@ -212,6 +222,22 @@ export class ScheduleHeaderComponent implements OnInit {
       return;
     }
     void this.recoveryDialog().open({ clientId: selectedWork.clientId, date: selectedWork.date });
+  }
+
+  canCreateStandIns(): boolean {
+    return this.authorizationService.hasPermission(PERMISSIONS.CanCreateClients);
+  }
+
+  onCreateStandInsClick(): void {
+    this.standInCreateDialog()?.open({
+      groupId: this.dataManagementSchedule.workFilter.selectedGroup,
+      validFrom: this.dataManagementSchedule.periodStartDate,
+      validUntil: this.dataManagementSchedule.periodEndDate,
+    });
+  }
+
+  onStandInsCreated(): void {
+    this.dataManagementSchedule.readDatas(false);
   }
 
   private emitZoomChange(): void {

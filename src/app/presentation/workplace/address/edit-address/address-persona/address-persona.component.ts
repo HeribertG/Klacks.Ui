@@ -3,7 +3,8 @@
 /**
  * Card for editing the address and persona details of a client. Hosts the component-scoped persona services, the
  * header actions and the address type and new address dialog templates, and composes the entity, name, street,
- * locality and communication sub-components.
+ * locality and communication sub-components. A stand-in shows only its display name and offers "Convert into
+ * employee" instead of the address actions.
  * @param isReadOnly - When true, all form fields are disabled
  * @param isChangingEvent - Emits true when the user modifies any field, false on reset
  */
@@ -16,9 +17,13 @@ import {
   input,
   OnDestroy,
   OnInit,
+  computed,
   output,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { FormField } from '@angular/forms/signals';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar, faStreetView } from '@fortawesome/free-solid-svg-icons';
 import { NgbDatepickerModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -52,6 +57,8 @@ import { AddressPersonaMapLinksService } from './services/address-persona-map-li
 import { AddressPersonaStateService } from './services/address-persona-state.service';
 import { AddressPersonaTelegramService } from './services/address-persona-telegram.service';
 import { AddressPersonaValidationService } from './services/address-persona-validation.service';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import { StandInConvertDialogComponent } from '../../stand-in/stand-in-convert-dialog/stand-in-convert-dialog.component';
 
 @Component({
   selector: 'app-address-persona',
@@ -72,6 +79,9 @@ import { AddressPersonaValidationService } from './services/address-persona-vali
     AddressPersonaStreetFieldsComponent,
     AddressPersonaLocalityFieldsComponent,
     AddressPersonaCommunicationsComponent,
+    NgClass,
+    FormField,
+    StandInConvertDialogComponent,
   ],
   providers: [
     AddressPersonaStateService,
@@ -99,6 +109,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   protected readonly mapLinks = inject(AddressPersonaMapLinksService);
   protected readonly telegram = inject(AddressPersonaTelegramService);
   protected readonly display = inject(AddressPersonaDisplayService);
+  protected readonly validation = inject(AddressPersonaValidationService);
   private readonly formSync = inject(AddressPersonaFormSyncService);
   private readonly appSettingsService = inject(AppSettingsManagementService);
   private readonly geoServicesConfig = inject(GeoServicesConfigService);
@@ -108,6 +119,12 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   protected readonly faStreetView = faStreetView;
 
   private readonly ngUnsubscribe = new Subject<void>();
+  private readonly standInConvertDialog = viewChild.required(StandInConvertDialogComponent);
+
+  /** A stand-in shows its display name only: no address, no communication, no address actions. */
+  protected readonly isStandIn = computed(
+    () => this.dataManagementClientService.editClient()?.type === EntityTypeEnum.standIn,
+  );
 
   constructor() {
     this.state.bind({ isReadOnly: this.isReadOnly, isChangingEvent: this.isChangingEvent });
@@ -134,6 +151,26 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
 
   onExpandedChange(isExpanded: boolean): void {
     this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Persona, isExpanded);
+  }
+
+  /** Converting is editing the client (CanEditClients); a new, unsaved stand-in does not exist on the server yet. */
+  protected canConvertStandIn(): boolean {
+    return this.isStandIn() && !!this.dataManagementClientService.editClient()?.id && !this.state.isDisabled();
+  }
+
+  protected onConvertStandIn(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client?.id || this.dataManagementClientService.areObjectsDirty()) {
+      return;
+    }
+    this.standInConvertDialog().open(client.id, client.name);
+  }
+
+  protected onStandInConverted(): void {
+    const id = this.dataManagementClientService.editClient()?.id;
+    if (id) {
+      this.dataManagementClientService.readClient(id);
+    }
   }
 
   protected showExternalMapLinks(): boolean {

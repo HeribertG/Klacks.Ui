@@ -6,3 +6,9 @@
 @use "../../../../../../assets/standard-styles/datepicker.scss";
 @use "../../../../../../assets/standard-styles/required-field.scss";
 @use "address-persona-shared";
+
+.stand-in-hint {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 8px;
+}

@@ -22,6 +22,7 @@ import { APP_BASE_HREF, Location } from '@angular/common';
 import { provideLocationMocks, SpyLocation } from '@angular/common/testing';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { CommunicationService } from './communication.service';
+import { Communication } from 'src/app/domain/models/client/communication';
 
 class MockEventBus implements IEventBus {
   emit<_T>(_eventType: string, _payload: _T): void {}
@@ -631,5 +632,82 @@ describe('ClientEditService edit-address URL sync against the browser history', 
     vi.advanceTimersByTime(URL_SYNC_DELAY_MS);
 
     expect(window.location.pathname).toBe(SCHEDULE_PATH);
+  });
+});
+
+describe('ClientEditService stand-in', () => {
+  const STAND_IN_ID = 'stand-in-1';
+  let service: ClientEditService;
+  let updateClient: ReturnType<typeof vi.fn>;
+
+  const standIn = (): Client => {
+    const client = new Client();
+    client.id = STAND_IN_ID;
+    client.type = EntityTypeEnum.standIn;
+    client.firstName = '';
+    client.name = 'Fair 1';
+    client.addresses = [];
+    client.communications = [];
+    client.clientContracts = [];
+    client.groupItems = [];
+    return client;
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    updateClient = vi.fn().mockReturnValue(of({ id: STAND_IN_ID }));
+
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
+      providers: [
+        provideLocationMocks(),
+        ClientEditService,
+        { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
+        { provide: ClientConfigService, useClass: MockClientConfigService },
+        { provide: DataClientService, useValue: { getClient: () => of(standIn()), updateClient } },
+        {
+          provide: CommunicationService,
+          useValue: {
+            setCommunication: (client: Client) => {
+              client.communications = [{ ...new Communication(), isPhone: true }];
+            },
+          },
+        },
+      ],
+    });
+    service = TestBed.inject(ClientEditService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('is valid with a display name alone: no first name, no gender, no address', () => {
+    service.editClient.set(standIn());
+
+    expect(service.isValid()).toBe(true);
+  });
+
+  it('is invalid without a display name', () => {
+    const client = standIn();
+    client.name = '  ';
+    service.editClient.set(client);
+
+    expect(service.isValid()).toBe(false);
+  });
+
+  it('saves a stand-in without the empty address and communication rows the form adds for editing', async () => {
+    service.readClient(STAND_IN_ID);
+    expect(service.editClient()?.addresses.length).toBe(1);
+
+    service.editClient.update((client) => (client ? { ...client, name: 'Fair 2' } : client));
+    await service.saveEditClient();
+
+    expect(updateClient).toHaveBeenCalledTimes(1);
+    const saved = updateClient.mock.calls[0][0] as Client;
+    expect(saved.name).toBe('Fair 2');
+    expect(saved.addresses).toEqual([]);
+    expect(saved.communications).toEqual([]);
+    expect(saved.clientContracts).toEqual([]);
   });
 });

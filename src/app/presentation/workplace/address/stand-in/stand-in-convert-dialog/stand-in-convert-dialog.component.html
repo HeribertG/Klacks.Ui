@@ -1,0 +1,104 @@
+<ng-template #standInConvertModal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="stand-in-convert-title">
+      {{ "standIn.convert.title" | translate }} — {{ displayName() }}
+    </div>
+  </div>
+
+  <div class="modal-body" aria-labelledby="stand-in-convert-title">
+    <p class="dialog-hint">{{ "standIn.convert.hint" | translate }}</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="stand-in-convert-type">{{ "standIn.convert.targetType" | translate }} *</label>
+        <select id="stand-in-convert-type" class="form-select" [formField]="convertForm.targetType">
+          <option [value]="EntityTypeEnum.employee">
+            {{ "address.edit-address.membership.type.employee" | translate }}
+          </option>
+          <option [value]="EntityTypeEnum.externEmp">
+            {{ "address.edit-address.membership.type.externEmp" | translate }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="stand-in-convert-gender">{{ "address.edit-address.address-persona.gender" | translate }} *</label>
+        <select id="stand-in-convert-gender" class="form-select" [formField]="convertForm.gender">
+          <option value=""></option>
+          <option [value]="GenderEnum.female">{{ "address.edit-address.address-persona.female" | translate }}</option>
+          <option [value]="GenderEnum.male">{{ "address.edit-address.address-persona.male" | translate }}</option>
+          <option [value]="GenderEnum.intersexuality">
+            {{ "address.edit-address.address-persona.intersexuality" | translate }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="stand-in-convert-first-name">{{ "address.edit-address.address-persona.firstname" | translate }} *</label>
+        <input id="stand-in-convert-first-name" type="text" class="form-control" autocomplete="off" [formField]="convertForm.firstName" />
+      </div>
+      <div class="form-group">
+        <label for="stand-in-convert-name">{{ "address.edit-address.address-persona.name" | translate }} *</label>
+        <input id="stand-in-convert-name" type="text" class="form-control" autocomplete="off" [formField]="convertForm.name" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="stand-in-convert-street">{{ "address.edit-address.address-persona.street" | translate }}</label>
+      <input id="stand-in-convert-street" type="text" class="form-control" autocomplete="off" [formField]="convertForm.street" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group count-field">
+        <label for="stand-in-convert-zip">{{ "address.edit-address.address-persona.zip" | translate }}</label>
+        <input id="stand-in-convert-zip" type="text" class="form-control" autocomplete="off" [formField]="convertForm.zip" />
+      </div>
+      <div class="form-group">
+        <label for="stand-in-convert-city">{{ "address.edit-address.address-persona.place" | translate }}</label>
+        <input id="stand-in-convert-city" type="text" class="form-control" autocomplete="off" [formField]="convertForm.city" />
+      </div>
+      <div class="form-group">
+        <label for="stand-in-convert-country">{{ "address.edit-address.address-persona.country" | translate }}</label>
+        <select id="stand-in-convert-country" class="form-select" [formField]="convertForm.country">
+          <option value=""></option>
+          @for (country of clientConfigService.countries(); track country.abbreviation) {
+            <option [value]="country.abbreviation">{{ country.name | fallback: currentLang }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="stand-in-convert-phone">{{ "address.edit-address.address-persona.phone" | translate }}</label>
+        <input id="stand-in-convert-phone" type="tel" class="form-control" autocomplete="off" [formField]="convertForm.phone" />
+      </div>
+      <div class="form-group">
+        <label for="stand-in-convert-email">{{ "address.edit-address.address-persona.mail" | translate }}</label>
+        <input id="stand-in-convert-email" type="email" class="form-control" autocomplete="off" [formField]="convertForm.email" />
+      </div>
+    </div>
+
+    @if (problem(); as message) {
+      <div id="stand-in-convert-problem" class="dialog-problem" role="alert">
+        {{ message.key | translate: message.params }}
+      </div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button id="stand-in-convert-cancel" type="button" class="btn link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </button>
+    <button
+      id="stand-in-convert-submit"
+      type="button"
+      class="btn save-btn"
+      [disabled]="isSaving()"
+      (click)="onConvert()"
+    >
+      {{ "standIn.convert.submit" | translate }}
+    </button>
+  </div>
+</ng-template>

@@ -123,6 +123,7 @@ export class DomainMessages {
   public static readonly STAFF_SCHEDULE = 'contextMenu.staffSchedule';
   public static readonly SEND_STAFF_SCHEDULE = 'contextMenu.sendStaffSchedule';
   public static readonly SHIFT_PREFERENCES = 'contextMenu.shiftPreferences';
+  public static readonly CONVERT_STAND_IN = 'standIn.convert.title';
   public static readonly CLIENT_AVAILABILITY_REPORT = 'contextMenu.clientAvailabilityReport';
   public static DELETE_BREAK_PLACEHOLDER = 'contextMenu.deleteBreakPlaceholder';
   public static EDIT_CONTAINER_SHIFT = 'contextMenu.editContainerShift';

@@ -21,6 +21,9 @@ import { signal } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 
 const ALL_ADDRESS_LIST_MODAL_CONTEXT = 'all-address-list';
 
@@ -142,6 +145,8 @@ describe('AllAddressListComponent', () => {
             imports: [AllAddressListComponent, TranslateModule.forRoot()],
             providers: [
               ...APP_PORT_BINDINGS,
+                provideHttpClient(),
+                provideHttpClientTesting(),
                 { provide: DataManagementClientService, useValue: mockDataManagementClientService },
                 { provide: AuthorizationService, useValue: mockAuthorizationService },
                 { provide: LocalStorageService, useValue: mockLocalStorageService },
@@ -265,6 +270,37 @@ describe('AllAddressListComponent', () => {
             fixture.detectChanges();
             const button = fixture.nativeElement.querySelector('#new-address-button');
             expect(button).toBeFalsy();
+        });
+
+        it('offers "create placeholders" to whoever may create clients (supervisor, admin)', () => {
+            fixture.detectChanges();
+            expect(fixture.nativeElement.querySelector('#new-stand-ins-button')).toBeTruthy();
+        });
+
+        it('hides "create placeholders" from the planner, who lacks CanCreateClients', () => {
+            grantedPermissions.clear();
+            fixture.detectChanges();
+            expect(fixture.nativeElement.querySelector('#new-stand-ins-button')).toBeFalsy();
+        });
+
+        it('marks a stand-in row with the placeholder sign instead of a type abbreviation', () => {
+            mockDataManagementClientService.listWrapper.set({
+                clients: [
+                    { id: 'p-1', type: EntityTypeEnum.employee, typeAbbreviation: 'M', isDeleted: false },
+                    { id: 's-1', type: EntityTypeEnum.standIn, typeAbbreviation: undefined, isDeleted: false },
+                ],
+            });
+            fixture.detectChanges();
+            const markers = fixture.nativeElement.querySelectorAll('.stand-in-marker');
+            expect(markers.length).toBe(1);
+            expect(fixture.nativeElement.querySelector('#client-row-1 .stand-in-marker')).toBeTruthy();
+        });
+
+        it('reloads the list after placeholders were created', () => {
+            fixture.detectChanges();
+            mockDataManagementClientService.readPage.mockClear();
+            component.onStandInsCreated();
+            expect(mockDataManagementClientService.readPage).toHaveBeenCalled();
         });
 
         it('deletes the client once the delete modal is confirmed by a user holding CanDeleteClients', () => {

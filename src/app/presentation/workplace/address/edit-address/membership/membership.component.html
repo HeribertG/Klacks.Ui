@@ -19,10 +19,17 @@
               name="type"
               id="client-type"
               data-klacksy-target="employee-membership.type"
-              [disabled]="isDisabled()"
+              [disabled]="isDisabled() || isStandIn()"
               [ngModel]="dataManagementClientService.editClient()?.type"
               (ngModelChange)="onClientTypeChange($event)"
             >
+              @if (isStandIn()) {
+              <option [value]="EntityTypeEnum.standIn">
+                {{
+                  "address.edit-address.membership.type.standIn" | translate
+                }}
+              </option>
+              }
               <option value="0">
                 {{
                   "address.edit-address.membership.type.employee" | translate

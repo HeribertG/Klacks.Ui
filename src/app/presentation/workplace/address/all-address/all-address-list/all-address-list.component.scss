@@ -15,6 +15,12 @@
   color: var(--colorLabel);
 }
 
+.stand-in-marker {
+  color: var(--primaryActionColor);
+  font-weight: 600;
+  cursor: default;
+}
+
 .checkbox {
   size: 20px;
 }

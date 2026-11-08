@@ -62,6 +62,7 @@ import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services
 import { RowHeaderTooltipService } from './row-header-tooltip.service';
 import { RowHeaderReportService } from './row-header-report.service';
 import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences-dialog/shift-preferences-dialog.component';
+import { StandInConvertDialogComponent } from 'src/app/presentation/workplace/address/stand-in/stand-in-convert-dialog/stand-in-convert-dialog.component';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 @Component({
@@ -75,6 +76,7 @@ import { LongPressContextDirective } from 'src/app/presentation/directives/long-
     ClientFilterComponent,
     ContextMenuComponent,
     ShiftPreferencesDialogComponent,
+    StandInConvertDialogComponent,
     CdkDrag,
     CdkDropList,
     CdkDragPlaceholder,
@@ -101,6 +103,7 @@ export class ScheduleScheduleRowHeaderComponent
   private readonly cdkDropListRef = viewChild.required(CdkDropList);
   readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
   readonly shiftPreferencesDialog = viewChild.required(ShiftPreferencesDialogComponent);
+  private readonly standInConvertDialog = viewChild.required(StandInConvertDialogComponent);
 
   readonly valueChangeVScrollbar = input.required<number>();
   readonly vScrollChange = output<number>();
@@ -409,7 +412,22 @@ export class ScheduleScheduleRowHeaderComponent
         this.contextMenu().closeMenu(true);
         this.reportHelper.requestAbsenceCover(this.contextMenuRow);
         break;
+      case 'convertStandIn':
+        this.contextMenu().closeMenu(true);
+        this.openStandInConvertDialog(this.contextMenuRow);
+        break;
     }
+  }
+
+  private openStandInConvertDialog(row: number): void {
+    const standIn = this.reportHelper.standInAtRow(row);
+    if (standIn) {
+      this.standInConvertDialog().open(standIn.id, standIn.name);
+    }
+  }
+
+  protected onStandInConverted(): void {
+    this.reportHelper.reloadAfterStandInConversion();
   }
 
   private openShiftPreferencesDialog(row: number): void {
