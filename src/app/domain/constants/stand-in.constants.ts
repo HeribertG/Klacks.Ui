@@ -21,6 +21,9 @@ export const STAND_IN_CONVERT_PATH_SUFFIX = 'Convert';
 /** Sign that marks a stand-in in the schedule row header and in the employee list. */
 export const STAND_IN_SYMBOL = '◌';
 
+/** Symbols of chosen qualifications the closed pull-down of the create dialog shows before it adds "+n". */
+export const STAND_IN_QUALIFICATION_VISIBLE_SYMBOLS = 5;
+
 /** i18n keys of the stand-in dialogs' refusals and failures (a refused address reuses the client form's key). */
 export const STAND_IN_I18N = {
   invalidCount: 'standIn.create.invalid.count',

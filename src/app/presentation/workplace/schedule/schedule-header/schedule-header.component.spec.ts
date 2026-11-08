@@ -14,6 +14,8 @@ import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval
 import { IPeriodHoursRecalculationResult } from 'src/app/domain/models/schedule/period-hours-recalculation-result.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -336,6 +338,8 @@ describe('ScheduleHeaderComponent (characterization)', () => {
         { provide: ScheduleViewModeService, useValue: viewMode },
         { provide: ScheduleTimelineRangeService, useValue: timelineRange },
         { provide: AnalyseScenarioService, useValue: { activeToken } },
+        { provide: ScenarioVariantService, useValue: { canManage: signal(false) } },
+        { provide: GroupSelectionService, useValue: { selectedGroup: undefined } },
         {
           provide: AuthorizationService,
           useValue: {

@@ -138,7 +138,8 @@
 }
 
 .wizard-button,
-.cover-absence-button {
+.cover-absence-button,
+.more-actions-button {
   background: none;
   border: none;
   padding: 0;
@@ -268,6 +269,15 @@ app-holistic-harmonizer-dialog {
   color: var(--iconStandartColor);
 }
 
+.more-actions-button::after {
+  display: none;
+}
+
+.more-actions-hint {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
 .spinner-border {
   color: var(--iconStandartColor);
 }
@@ -351,6 +361,7 @@ app-holistic-harmonizer-dialog {
     .send-email-button,
     .wizard-button,
     .cover-absence-button,
+    .more-actions-button,
     .break-placeholder-toggle,
     .availability-check-button,
     .recalculate-button,
@@ -362,7 +373,8 @@ app-holistic-harmonizer-dialog {
     }
 
     .wizard-dropdown,
-    .recalculate-dropdown {
+    .recalculate-dropdown,
+    .more-actions-dropdown {
       display: block;
     }
 

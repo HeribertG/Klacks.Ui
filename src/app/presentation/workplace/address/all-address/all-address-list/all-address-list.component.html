@@ -16,16 +16,7 @@
         >
           {{ "new-address" | translate }}
         </button>
-        <button
-          id="new-stand-ins-button"
-          type="button"
-          class="btn new-btn"
-          (click)="standInCreateDialog.open()"
-        >
-          {{ "standIn.create.title" | translate }}
-        </button>
       </div>
-      <app-stand-in-create-dialog #standInCreateDialog (created)="onStandInsCreated()" />
     }
     @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
       <div

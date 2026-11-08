@@ -3,8 +3,9 @@
 /**
  * Guards the texts of the variant (key) management: every scenarioVariant.* key must exist in the four core
  * languages, keep its interpolation placeholders and not fall back to the English text. The last test reads the sources
- * of the dialog, the panels, the mode bar, the selector menu, the scenario creation dialog, the scenario summary, the
- * banner, the scenario actions, the row header tooltip and the constants and fails for a key that is used but not listed
+ * of the dialog, the panels, the mode bar, the selector menu, the more-actions menu of the schedule toolbar, the
+ * scenario creation dialog, the scenario summary, the banner, the scenario actions, the row header tooltip and the
+ * constants and fails for a key that is used but not listed
  * here, so a new key cannot be added without a translation.
  */
 
@@ -22,6 +23,7 @@ const SOURCE_PATHS = [
   'presentation/workplace/schedule/dialogs/scenario-variants-dialog',
   'presentation/workplace/schedule/variant-mode-bar',
   'presentation/workplace/schedule/schedule-header/scenario-selector/scenario-selector.component.html',
+  'presentation/workplace/schedule/schedule-header/schedule-header.component.html',
   'presentation/workplace/schedule/dialogs/create-scenario-dialog',
   'presentation/workplace/schedule/dialogs/scenario-summary-dialog',
   'presentation/workplace/schedule/scenario-banner',

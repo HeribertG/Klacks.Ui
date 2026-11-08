@@ -47,7 +47,6 @@ import { QuickPrintActionService } from 'src/app/presentation/services/quick-pri
 import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-request.interface';
 import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { STAND_IN_SYMBOL } from 'src/app/domain/constants/stand-in.constants';
-import { StandInCreateDialogComponent } from '../../stand-in/stand-in-create-dialog/stand-in-create-dialog.component';
 
 @Component({
   selector: 'app-all-address-list',
@@ -66,7 +65,6 @@ import { StandInCreateDialogComponent } from '../../stand-in/stand-in-create-dia
     IconEyeGreyComponent,
     ResizeTableDirective,
     PaginationComponent,
-    StandInCreateDialogComponent,
   ],
   providers: [TableResizeService, AllAddressStateService, TableSortingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -200,12 +198,6 @@ export class AllAddressListComponent
 
   onAddAddress(): void {
     this.navigationService.navigateToEditAddress();
-  }
-
-  onStandInsCreated(): void {
-    this.readPage();
-    this.setLastChangeMetaData();
-    this.cdr.markForCheck();
   }
 
   onChangeCheckBox(i: number, value: Event): void {

@@ -10,8 +10,11 @@
  * @param wizardMenu - Auto-wizard state, wizard dropdown shortcut and the autofill / absence cover permissions
  * @param toolsOverlay - Open state of the collapsed toolbar overlay
  * @param displayToggles - Break placeholder, schedule command and availability toggles with their icon colours
- * "Create placeholders" (stand-ins for persons not in the system yet) is offered to whoever may create clients
- * (supervisor, admin); it starts with the selected group and the shown period and reloads the rows afterwards.
+ * The more-actions menu (three dots) holds the rarely used preparation work of a supervisor or admin: "Create
+ * placeholders" (stand-ins for persons not in the system yet) needs the right to create clients, creates them in the
+ * selected group for the shown period and reloads the rows afterwards; the provisional shifts entry opens the variants
+ * (keys) dialog and needs the right to edit shifts. The menu is hidden when neither entry is allowed; both entries are
+ * disabled while no single group is selected, because both work on that group.
  * @param zoomChange - Emits the zoom factor of the table view
  * @param pdfExportRequested - Emits when the PDF export button is clicked
  */
@@ -46,15 +49,19 @@ import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component'
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { IconAbsenceCoverComponent } from 'src/app/presentation/icons/icon-absence-cover.component';
 import { IconCalcComponent } from 'src/app/presentation/icons/icon-calc.component';
+import { IconMoreVerticalComponent } from 'src/app/presentation/icons/icon-more-vertical.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
 import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
 import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dialog.component';
+import { ScenarioVariantsDialogComponent } from '../dialogs/scenario-variants-dialog/scenario-variants-dialog.component';
 import { StandInCreateDialogComponent } from 'src/app/presentation/workplace/address/stand-in/stand-in-create-dialog/stand-in-create-dialog.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
 import { ScheduleSelectionService } from '../services/schedule-selection.service';
@@ -95,6 +102,7 @@ import {
     IconThunderCircleComponent,
     IconFlyComponent,
     IconCalcComponent,
+    IconMoreVerticalComponent,
     IconAvailabilityCheckComponent,
     IconWizardComponent,
     ProgressLineComponent,
@@ -106,6 +114,7 @@ import {
     IconAbsenceCoverComponent,
     ScenarioSelectorComponent,
     StandInCreateDialogComponent,
+    ScenarioVariantsDialogComponent,
   ],
   providers: [
     ScheduleHeaderPeriodNavigationService,
@@ -132,6 +141,7 @@ export class ScheduleHeaderComponent implements OnInit {
   readonly wizard4Dialog = viewChild.required<Wizard4DialogComponent>('wizard4Dialog');
   readonly recoveryDialog = viewChild.required<RecoveryDialogComponent>('recoveryDialog');
   private readonly standInCreateDialog = viewChild<StandInCreateDialogComponent>('standInCreateDialog');
+  private readonly scenarioVariantsDialog = viewChild<ScenarioVariantsDialogComponent>('scenarioVariantsDialog');
 
   private directionService = inject(DirectionService);
   readonly isRtl = computed(() => this.directionService.direction() === 'rtl');
@@ -160,6 +170,13 @@ export class ScheduleHeaderComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private authorizationService = inject(AuthorizationService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private scenarioVariantService = inject(ScenarioVariantService);
+  private groupSelection = inject(GroupSelectionService);
+
+  readonly canCreateStandIns = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanCreateClients));
+  readonly canManageKeys = this.scenarioVariantService.canManage;
+  readonly hasMoreActions = computed(() => this.canCreateStandIns() || this.canManageKeys());
+  readonly hasSelectedGroup = computed(() => !!this.groupSelection.selectedGroup?.id);
 
   public readonly isTimelineMode = this.viewModeService.isTimelineMode;
   public readonly timelineViewRange = this.timelineRangeService.viewRange;
@@ -224,16 +241,24 @@ export class ScheduleHeaderComponent implements OnInit {
     void this.recoveryDialog().open({ clientId: selectedWork.clientId, date: selectedWork.date });
   }
 
-  canCreateStandIns(): boolean {
-    return this.authorizationService.hasPermission(PERMISSIONS.CanCreateClients);
-  }
-
   onCreateStandInsClick(): void {
+    const group = this.groupSelection.selectedGroup;
+    if (!group?.id) {
+      return;
+    }
     this.standInCreateDialog()?.open({
-      groupId: this.dataManagementSchedule.workFilter.selectedGroup,
+      groupId: group.id,
+      groupName: group.name,
       validFrom: this.dataManagementSchedule.periodStartDate,
       validUntil: this.dataManagementSchedule.periodEndDate,
     });
+  }
+
+  onManageKeysClick(): void {
+    if (!this.hasSelectedGroup()) {
+      return;
+    }
+    this.scenarioVariantsDialog()?.open();
   }
 
   onStandInsCreated(): void {

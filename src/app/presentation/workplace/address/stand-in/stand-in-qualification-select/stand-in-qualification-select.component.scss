@@ -1,0 +1,72 @@
+.qualification-select {
+  width: 100%;
+}
+
+.qualification-select-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  text-align: start;
+  overflow: hidden;
+}
+
+.qualification-select-placeholder {
+  opacity: 0.6;
+}
+
+.qualification-select-symbols {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.qualification-select-short-name {
+  display: inline-block;
+  max-width: 7em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+.qualification-select-more {
+  flex: 0 0 auto;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.qualification-select-menu {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.qualification-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.qualification-select-checkbox.dropdown-item {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  background: none;
+}
+
+.qualification-select-option-symbol {
+  min-width: 1.4em;
+  text-align: center;
+}
+
+.empty-hint {
+  font-size: 12px;
+  opacity: 0.7;
+}

@@ -69,6 +69,9 @@
   @if (canCreateStandIns()) {
     <app-stand-in-create-dialog #standInCreateDialog (created)="onStandInsCreated()" />
   }
+  @if (canManageKeys()) {
+    <app-scenario-variants-dialog #scenarioVariantsDialog />
+  }
 
 
   <div id="schedule-header-tools" class="header-tools" [class.header-tools-open]="toolsOverlay.toolsOpen()">
@@ -153,19 +156,6 @@
       </button>
     }
 
-    @if (canCreateStandIns()) {
-      <button
-        id="schedule-create-stand-ins-btn"
-        type="button"
-        class="icon-button create-stand-ins-button"
-        (click)="onCreateStandInsClick()"
-        ngbTooltip="{{ 'standIn.create.title' | translate }}"
-      >
-        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-        <span class="tool-label">{{ "standIn.create.title" | translate }}</span>
-      </button>
-    }
-
     @if (!isTimelineMode()) {
       <button
         id="schedule-break-placeholder-toggle"
@@ -235,6 +225,49 @@
             <button ngbDropdownItem (click)="recalculation.onRecalculateAllUnsealedClick()">
               {{ "schedule.recalculate.menu.all" | translate }}
             </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (hasMoreActions()) {
+      <div ngbDropdown class="more-actions-dropdown">
+        <button
+          id="schedule-more-actions-btn"
+          type="button"
+          class="icon-button more-actions-button"
+          ngbDropdownToggle
+          ngbTooltip="{{ 'schedule.toolbar.more-actions' | translate }}"
+          [attr.aria-label]="'schedule.toolbar.more-actions' | translate"
+        >
+          <app-icon-more-vertical />
+          <span class="tool-label">{{ "schedule.toolbar.more-actions" | translate }}</span>
+        </button>
+        <div ngbDropdownMenu aria-labelledby="schedule-more-actions-btn">
+          @if (canCreateStandIns()) {
+            <button
+              id="schedule-more-create-stand-ins"
+              ngbDropdownItem
+              [disabled]="!hasSelectedGroup()"
+              (click)="onCreateStandInsClick()"
+            >
+              {{ "standIn.create.title" | translate }}
+            </button>
+          }
+          @if (canManageKeys()) {
+            <button
+              id="schedule-more-manage-keys"
+              ngbDropdownItem
+              [disabled]="!hasSelectedGroup()"
+              (click)="onManageKeysClick()"
+            >
+              {{ "scenarioVariant.menu" | translate }}
+            </button>
+          }
+          @if (!hasSelectedGroup()) {
+            <span id="schedule-more-needs-group" class="dropdown-item-text more-actions-hint">
+              {{ "schedule.toolbar.needsGroup" | translate }}
+            </span>
           }
         </div>
       </div>

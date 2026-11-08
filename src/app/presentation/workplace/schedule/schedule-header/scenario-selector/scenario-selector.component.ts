@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Dropdown component for selecting and managing what-if scenarios; its menu also opens the dialog that manages the
- * variants (keys) of the selected group.
+ * Dropdown component for selecting and managing what-if scenarios. The variants (keys) of a group are managed from
+ * the more-actions menu of the schedule toolbar, not here; a new scenario still chooses them in its create dialog.
  * @param analyseScenarioService - Service for scenario state and operations
  * @param scenarioActions - Shared accept/reject/exit flow (confirmation, compliance gate, supervisor
  *   override), also used by the scenario banner so both entry points behave identically; its canDecide shows accept and
@@ -24,7 +24,6 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { CreateScenarioDialogComponent } from '../../dialogs/create-scenario-dialog/create-scenario-dialog.component';
 import { RenameScenarioDialogComponent } from '../../dialogs/rename-scenario-dialog/rename-scenario-dialog.component';
 import { DeleteAllScenariosDialogComponent } from '../../dialogs/delete-all-scenarios-dialog/delete-all-scenarios-dialog.component';
-import { ScenarioVariantsDialogComponent } from '../../dialogs/scenario-variants-dialog/scenario-variants-dialog.component';
 import { ScenarioActionsService } from '../../services/scenario-actions.service';
 
 @Component({
@@ -32,7 +31,7 @@ import { ScenarioActionsService } from '../../services/scenario-actions.service'
   templateUrl: './scenario-selector.component.html',
   styleUrls: ['./scenario-selector.component.scss'],
   standalone: true,
-  imports: [NgbDropdownModule, TranslateModule, CreateScenarioDialogComponent, RenameScenarioDialogComponent, DeleteAllScenariosDialogComponent, ScenarioVariantsDialogComponent],
+  imports: [NgbDropdownModule, TranslateModule, CreateScenarioDialogComponent, RenameScenarioDialogComponent, DeleteAllScenariosDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScenarioSelectorComponent implements OnInit {
@@ -41,8 +40,6 @@ export class ScenarioSelectorComponent implements OnInit {
   readonly renameScenarioDialog = viewChild.required<RenameScenarioDialogComponent>('renameScenarioDialog');
 
   readonly deleteAllScenariosDialog = viewChild.required<DeleteAllScenariosDialogComponent>('deleteAllScenariosDialog');
-
-  readonly scenarioVariantsDialog = viewChild.required<ScenarioVariantsDialogComponent>('scenarioVariantsDialog');
 
   public analyseScenarioService = inject(AnalyseScenarioService);
   protected dataManagementSchedule = inject(DataManagementScheduleService);
@@ -68,10 +65,6 @@ export class ScenarioSelectorComponent implements OnInit {
 
   onCreateNew(): void {
     this.createScenarioDialog().open();
-  }
-
-  onManageVariants(): void {
-    this.scenarioVariantsDialog().open();
   }
 
   onAccept(): void {

@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Dialog "Create placeholders": creates several stand-ins at once with a name pattern ("Fair {n}"), a group, the
- * membership period and the qualifications they all hold. Opened from the employee list and from the schedule; the
- * host reloads its rows when `created` fires. A refused input is explained in the dialog, a refused request as a toast.
+ * Dialog "Create placeholders": creates several stand-ins at once with a name pattern ("Fair {n}"), the membership
+ * period and the qualifications they all hold, always in the group selected in the schedule (shown read-only in the
+ * title). Opened from the more-actions menu of the schedule toolbar; the host reloads its rows when `created` fires. A
+ * refused input is explained in the dialog, a refused request as a toast.
  * @param created - Emits the created stand-ins after the server stored them
- * @param defaults - Group and period the dialog starts with (the schedule passes its group and period)
+ * @param defaults - Group and period the dialog starts with (the schedule passes its selected group and shown period)
  */
 import {
   ChangeDetectionStrategy,
@@ -17,12 +18,10 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { NgbDateStruct, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
-import { Group } from 'src/app/domain/models/group/group-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { ICreatedStandIn } from 'src/app/domain/models/client/stand-in/created-stand-in.interface';
 import { StandInMessage } from 'src/app/domain/models/client/stand-in/stand-in-message.interface';
@@ -30,15 +29,14 @@ import { StandInService } from 'src/app/domain/services/client/stand-in.service'
 import { DataManagementQualificationService } from 'src/app/domain/services/settings/data-management-qualification.service';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { STAND_IN_I18N } from 'src/app/domain/constants/stand-in.constants';
-import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
 } from 'src/app/presentation/helpers/ngb-date.helper';
+import { StandInQualificationSelectComponent } from '../stand-in-qualification-select/stand-in-qualification-select.component';
 import { StandInCreateDefaults } from './stand-in-create-defaults.interface';
 
 const SUCCESS_KEY = 'standIn.create.success';
@@ -48,7 +46,7 @@ const SUCCESS_KEY = 'standIn.create.success';
   templateUrl: './stand-in-create-dialog.component.html',
   styleUrls: ['./stand-in-create-dialog.component.scss'],
   standalone: true,
-  imports: [FormsModule, FormField, TranslateModule, FallbackPipe, GroupSelectComponent, DateInputComponent],
+  imports: [FormField, TranslateModule, DateInputComponent, StandInQualificationSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StandInCreateDialogComponent {
@@ -65,6 +63,7 @@ export class StandInCreateDialogComponent {
   private readonly textModel = signal<{ count: number | null; namePattern: string }>({ count: 1, namePattern: '' });
   protected readonly textForm = form(this.textModel);
   protected readonly groupId = signal('');
+  protected readonly groupName = signal('');
   protected readonly validFrom = signal<NgbDateStruct | null>(null);
   protected readonly validUntil = signal<NgbDateStruct | null>(null);
   protected readonly qualifications = signal<IQualification[]>([]);
@@ -78,9 +77,10 @@ export class StandInCreateDialogComponent {
     return this.translate.currentLang as Language;
   }
 
-  open(defaults: StandInCreateDefaults = {}): void {
+  open(defaults: StandInCreateDefaults): void {
     this.textModel.set({ count: 1, namePattern: '' });
-    this.groupId.set(defaults.groupId ?? '');
+    this.groupId.set(defaults.groupId);
+    this.groupName.set(defaults.groupName);
     this.validFrom.set(this.toStruct(defaults.validFrom ?? companyToday()));
     this.validUntil.set(this.toStruct(defaults.validUntil ?? null));
     this.selectedQualificationIds.set(new Set());
@@ -102,20 +102,12 @@ export class StandInCreateDialogComponent {
     });
   }
 
-  onGroupSelected(group: Group | null): void {
-    this.groupId.set(group?.id ?? '');
-  }
-
-  onToggleQualification(id: string | undefined, event: Event): void {
-    if (!id) {
-      return;
-    }
-    const checked = (event.target as HTMLInputElement).checked;
+  onToggleQualification(id: string): void {
     const next = new Set(this.selectedQualificationIds());
-    if (checked) {
-      next.add(id);
-    } else {
+    if (next.has(id)) {
       next.delete(id);
+    } else {
+      next.add(id);
     }
     this.selectedQualificationIds.set(next);
   }

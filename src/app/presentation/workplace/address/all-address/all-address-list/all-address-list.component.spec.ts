@@ -272,15 +272,11 @@ describe('AllAddressListComponent', () => {
             expect(button).toBeFalsy();
         });
 
-        it('offers "create placeholders" to whoever may create clients (supervisor, admin)', () => {
+        it('never offers "create placeholders" here, also not to whoever may create clients: it lives in the schedule toolbar', () => {
             fixture.detectChanges();
-            expect(fixture.nativeElement.querySelector('#new-stand-ins-button')).toBeTruthy();
-        });
-
-        it('hides "create placeholders" from the planner, who lacks CanCreateClients', () => {
-            grantedPermissions.clear();
-            fixture.detectChanges();
+            expect(fixture.nativeElement.querySelector('#new-address-button')).toBeTruthy();
             expect(fixture.nativeElement.querySelector('#new-stand-ins-button')).toBeFalsy();
+            expect(fixture.nativeElement.querySelector('app-stand-in-create-dialog')).toBeFalsy();
         });
 
         it('marks a stand-in row with the placeholder sign instead of a type abbreviation', () => {
@@ -294,13 +290,6 @@ describe('AllAddressListComponent', () => {
             const markers = fixture.nativeElement.querySelectorAll('.stand-in-marker');
             expect(markers.length).toBe(1);
             expect(fixture.nativeElement.querySelector('#client-row-1 .stand-in-marker')).toBeTruthy();
-        });
-
-        it('reloads the list after placeholders were created', () => {
-            fixture.detectChanges();
-            mockDataManagementClientService.readPage.mockClear();
-            component.onStandInsCreated();
-            expect(mockDataManagementClientService.readPage).toHaveBeenCalled();
         });
 
         it('deletes the client once the delete modal is confirmed by a user holding CanDeleteClients', () => {

@@ -1,7 +1,7 @@
 <ng-template #standInCreateModal>
   <div class="modal-header">
     <div class="container-header-modal modal-title" id="stand-in-create-title">
-      {{ "standIn.create.title" | translate }}
+      {{ "standIn.create.title" | translate }} – <span id="stand-in-create-group-name">{{ groupName() }}</span>
     </div>
   </div>
 
@@ -32,18 +32,6 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="stand-in-create-group">{{ "standIn.create.group" | translate }} *</label>
-      <app-group-select
-        id="stand-in-create-group"
-        [showAllGroupsOption]="false"
-        [useGlobalSelection]="false"
-        [ngModel]="groupId()"
-        [ngModelOptions]="{ standalone: true }"
-        (groupSelected)="onGroupSelected($event)"
-      ></app-group-select>
-    </div>
-
     <div class="form-row">
       <app-date-input
         [label]="'standIn.create.validFrom' | translate"
@@ -62,21 +50,13 @@
     </div>
 
     <div class="form-group">
-      <span class="field-label">{{ "standIn.create.qualifications" | translate }}</span>
-      <div class="qualification-list">
-        @for (qualification of qualifications(); track qualification.id) {
-          <label class="qualification-item">
-            <input
-              type="checkbox"
-              [checked]="selectedQualificationIds().has(qualification.id ?? '')"
-              (change)="onToggleQualification(qualification.id, $event)"
-            />
-            {{ qualification.name | fallback: currentLang }}
-          </label>
-        } @empty {
-          <span class="empty-hint">{{ "standIn.create.noQualifications" | translate }}</span>
-        }
-      </div>
+      <label for="stand-in-create-qualifications">{{ "standIn.create.qualifications" | translate }}</label>
+      <app-stand-in-qualification-select
+        [qualifications]="qualifications()"
+        [selectedIds]="selectedQualificationIds()"
+        [lang]="currentLang"
+        (toggled)="onToggleQualification($event)"
+      />
     </div>
 
     @if (problem(); as message) {

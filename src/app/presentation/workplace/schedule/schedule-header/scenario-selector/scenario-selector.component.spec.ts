@@ -10,7 +10,6 @@ import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenari
 import { CreateScenarioDialogComponent } from '../../dialogs/create-scenario-dialog/create-scenario-dialog.component';
 import { RenameScenarioDialogComponent } from '../../dialogs/rename-scenario-dialog/rename-scenario-dialog.component';
 import { DeleteAllScenariosDialogComponent } from '../../dialogs/delete-all-scenarios-dialog/delete-all-scenarios-dialog.component';
-import { ScenarioVariantsDialogComponent } from '../../dialogs/scenario-variants-dialog/scenario-variants-dialog.component';
 import { ScenarioActionsService } from '../../services/scenario-actions.service';
 
 describe('ScenarioSelectorComponent - decisions go through the shared scenario actions', () => {
@@ -58,18 +57,6 @@ describe('ScenarioSelectorComponent - decisions go through the shared scenario a
 
     // Assert
     expect(actions.exit).toHaveBeenCalledTimes(1);
-  });
-
-  it('opens the variants dialog from its menu', () => {
-    // Arrange
-    const open = vi.fn();
-    Object.assign(component, { scenarioVariantsDialog: () => ({ open }) });
-
-    // Act
-    component.onManageVariants();
-
-    // Assert
-    expect(open).toHaveBeenCalledTimes(1);
   });
 
   it('exposes the shared decision right to its template', () => {
@@ -130,7 +117,6 @@ describe('ScenarioSelectorComponent - accept and reject in the menu', () => {
           CreateScenarioDialogComponent,
           RenameScenarioDialogComponent,
           DeleteAllScenariosDialogComponent,
-          ScenarioVariantsDialogComponent,
         ],
       },
       add: { schemas: [CUSTOM_ELEMENTS_SCHEMA] },
@@ -159,6 +145,16 @@ describe('ScenarioSelectorComponent - accept and reject in the menu', () => {
     expect(accept.disabled).toBe(true);
     expect(host.querySelector('#scenario-selector-accept-wrap')!.getAttribute('title')).toBe('scenarioVariant.accept.needsShiftRight');
     expect(item(host, 'scenario-selector-reject-item')).not.toBeNull();
+  });
+
+  it('offers no entry to manage keys, which moved to the more-actions menu of the schedule toolbar', () => {
+    // Act
+    const host = render();
+
+    // Assert
+    expect(item(host, 'scenario-selector-variants-item')).toBeNull();
+    expect(host.textContent).not.toContain('scenarioVariant.menu');
+    expect(host.querySelector('app-scenario-variants-dialog')).toBeNull();
   });
 
   it('shows neither accept nor reject to a user who may not decide', () => {
