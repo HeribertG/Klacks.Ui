@@ -4,19 +4,24 @@
  * Pull-down of the "Create placeholders" dialog that picks the qualifications all new placeholders hold. Open, it lists
  * every qualification with a checkbox, its symbol and its name; closed, it shows only the symbols of the chosen ones (a
  * qualification without a symbol shows its name, cut short), at most a fixed number followed by "+n", and the names of
- * all chosen ones as tooltip and accessible name. Without a choice it shows a placeholder text.
+ * all chosen ones as tooltip and accessible name. Without a choice it shows a placeholder text. The menu opens upwards so it
+ * leaves the dialog footer free, scrolls its list on its own and, from a fixed number of qualifications, filters it by name
+ * through a search field that is cleared whenever the menu closes.
  * @param qualifications - Qualifications the user can choose from
  * @param selectedIds - Ids of the chosen qualifications
  * @param lang - Language of the qualification names
  * @param toggled - Emits the id of a qualification whose checkbox was switched
  */
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { STAND_IN_QUALIFICATION_VISIBLE_SYMBOLS } from 'src/app/domain/constants/stand-in.constants';
+import {
+  STAND_IN_QUALIFICATION_SEARCH_THRESHOLD,
+  STAND_IN_QUALIFICATION_VISIBLE_SYMBOLS,
+} from 'src/app/domain/constants/stand-in.constants';
 import { QualificationOption } from './qualification-option.interface';
 
 @Component({
@@ -43,6 +48,18 @@ export class StandInQualificationSelectComponent {
       })),
   );
 
+  protected readonly searchText = signal('');
+
+  protected readonly hasSearch = computed(() => this.options().length >= STAND_IN_QUALIFICATION_SEARCH_THRESHOLD);
+
+  protected readonly filteredOptions = computed(() => {
+    const needle = this.searchText().trim().toLocaleLowerCase();
+    if (!needle) {
+      return this.options();
+    }
+    return this.options().filter((option) => option.name.toLocaleLowerCase().includes(needle));
+  });
+
   protected readonly chosen = computed(() => this.options().filter((option) => this.selectedIds().has(option.id)));
   protected readonly visibleChosen = computed(() => this.chosen().slice(0, STAND_IN_QUALIFICATION_VISIBLE_SYMBOLS));
   protected readonly hiddenCount = computed(() => this.chosen().length - this.visibleChosen().length);
@@ -54,5 +71,11 @@ export class StandInQualificationSelectComponent {
 
   protected onToggle(id: string): void {
     this.toggled.emit(id);
+  }
+
+  protected onOpenChange(open: boolean): void {
+    if (!open) {
+      this.searchText.set('');
+    }
   }
 }

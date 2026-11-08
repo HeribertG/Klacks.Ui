@@ -1,4 +1,10 @@
-<div ngbDropdown autoClose="outside" class="qualification-select">
+<div
+  ngbDropdown
+  autoClose="outside"
+  placement="top-start bottom-start"
+  class="qualification-select"
+  (openChange)="onOpenChange($event)"
+>
   <button
     id="stand-in-create-qualifications"
     type="button"
@@ -29,20 +35,38 @@
     }
   </button>
   <div ngbDropdownMenu id="stand-in-create-qualifications-menu" class="qualification-select-menu">
-    @for (option of options(); track option.id) {
-      <label class="dropdown-item qualification-select-option" [id]="'stand-in-create-qualification-' + option.id">
+    @if (hasSearch()) {
+      <div class="qualification-select-search">
         <input
-          type="checkbox"
-          ngbDropdownItem
-          class="qualification-select-checkbox"
-          [checked]="isChosen(option.id)"
-          (change)="onToggle(option.id)"
+          #search
+          id="stand-in-create-qualifications-search"
+          type="search"
+          class="form-control form-control-sm"
+          autocomplete="off"
+          [placeholder]="'placeholder.search-qualification' | translate"
+          [attr.aria-label]="'placeholder.search-qualification' | translate"
+          [value]="searchText()"
+          (input)="searchText.set(search.value)"
         />
-        <span class="qualification-select-option-symbol">{{ option.emoji }}</span>
-        <span>{{ option.name }}</span>
-      </label>
-    } @empty {
-      <span class="dropdown-item-text empty-hint">{{ "standIn.create.noQualifications" | translate }}</span>
+      </div>
     }
+    <div class="qualification-select-list">
+      @for (option of filteredOptions(); track option.id) {
+        <label class="dropdown-item qualification-select-option" [id]="'stand-in-create-qualification-' + option.id">
+          <input
+            type="checkbox"
+            ngbDropdownItem
+            class="qualification-select-checkbox"
+            [checked]="isChosen(option.id)"
+            (change)="onToggle(option.id)"
+          />
+          <span class="qualification-select-option-symbol">{{ option.emoji }}</span>
+          <span class="qualification-select-option-name" [attr.title]="option.name">{{ option.name }}</span>
+        </label>
+      }
+      @if (options().length === 0) {
+        <span class="dropdown-item-text empty-hint">{{ "standIn.create.noQualifications" | translate }}</span>
+      }
+    </div>
   </div>
 </div>

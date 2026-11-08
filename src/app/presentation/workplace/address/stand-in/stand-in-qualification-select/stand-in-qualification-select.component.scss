@@ -41,29 +41,53 @@
 }
 
 .qualification-select-menu {
+  width: 100%;
+  padding: 4px 0;
+}
+
+.qualification-select-search {
+  padding: 4px 8px;
+}
+
+.qualification-select-list {
   max-height: 240px;
   overflow-y: auto;
 }
 
-.qualification-select-option {
+// The global .dropdown-item rule (menu.scss) sets padding with !important and a 40px min-height; ngbDropdownItem puts
+// that class on the checkbox as well, which made each row about 60px high.
+.qualification-select-option.dropdown-item {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 0;
+  padding: 4px 12px !important;
   font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
 .qualification-select-checkbox.dropdown-item {
   flex: 0 0 auto;
   width: auto;
-  padding: 0;
+  min-height: 0;
+  padding: 0 !important;
   margin: 0;
   background: none;
 }
 
 .qualification-select-option-symbol {
+  flex: 0 0 auto;
   min-width: 1.4em;
   text-align: center;
+}
+
+.qualification-select-option-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .empty-hint {
