@@ -4258,6 +4258,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Il periodo {{from}} – {{until}} del gruppo {{group}} non è stato chiuso automaticamente perché alcuni giorni sono già bloccati. Verifica manualmente.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Il periodo {{from}} – {{until}} del gruppo {{group}} non è ancora stato chiuso automaticamente: Klacksy chiude al massimo {{limit}} periodi per passaggio e riproverà al prossimo passaggio orario.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Il periodo {{from}} – {{until}} del gruppo {{group}} non è stato chiuso automaticamente: {{works}} turno/i non sono ancora confermati. Confermali dopo la loro fine, poi il periodo potrà essere chiuso.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Il periodo {{from}} – {{until}} del gruppo {{group}} non è stato chiuso automaticamente: {{works}} turno/i sono assegnati a segnaposto. Assegnali a una persona o converti i segnaposto, poi il periodo potrà essere chiuso.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Il periodo {{from}} – {{until}} del gruppo {{group}} non è stato chiuso automaticamente perché la data di chiusura è troppo lontana nel passato. Verifica e chiudi manualmente.",
   "assistant.proactive.periodAutoClosed": "Klacksy ha chiuso automaticamente il periodo {{from}} – {{until}} del gruppo {{group}} (piena autonomia).",
   "assistant.proactive.periodCloseDue": "Il periodo di conteggio di {{group}} termina il {{date}} (tra {{days}} giorno/i) ed è ancora aperto.",

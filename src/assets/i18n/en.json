@@ -4266,6 +4266,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "The period {{from}} – {{until}} of group {{group}} was not closed automatically because some of its days are already locked. Please review it manually.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "The period {{from}} – {{until}} of group {{group}} has not been closed automatically yet: Klacksy closes at most {{limit}} periods per run and tries again in the next hourly run.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "The period {{from}} – {{until}} of group {{group}} has not been closed automatically: {{works}} service(s) are not confirmed yet. Confirm them after they have ended, then the period can be closed.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "The period {{from}} – {{until}} of group {{group}} has not been closed automatically: {{works}} service(s) are assigned to placeholders. Assign them to a person or convert the placeholders, then the period can be closed.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "The period {{from}} – {{until}} of group {{group}} was not closed automatically because its close date is too long ago. Please review and close it manually.",
   "assistant.proactive.periodAutoClosed": "Klacksy automatically closed the period {{from}} – {{until}} of group {{group}} (full autonomy).",
   "assistant.proactive.periodCloseDue": "The accounting period for {{group}} ends on {{date}} (in {{days}} day(s)) and is still open.",
