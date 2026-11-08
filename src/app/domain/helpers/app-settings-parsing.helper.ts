@@ -112,8 +112,14 @@ const APP_SETTING_PARSERS = new Map<string, (value: string, models: SettingsMode
   [AppSetting.WORK_MINIMUM_HOURS, (v, m) => (m.schedulingDefaults.minimumHours = parseFloat(v) || 0)],
   [AppSetting.WORK_FULL_TIME, (v, m) => (m.schedulingDefaults.fullTime = parseFloat(v) || 0)],
   [AppSetting.SCHEDULING_MAX_WORK_DAYS, (v, m) => (m.schedulingDefaults.schedulingMaxWorkDays = parseInt(v, 10) || 5)],
-  [AppSetting.SCHEDULING_MIN_REST_DAYS, (v, m) => (m.schedulingDefaults.schedulingMinRestDays = parseInt(v, 10) || 2)],
-  [AppSetting.SCHEDULING_MIN_PAUSE_HOURS, (v, m) => (m.schedulingDefaults.schedulingMinPauseHours = parseFloat(v) || SCHEDULING_DEFAULT_MIN_REST_HOURS)],
+  [AppSetting.SCHEDULING_MIN_REST_DAYS, (v, m) => {
+    const parsed = parseInt(v, 10);
+    m.schedulingDefaults.schedulingMinRestDays = Number.isNaN(parsed) ? 2 : parsed;
+  }],
+  [AppSetting.SCHEDULING_MIN_PAUSE_HOURS, (v, m) => {
+    const parsed = parseFloat(v);
+    m.schedulingDefaults.schedulingMinPauseHours = Number.isNaN(parsed) ? SCHEDULING_DEFAULT_MIN_REST_HOURS : parsed;
+  }],
   [AppSetting.SCHEDULING_MAX_DAILY_SPAN_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxDailySpanHours = parseFloat(v) || 0)],
   [AppSetting.SCHEDULING_MAX_OPTIMAL_GAP, (v, m) => (m.schedulingDefaults.schedulingMaxOptimalGap = parseFloat(v) || 2)],
   [AppSetting.SCHEDULING_MAX_DAILY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxDailyHours = parseFloat(v) || 10)],

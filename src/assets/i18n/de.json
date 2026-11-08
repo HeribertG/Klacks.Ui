@@ -1213,6 +1213,7 @@
   "setting.schedulingRule.name-modal": "Name",
   "setting.schedulingRule.validation.nameRequired": "Name ist erforderlich.",
   "setting.schedulingRule.validation.valuesPositive": "Werte müssen 0 oder grösser sein.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Höchstwerte müssen leer oder mindestens 1 sein. Leer übernimmt den Standardwert.",
   "setting.schedulingRule.validation.dailySpanRange": "Der Tagesrahmen muss zwischen 0 und 24 Stunden liegen.",
   "setting.schedulingRule.defaultWorkingHours": "Tägl. Arbeitsstunden",
   "setting.schedulingRule.overtimeThreshold": "Überstundengrenze (Std./Woche)",

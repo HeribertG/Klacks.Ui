@@ -426,6 +426,16 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
     expect(service.updateConfigSettings().autoEnabled).toBe(true);
   });
 
+  it('keeps a stored 0 on the rest minimums as 0 instead of replacing it with the default', () => {
+    load({
+      [AppSetting.SCHEDULING_MIN_REST_DAYS]: '0',
+      [AppSetting.SCHEDULING_MIN_PAUSE_HOURS]: '0',
+    });
+
+    expect(service.schedulingDefaultSettings().schedulingMinRestDays).toBe(0);
+    expect(service.schedulingDefaultSettings().schedulingMinPauseHours).toBe(0);
+  });
+
   it('writes every changed group back under its own key with the canonical string value', () => {
     load(RAW);
     const loaded = readGroups();

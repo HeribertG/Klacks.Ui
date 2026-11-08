@@ -1212,6 +1212,7 @@
   "setting.schedulingRule.name-modal": "Nome",
   "setting.schedulingRule.validation.nameRequired": "Il nome è obbligatorio.",
   "setting.schedulingRule.validation.valuesPositive": "I valori devono essere 0 o superiori.",
+  "setting.schedulingRule.validation.capAtLeastOne": "I valori massimi devono essere vuoti o almeno 1. Vuoto usa il valore predefinito.",
   "setting.schedulingRule.validation.dailySpanRange": "L'arco giornaliero di lavoro deve essere compreso tra 0 e 24 ore.",
   "setting.schedulingRule.defaultWorkingHours": "Ore lavorative giornaliere",
   "setting.schedulingRule.overtimeThreshold": "Soglia straordinari (ore/sett.)",

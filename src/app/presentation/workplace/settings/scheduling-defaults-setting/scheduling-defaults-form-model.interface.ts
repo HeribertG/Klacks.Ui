@@ -12,9 +12,9 @@ export interface SchedulingDefaultsFormModel {
   schedulingMinPauseHours: number;
   schedulingMaxDailySpanHours: number;
   schedulingMaxOptimalGap: number;
-  schedulingMaxDailyHours: number;
-  schedulingMaxWeeklyHours: number;
-  schedulingMaxConsecutiveDays: number;
+  schedulingMaxDailyHours: number | null;
+  schedulingMaxWeeklyHours: number | null;
+  schedulingMaxConsecutiveDays: number | null;
   nightRate: number;
   holidayRate: number;
   saRate: number;

@@ -6,11 +6,10 @@
  * package), else 24h minus the minimum daily rest.
  * @param ruleSpanHours - Value of the rule; null inherits, 0 means 24h minus the minimum rest
  * @param settingsSpanHours - Company-wide value; 0 or less means none
- * @param minRestHours - Minimum daily rest that applies to the rule; 0 or less means the backend default of 11h
+ * @param minRestHours - Minimum daily rest that applies to the rule; 0 means no rest requirement (frame of 24h)
  */
 
 import { DailySpanSource } from 'src/app/domain/models/scheduling/daily-span-source.model';
-import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
 import { DAILY_SPAN_SOURCE_KEYS, DAILY_WORK_FRAME_MAX_HOURS } from 'src/app/domain/constants/daily-work-frame.constants';
 
 export function describeDailySpanSource(
@@ -24,8 +23,7 @@ export function describeDailySpanSource(
   if (ruleSpanHours == null && settingsSpanHours != null && settingsSpanHours > 0) {
     return { key: DAILY_SPAN_SOURCE_KEYS.settings, params: { hours: settingsSpanHours } };
   }
-  const minRest = minRestHours > 0 ? minRestHours : SCHEDULING_DEFAULT_MIN_REST_HOURS;
-  return { key: DAILY_SPAN_SOURCE_KEYS.derived, params: { hours: DAILY_WORK_FRAME_MAX_HOURS - minRest } };
+  return { key: DAILY_SPAN_SOURCE_KEYS.derived, params: { hours: DAILY_WORK_FRAME_MAX_HOURS - minRestHours } };
 }
 
 export function isDailySpanInRange(value: number | null | undefined): boolean {

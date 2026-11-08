@@ -11,6 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { isDailySpanInRange } from 'src/app/domain/helpers/daily-work-frame.helper';
+import { isSchedulingCapValid } from 'src/app/domain/helpers/scheduling-cap.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -218,21 +219,13 @@ export class DataManagementSchedulingRuleService {
       );
     }
 
-    if (rule.maxDailyHours !== null && rule.maxDailyHours < 0) {
+    if (
+      !isSchedulingCapValid(rule.maxDailyHours) ||
+      !isSchedulingCapValid(rule.maxWeeklyHours) ||
+      !isSchedulingCapValid(rule.maxConsecutiveDays)
+    ) {
       errors.push(
-        this.translate.instant('setting.schedulingRule.validation.valuesPositive')
-      );
-    }
-
-    if (rule.maxWeeklyHours !== null && rule.maxWeeklyHours < 0) {
-      errors.push(
-        this.translate.instant('setting.schedulingRule.validation.valuesPositive')
-      );
-    }
-
-    if (rule.maxConsecutiveDays !== null && rule.maxConsecutiveDays < 0) {
-      errors.push(
-        this.translate.instant('setting.schedulingRule.validation.valuesPositive')
+        this.translate.instant('setting.schedulingRule.validation.capAtLeastOne')
       );
     }
 

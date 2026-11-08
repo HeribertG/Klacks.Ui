@@ -1212,6 +1212,7 @@
   "setting.schedulingRule.name-modal": "Nom",
   "setting.schedulingRule.validation.nameRequired": "Le nom est obligatoire.",
   "setting.schedulingRule.validation.valuesPositive": "Les valeurs doivent être 0 ou plus.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Les valeurs maximales doivent être vides ou d'au moins 1. Vide reprend la valeur par défaut.",
   "setting.schedulingRule.validation.dailySpanRange": "Le cadre journalier de travail doit être compris entre 0 et 24 heures.",
   "setting.schedulingRule.defaultWorkingHours": "Heures de travail quotidiennes",
   "setting.schedulingRule.overtimeThreshold": "Seuil heures supp. (h/semaine)",

@@ -14,6 +14,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { SchedulingDefaultsFormModel } from './scheduling-defaults-form-model.interface';
 import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
+import { raiseSchedulingCap, schedulingCapOr } from 'src/app/domain/helpers/scheduling-cap.helper';
 
 @Component({
   selector: 'app-scheduling-defaults-setting',
@@ -90,6 +91,23 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
         this.syncToService(data);
       }
     });
+
+    effect(() => {
+      const data = this.formModel();
+      const raised = {
+        schedulingMaxDailyHours: raiseSchedulingCap(data.schedulingMaxDailyHours),
+        schedulingMaxWeeklyHours: raiseSchedulingCap(data.schedulingMaxWeeklyHours),
+        schedulingMaxConsecutiveDays: raiseSchedulingCap(data.schedulingMaxConsecutiveDays),
+      };
+
+      if (
+        !Object.is(raised.schedulingMaxDailyHours, data.schedulingMaxDailyHours) ||
+        !Object.is(raised.schedulingMaxWeeklyHours, data.schedulingMaxWeeklyHours) ||
+        !Object.is(raised.schedulingMaxConsecutiveDays, data.schedulingMaxConsecutiveDays)
+      ) {
+        this.formModel.update(m => ({ ...m, ...raised }));
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -163,9 +181,9 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       schedulingMinPauseHours: data.schedulingMinPauseHours,
       schedulingMaxDailySpanHours: data.schedulingMaxDailySpanHours,
       schedulingMaxOptimalGap: data.schedulingMaxOptimalGap,
-      schedulingMaxDailyHours: data.schedulingMaxDailyHours,
-      schedulingMaxWeeklyHours: data.schedulingMaxWeeklyHours,
-      schedulingMaxConsecutiveDays: data.schedulingMaxConsecutiveDays,
+      schedulingMaxDailyHours: schedulingCapOr(data.schedulingMaxDailyHours, s.schedulingMaxDailyHours),
+      schedulingMaxWeeklyHours: schedulingCapOr(data.schedulingMaxWeeklyHours, s.schedulingMaxWeeklyHours),
+      schedulingMaxConsecutiveDays: schedulingCapOr(data.schedulingMaxConsecutiveDays, s.schedulingMaxConsecutiveDays),
       workOnMonday: data.workOnMonday,
       workOnTuesday: data.workOnTuesday,
       workOnWednesday: data.workOnWednesday,

@@ -16,8 +16,8 @@ describe('describeDailySpanSource', () => {
     expect(describeDailySpanSource(null, 0, 11)).toEqual({ key: DAILY_SPAN_SOURCE_KEYS.derived, params: { hours: 13 } });
   });
 
-  it('uses the backend default rest of 11h when the rest is 0 or less', () => {
-    expect(describeDailySpanSource(null, 0, 0)).toEqual({ key: DAILY_SPAN_SOURCE_KEYS.derived, params: { hours: 13 } });
+  it('takes a rest of 0 as no rest requirement, so the frame is the whole day', () => {
+    expect(describeDailySpanSource(null, 0, 0)).toEqual({ key: DAILY_SPAN_SOURCE_KEYS.derived, params: { hours: 24 } });
   });
 
   it('treats an explicit 0 on the rule as 24h minus the rule rest, ignoring the company value', () => {
