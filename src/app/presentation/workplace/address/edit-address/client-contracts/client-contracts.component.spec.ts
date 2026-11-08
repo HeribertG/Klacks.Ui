@@ -58,7 +58,7 @@ describe('ClientContractsComponent', () => {
             ])),
         };
 
-        grantedPermissions = new Set([PERMISSIONS.CanEditContracts]);
+        grantedPermissions = new Set([PERMISSIONS.CanEditClients]);
         mockAuthorizationService = {
             hasPermission: (p: string) => grantedPermissions.has(p),
             hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
@@ -109,15 +109,21 @@ describe('ClientContractsComponent', () => {
             expect(component.isDisabled()).toBe(true);
         });
 
-        it('should return true for the Planer role, which lacks CanEditContracts', () => {
+        it('should return true for the Planer role, which lacks CanEditClients', () => {
             grantedPermissions.clear();
             expect(component.isDisabled()).toBe(true);
         });
 
-        it('should return false for the Supervisor role, which holds CanEditContracts', () => {
+        it('should return false for the Supervisor role, which holds CanEditClients', () => {
+            editClientDeletedSignal.set(false);
+            grantedPermissions = new Set([PERMISSIONS.CanEditClients]);
+            expect(component.isDisabled()).toBe(false);
+        });
+
+        it('should return true for a caller holding only the contract-template right CanEditContracts', () => {
             editClientDeletedSignal.set(false);
             grantedPermissions = new Set([PERMISSIONS.CanEditContracts]);
-            expect(component.isDisabled()).toBe(false);
+            expect(component.isDisabled()).toBe(true);
         });
     });
 
