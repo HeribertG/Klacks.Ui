@@ -38,7 +38,6 @@ import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-co
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
-import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
@@ -65,7 +64,6 @@ import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-l
     TrashIconRedComponent,
     IconCopyGreyComponent,
     PencilIconGreyComponent,
-    ExcelComponent,
     FallbackPipe,
     SimplePaginationComponent,
   ],
@@ -211,8 +209,6 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     this.initFormFromAbsence();
     this.openNewAbsence(content);
   }
-
-  onClickDownloadExcel(): void {}
 
   onClickHeader(orderBy: string): void {
     this.sortingService.onHeaderClick(orderBy, () => this.readPage());
