@@ -1,0 +1,43 @@
+@use "../auth-card";
+
+.company-setup {
+  width: min(760px, calc(100% - 2rem));
+}
+
+.intro {
+  margin-bottom: 0;
+  color: var(--colorLabel);
+  font-size: var(--fontSizeBase);
+}
+
+.company-setup-section {
+  margin-top: 20px;
+}
+
+.company-setup-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--colorLabel);
+}
+
+.company-setup-value {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.company-setup-hint {
+  margin-top: 12px;
+  margin-bottom: 0;
+  color: var(--colorLabel);
+  font-size: var(--fontSizeLabel);
+}
+
+.company-setup-industry {
+  margin-top: 20px;
+}
+
+.actions {
+  margin-top: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}

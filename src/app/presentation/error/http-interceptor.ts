@@ -56,7 +56,9 @@ import {
 import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
 import { IToastAction } from '../toast/toast-action.interface';
 import {
+  SETUP_COMPLETE_FIRST_START_API_SEGMENT,
   SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT,
+  SETUP_FIRST_START_STATUS_API_SEGMENT,
   SETUP_STATUS_API_SEGMENT,
 } from 'src/app/domain/constants/setup.constants';
 import {
@@ -88,6 +90,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     PLAYGROUND_STATUS_PATH,
     ACCOUNT_LOGOUT_PATH,
     STAND_IN_API_PATH,
+    SETUP_FIRST_START_STATUS_API_SEGMENT,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
@@ -449,7 +452,7 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private isSetupOwnAdminPassThroughError(url: string, status: number): boolean {
     return (
-      (url.includes(SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT) &&
+      ((url.includes(SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT) || url.includes(SETUP_COMPLETE_FIRST_START_API_SEGMENT)) &&
         ResponseInterceptor.SETUP_OWN_ADMIN_PASS_THROUGH_STATUS_CODES.includes(status)) ||
       (url.includes(SETUP_STATUS_API_SEGMENT) &&
         ResponseInterceptor.SETUP_STATUS_PASS_THROUGH_STATUS_CODES.includes(status))

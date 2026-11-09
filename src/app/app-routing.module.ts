@@ -20,11 +20,17 @@ import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
 import { HomeComponent } from './presentation/surface/home/home.component';
 import { NoAccessComponent } from './presentation/no-access/no-access.component';
 import { PageNotFoundComponent } from './presentation/page-not-found/page-not-found.component';
-import { SETUP_ROUTE_PATH } from './domain/constants/setup.constants';
+import {
+  COMPANY_SETUP_ROUTE_PATH,
+  FIRST_START_ROUTE_PATH,
+  ROUTE_DATA_FIRST_START,
+  SETUP_ROUTE_PATH,
+} from './domain/constants/setup.constants';
+import { firstStartLoginGuard, firstStartPageGuard } from './presentation/auth/first-start.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, canActivate: [firstStartLoginGuard] },
   {
     path: 'oauth2/callback',
     loadComponent: () =>
@@ -53,6 +59,24 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./presentation/auth/setup/setup.component').then(
         (m) => m.SetupComponent,
+      ),
+  },
+  {
+    path: FIRST_START_ROUTE_PATH,
+    canActivate: [firstStartPageGuard],
+    data: { [ROUTE_DATA_FIRST_START]: true },
+    loadComponent: () =>
+      import('./presentation/auth/setup/setup.component').then(
+        (m) => m.SetupComponent,
+      ),
+  },
+  {
+    path: COMPANY_SETUP_ROUTE_PATH,
+    canActivate: [AuthGuard, permissionGuard],
+    data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanEditSettings },
+    loadComponent: () =>
+      import('./presentation/auth/company-setup/company-setup.component').then(
+        (m) => m.CompanySetupComponent,
       ),
   },
   { path: 'error', component: ErrorComponent },

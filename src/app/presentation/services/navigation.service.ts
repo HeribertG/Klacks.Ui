@@ -9,7 +9,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReturnUrlMemoryService } from 'src/app/domain/services/navigation/return-url-memory.service';
-import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
+import { COMPANY_SETUP_ROUTE_PATH, SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -80,6 +80,10 @@ export class NavigationService {
 
   navigateToPageNotFound(): void {
     this.router.navigate(['/page-not-found']);
+  }
+
+  navigateToCompanySetup(): Promise<boolean> {
+    return this.router.navigate([`/${COMPANY_SETUP_ROUTE_PATH}`]);
   }
 
   navigateToSetup(): void {

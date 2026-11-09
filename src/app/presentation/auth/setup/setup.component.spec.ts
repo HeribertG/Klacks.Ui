@@ -7,6 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { SetupComponent } from './setup.component';
 import { DataSetupService } from 'src/app/infrastructure/api/data-setup.service';
@@ -18,6 +19,9 @@ import {
   ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
 } from 'src/app/domain/constants/account-registration.constants';
 import { PasswordPolicy } from 'src/app/domain/models/setup/password-policy.interface';
+import { ROUTE_DATA_FIRST_START } from 'src/app/domain/constants/setup.constants';
+import { RealtimeSessionStartService } from 'src/app/application/services/realtime-session-start.service';
+import { FirstStartSetupStatusService } from 'src/app/domain/services/setup/first-start-setup-status.service';
 
 const REQUIRED_KEY = 'setup.error.required';
 const MISMATCH_KEY = 'setup.error.passwordMismatch';
@@ -42,6 +46,8 @@ const VALID_FORM = {
   passwordConfirm: STRONG_PASSWORD,
 };
 
+const flushPromises = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
 const rejection = (reasons: string[]): HttpErrorResponse =>
   new HttpErrorResponse({
     status: 400,
@@ -61,6 +67,9 @@ describe('SetupComponent', () => {
   let authService: any;
   let navigationService: any;
   let toastService: any;
+  let realtimeSessionStart: any;
+  let firstStartStatus: any;
+  let routeSnapshot: { data: Record<string, unknown> };
 
   const element = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const ruleStates = (): (string | null)[] =>
@@ -72,13 +81,21 @@ describe('SetupComponent', () => {
     const dataSetupServiceSpy = {
       getStatus: vi.fn().mockReturnValue(of({ requiresOwnAdmin: true, passwordPolicy: CURRENT_POLICY })),
       completeOwnAdmin: vi.fn(),
+      getFirstStartStatus: vi.fn().mockReturnValue(of({ requiresOwnAdmin: true, passwordPolicy: CURRENT_POLICY })),
+      completeFirstStart: vi.fn(),
     };
     const authServiceSpy = {
       logOut: vi.fn(),
+      logIn: vi.fn().mockResolvedValue(true),
+      authenticated: vi.fn().mockReturnValue(true),
     };
     const navigationServiceSpy = {
-      navigateToRoot: vi.fn(),
+      navigateToRoot: vi.fn().mockResolvedValue(true),
+      navigateToCompanySetup: vi.fn().mockResolvedValue(true),
     };
+    realtimeSessionStart = { startAfterSignIn: vi.fn() };
+    firstStartStatus = { markCompleted: vi.fn() };
+    routeSnapshot = { data: {} };
     const toastServiceSpy = {
       showSuccess: vi.fn(),
       showError: vi.fn(),
@@ -100,6 +117,9 @@ describe('SetupComponent', () => {
         { provide: NavigationService, useValue: navigationServiceSpy },
         { provide: ToastShowService, useValue: toastServiceSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: RealtimeSessionStartService, useValue: realtimeSessionStart },
+        { provide: FirstStartSetupStatusService, useValue: firstStartStatus },
+        { provide: ActivatedRoute, useValue: { snapshot: routeSnapshot } },
       ],
     }).compileComponents();
 
@@ -276,11 +296,12 @@ describe('SetupComponent', () => {
   });
 
   describe('saving', () => {
-    it('should send the trimmed account without a user name, log out and navigate to login on success', () => {
+    it('should send the trimmed account without a user name, end the seeded session and sign the new admin in', async () => {
       dataSetupService.completeOwnAdmin.mockReturnValue(of(undefined));
       component.setupFormModel.set(VALID_FORM);
 
       component.onSave();
+      await flushPromises();
 
       expect(dataSetupService.completeOwnAdmin).toHaveBeenCalledWith({
         appName: '',
@@ -292,9 +313,32 @@ describe('SetupComponent', () => {
         email: 'jane@example.com',
         password: STRONG_PASSWORD,
       });
+      expect(dataSetupService.completeFirstStart).not.toHaveBeenCalled();
       expect(authService.logOut).toHaveBeenCalled();
-      expect(toastService.showSuccess).toHaveBeenCalled();
+      expect(authService.logIn).toHaveBeenCalledWith('jane@example.com', STRONG_PASSWORD);
+      expect(authService.logOut.mock.invocationCallOrder[0]).toBeLessThan(
+        authService.logIn.mock.invocationCallOrder[0]
+      );
+      expect(firstStartStatus.markCompleted).toHaveBeenCalled();
+      expect(realtimeSessionStart.startAfterSignIn).toHaveBeenCalled();
+      expect(navigationService.navigateToCompanySetup).toHaveBeenCalled();
+      expect(navigationService.navigateToRoot).not.toHaveBeenCalled();
+      expect(toastService.showSuccess).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to the login page with the success message when the new admin cannot be signed in', async () => {
+      dataSetupService.completeOwnAdmin.mockReturnValue(of(undefined));
+      authService.logIn.mockResolvedValue(false);
+      component.setupFormModel.set(VALID_FORM);
+
+      component.onSave();
+      await flushPromises();
+
+      expect(realtimeSessionStart.startAfterSignIn).not.toHaveBeenCalled();
+      expect(navigationService.navigateToCompanySetup).not.toHaveBeenCalled();
+      expect(toastService.showSuccess).toHaveBeenCalledWith('setup.success', '');
       expect(navigationService.navigateToRoot).toHaveBeenCalled();
+      expect(component.isSaving()).toBe(false);
     });
 
     it('should save without a rule list when the policy could not be loaded and leave the decision to the server', () => {
@@ -376,6 +420,7 @@ describe('SetupComponent', () => {
 
       expect(component.isSaving()).toBe(false);
       expect(authService.logOut).toHaveBeenCalled();
+      expect(firstStartStatus.markCompleted).toHaveBeenCalled();
       expect(toastService.showInfo).toHaveBeenCalledWith('setup.error.alreadyCompleted');
       expect(navigationService.navigateToRoot).toHaveBeenCalled();
       expect(toastService.showSuccess).not.toHaveBeenCalled();
@@ -422,6 +467,53 @@ describe('SetupComponent', () => {
 
       component.onSave();
       expect(component.generalErrorKeys()).toEqual([]);
+    });
+  });
+
+  describe('first start without a session', () => {
+    beforeEach(() => {
+      routeSnapshot.data = { [ROUTE_DATA_FIRST_START]: true };
+      authService.authenticated.mockReturnValue(false);
+      fixture = TestBed.createComponent(SetupComponent);
+      component = fixture.componentInstance;
+    });
+
+    it('should read the password rules from the anonymous first-start status', () => {
+      fixture.detectChanges();
+
+      expect(dataSetupService.getFirstStartStatus).toHaveBeenCalled();
+      expect(dataSetupService.getStatus).not.toHaveBeenCalled();
+      expect(component.passwordRules().length).toBeGreaterThan(0);
+    });
+
+    it('should register through the anonymous endpoint and sign the new admin in without a logout', async () => {
+      dataSetupService.completeFirstStart.mockReturnValue(of(undefined));
+      component.setupFormModel.set(VALID_FORM);
+
+      component.onSave();
+      await flushPromises();
+
+      expect(dataSetupService.completeFirstStart).toHaveBeenCalled();
+      expect(dataSetupService.completeOwnAdmin).not.toHaveBeenCalled();
+      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(authService.logIn).toHaveBeenCalledWith('jane@example.com', STRONG_PASSWORD);
+      expect(firstStartStatus.markCompleted).toHaveBeenCalled();
+      expect(navigationService.navigateToCompanySetup).toHaveBeenCalled();
+    });
+
+    it('should send the user to the login when somebody else completed the first start (409)', () => {
+      dataSetupService.completeFirstStart.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 409, error: { title: 'Conflict' } }))
+      );
+      component.setupFormModel.set(VALID_FORM);
+
+      component.onSave();
+
+      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(firstStartStatus.markCompleted).toHaveBeenCalled();
+      expect(toastService.showInfo).toHaveBeenCalledWith('setup.error.alreadyCompleted');
+      expect(navigationService.navigateToRoot).toHaveBeenCalled();
+      expect(authService.logIn).not.toHaveBeenCalled();
     });
   });
 });

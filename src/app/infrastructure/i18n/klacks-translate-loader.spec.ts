@@ -68,6 +68,18 @@ describe('KlacksTranslateLoader', () => {
     pluginReq.flush({});
   });
 
+  it('should append the build key to the core file so a new build never reads an older cached file', () => {
+    const versionedLoader = new KlacksTranslateLoader(TestBed.inject(HttpClient), 'abc 123');
+
+    versionedLoader.getTranslation('de').subscribe();
+    versionedLoader.getTranslation('es').subscribe();
+
+    httpTestingController.expectOne('./assets/i18n/de.json?v=abc%20123').flush({});
+    httpTestingController.expectOne('./assets/i18n/en.json?v=abc%20123').flush({});
+    httpTestingController.expectOne(`${apiUrl}config/translations/de`).flush({});
+    httpTestingController.expectOne(`${apiUrl}config/translations/es`).flush({});
+  });
+
   it('should load plugin language merged with english base', () => {
     // Arrange
     const baseTranslations = { 'base.key': 'Base value', 'shared.key': 'English' };

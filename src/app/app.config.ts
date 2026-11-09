@@ -83,7 +83,7 @@ registerLocaleData(localeEn);
 registerLocaleData(localeIt);
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
-  return KlacksTranslateLoaderFactory(httpClient);
+  return KlacksTranslateLoaderFactory(httpClient, BUILD_INFO_VALUE.buildKey);
 }
 
 export function localeFactory(localeService: LocaleService) {

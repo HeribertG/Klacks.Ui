@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Forced setup page shown to the seeded admin account on a freshly deployed instance.
- * Collects the caller's own admin account, replaces the seeded admin with it on the server
- * (which also deactivates the seeded admin in the same transaction), then logs the local
- * session out and sends the user to a normal login with the new credentials - no auto-login,
- * no other part of the app is reachable until this page has been completed. The server derives
+ * Own-admin setup page of a freshly deployed instance, in two modes: the anonymous first start (route data
+ * ROUTE_DATA_FIRST_START, reached before any sign-in while the backend still allows it) and the forced page of the
+ * seeded admin account signed in. Collects the caller's own admin account and replaces the seeded admin with it on
+ * the server (which also deactivates the seeded admin in the same transaction). Afterwards the seeded session, if
+ * any, is ended and the new admin is signed in with the credentials just typed and led to the country and industry
+ * page; should that sign-in fail, the page falls back to the login page with the success message. The server derives
  * the user name itself; the new admin signs in with the email address. The password has to be
  * typed twice because a typo would otherwise lock the user out once the seeded admin is gone.
  * Errors are shown inline at the field they concern (or above the button), never as a toast.
@@ -29,6 +30,7 @@ import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { form, FormField } from '@angular/forms/signals';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheck, faCircleExclamation, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -42,6 +44,9 @@ import {
   readAccountRegistrationRejectionReasons,
 } from 'src/app/domain/helpers/account-registration-rejection.helper';
 import { evaluatePasswordRules, isPasswordPolicy } from 'src/app/domain/helpers/password-policy.helper';
+import { ROUTE_DATA_FIRST_START } from 'src/app/domain/constants/setup.constants';
+import { RealtimeSessionStartService } from 'src/app/application/services/realtime-session-start.service';
+import { FirstStartSetupStatusService } from 'src/app/domain/services/setup/first-start-setup-status.service';
 import { PasswordPolicy } from 'src/app/domain/models/setup/password-policy.interface';
 import { SetupOwnAdminRequest } from 'src/app/domain/models/setup/setup-own-admin-request.interface';
 import { SetupStatus } from 'src/app/domain/models/setup/setup-status.interface';
@@ -116,6 +121,10 @@ export class SetupComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
+  private readonly firstStartStatus = inject(FirstStartSetupStatusService);
+  private readonly realtimeSessionStart = inject(RealtimeSessionStartService);
+
+  private readonly isFirstStart = inject(ActivatedRoute).snapshot.data[ROUTE_DATA_FIRST_START] === true;
 
   readonly faCheck = faCheck;
   readonly faXmark = faXmark;
@@ -219,8 +228,8 @@ export class SetupComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.dataSetupService
-      .getStatus()
+    const status$ = this.isFirstStart ? this.dataSetupService.getFirstStartStatus() : this.dataSetupService.getStatus();
+    status$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (status: SetupStatus | null) => this.passwordPolicy.set(this.readPasswordPolicy(status)),
@@ -261,25 +270,43 @@ export class SetupComponent implements OnInit {
       password: submitted.password,
     };
 
-    this.dataSetupService
-      .completeOwnAdmin(request)
+    const complete$ = this.isFirstStart
+      ? this.dataSetupService.completeFirstStart(request)
+      : this.dataSetupService.completeOwnAdmin(request);
+    complete$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.onCompleted(),
+        next: () => void this.onCompleted(request.email, request.password),
         error: (error: unknown) => this.onRejected(error, submitted),
       });
   }
 
-  private onCompleted(): void {
-    this.authService.logOut();
+  private async onCompleted(email: string, password: string): Promise<void> {
+    this.firstStartStatus.markCompleted();
+    this.endSeededSession();
+
+    if (await this.authService.logIn(email, password)) {
+      this.realtimeSessionStart.startAfterSignIn();
+      await this.navigationService.navigateToCompanySetup();
+      return;
+    }
+
+    this.isSaving.set(false);
     this.toastService.showSuccess(this.translateService.instant(SETUP_TEXT_KEY.SUCCESS), '');
-    this.navigationService.navigateToRoot();
+    void this.navigationService.navigateToRoot();
   }
 
   private onAlreadyCompleted(): void {
-    this.authService.logOut();
+    this.firstStartStatus.markCompleted();
+    this.endSeededSession();
     this.toastService.showInfo(this.translateService.instant(SETUP_TEXT_KEY.ALREADY_COMPLETED));
     this.navigationService.navigateToRoot();
+  }
+
+  private endSeededSession(): void {
+    if (this.authService.authenticated()) {
+      this.authService.logOut();
+    }
   }
 
   private isServerError(error: unknown): boolean {

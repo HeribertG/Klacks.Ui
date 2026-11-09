@@ -1,0 +1,32 @@
+<div class="background">
+  <div class="container company-setup">
+    <h1 class="auth-title">{{ "companySetup.header" | translate }}</h1>
+    <p class="intro first">{{ "companySetup.intro" | translate }}</p>
+
+    <section class="company-setup-section first" aria-labelledby="company-setup-country-label">
+      <span class="company-setup-label" id="company-setup-country-label">{{ "companySetup.country" | translate }}</span>
+      @if (isLoaded()) {
+        @if (countryName()) {
+          <p class="company-setup-value" id="company-setup-country">{{ countryName() }}</p>
+          <p class="company-setup-hint">{{ "companySetup.countryHint" | translate }}</p>
+        } @else {
+          <p class="company-setup-hint" id="company-setup-no-country">{{ "companySetup.noCountry" | translate }}</p>
+        }
+      }
+    </section>
+
+    @if (isLoaded()) {
+      <section class="company-setup-industry first">
+        <app-active-industries-settings />
+      </section>
+    }
+
+    <p class="company-setup-hint first">{{ "companySetup.assistantHint" | translate }}</p>
+
+    <div class="actions first">
+      <button type="button" class="btn btn-primary" id="company-setup-continue" (click)="onContinue()">
+        {{ "companySetup.continue" | translate }}
+      </button>
+    </div>
+  </div>
+</div>

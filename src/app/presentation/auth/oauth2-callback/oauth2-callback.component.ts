@@ -9,8 +9,7 @@ import { DataOAuth2Service } from 'src/app/infrastructure/api/data-oauth2.servic
 import { AuthService } from '../auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
-import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { RealtimeSessionStartService } from 'src/app/application/services/realtime-session-start.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -68,8 +67,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private navigationService = inject(NavigationService);
   private oauth2CallbackTokenStorage = inject(OAuth2CallbackTokenStorageService);
   private oauth2HandshakeStorage = inject(OAuth2HandshakeStorageService);
-  private signalRService = inject(SignalRService);
-  private assistantSignalRService = inject(AssistantSignalRService);
+  private realtimeSessionStart = inject(RealtimeSessionStartService);
   private toastService = inject(ToastShowService);
   private readonly syncNotificationService = inject(SyncNotificationToastService);
   private readonly authorizationService = inject(AuthorizationService);
@@ -117,9 +115,7 @@ export class OAuth2CallbackComponent implements OnInit {
 
       if (token?.success) {
         this.storeToken(token, state);
-        this.signalRService.resetAuthFailure();
-        this.signalRService.startConnection();
-        this.assistantSignalRService.startConnection();
+        this.realtimeSessionStart.startAfterSignIn();
         this.navigationService.navigateAfterLogin();
         void this.syncNotificationService.checkAndShow();
       } else {

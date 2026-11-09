@@ -21,7 +21,7 @@ import { TooltipComponent } from './presentation/shared/tooltip/tooltip.componen
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
-import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
+import { FIRST_START_ROUTE_PATH, SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
 import { DataRefreshCoordinator } from 'src/app/application/services/data-refresh-coordinator.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { AppReloadCoordinator } from 'src/app/presentation/services/app-reload-coordinator.service';
@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   public title = 'klacks';
 
-  private readonly publicRoutes = ['/login', '/error', `/${SETUP_ROUTE_PATH}`];
+  private readonly publicRoutes = ['/login', '/error', `/${SETUP_ROUTE_PATH}`, `/${FIRST_START_ROUTE_PATH}`];
 
   constructor() {
     effect(() => {

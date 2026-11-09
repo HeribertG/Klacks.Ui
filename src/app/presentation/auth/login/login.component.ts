@@ -22,6 +22,7 @@ import { RouterModule } from '@angular/router';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { RealtimeSessionStartService } from 'src/app/application/services/realtime-session-start.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { SOURCE_CODE_API_REPOSITORY_URL } from 'src/app/domain/constants/source-code.constants';
 import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
@@ -32,8 +33,6 @@ import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
 import { DataOAuth2Service } from 'src/app/infrastructure/api/data-oauth2.service';
 import { OAuth2Provider } from 'src/app/domain/models/auth/oauth2-provider.interface';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
-import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
@@ -68,8 +67,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
   private translate = inject(TranslateService);
-  private signalRService = inject(SignalRService);
-  private assistantSignalRService = inject(AssistantSignalRService);
+  private realtimeSessionStart = inject(RealtimeSessionStartService);
   private dataOAuth2Service = inject(DataOAuth2Service);
   private readonly destroyRef = inject(DestroyRef);
   private readonly syncNotificationService = inject(SyncNotificationToastService);
@@ -141,9 +139,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.isClicked.set(true);
 
     if (await this.auth.logIn(username, password)) {
-      this.signalRService.resetAuthFailure();
-      this.signalRService.startConnection();
-      this.assistantSignalRService.startConnection();
+      this.realtimeSessionStart.startAfterSignIn();
 
       const redirectedToSetup = await this.setupGateService.checkAndRedirect();
       if (!redirectedToSetup) {
