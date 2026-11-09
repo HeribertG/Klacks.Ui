@@ -817,10 +817,11 @@ describe('CollisionDetectionService', () => {
     });
   });
 
-  describe('previous-day retraction (rest violation, uncovered absence, on-call overlap) across browser time zones', () => {
+  describe('neighbour-day retraction (rest violation, uncovered absence, on-call overlap on the day before; daily work time on the day after) across browser time zones', () => {
     const REST_KEY = 'schedule.error-list.rest-violation';
     const UNCOVERED_KEY = 'schedule.error-list.uncovered-absence';
     const ON_CALL_KEY = 'schedule.error-list.on-call-overlap';
+    const OVERTIME_KEY = 'schedule.error-list.overtime';
 
     function seed(entries: IScheduleValidationNotification[]): void {
       scheduleValidationsDetected$.next({ isFullRefresh: true, entries });
@@ -931,6 +932,43 @@ describe('CollisionDetectionService', () => {
           ['spring DST change (Europe)', '2026-03-30', '2026-03-29'],
         ])('retracts the previous-day uncovered absence across a %s', (_label, checkedDate, previousDate) => {
           seed([createValidation({ clientId: 'client-1', date: previousDate, comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', checkedDate);
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('retracts a daily work time entry dated the day after the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-12', comment: OVERTIME_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('keeps a daily work time entry dated the day before the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: OVERTIME_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-10']);
+        });
+
+        it('keeps a daily work time entry of another client dated the day after', () => {
+          seed([createValidation({ clientId: 'client-2', date: '2026-03-12', comment: OVERTIME_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-12']);
+        });
+
+        it.each([
+          ['month boundary', '2026-02-28', '2026-03-01'],
+          ['year boundary', '2025-12-31', '2026-01-01'],
+          ['spring DST change (Europe)', '2026-03-29', '2026-03-30'],
+          ['autumn DST change (Europe)', '2026-10-25', '2026-10-26'],
+        ])('retracts the next-day daily work time across a %s', (_label, checkedDate, nextDate) => {
+          seed([createValidation({ clientId: 'client-1', date: nextDate, comment: OVERTIME_KEY })]);
 
           recheck('client-1', checkedDate);
 

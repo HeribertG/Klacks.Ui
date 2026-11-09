@@ -35,6 +35,7 @@ import {
 import {
   DAY_DIRECTIVE_KIND_KEY_PREFIX,
   DAY_DIRECTIVE_PARAM,
+  NEXT_DAY_RETRACTED_VALIDATION_KEYS,
   PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS,
   SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY,
   TEAM_SCOPED_VALIDATION_KEYS,
@@ -368,9 +369,11 @@ export class CollisionDetectionService implements OnDestroy {
     // the compliance escalation the same violation can arrive as warning or as error.
     // Rest violations are dated with the previous block's owner day, so the pair (X-1 -> X) sits on X-1. An uncovered
     // absence and an on-call overlap are dated with their work's day; the check of day X sends them again for X-1 and X,
-    // so they are retracted on X-1.
+    // so they are retracted on X-1. The daily work time is sent for X and X+1 (a night shift of X adds hours to X+1),
+    // so it is retracted on X+1 as well.
     const weekMonday = isoWeekMondayOf(date);
-    const previousDay = this.previousCalendarDay(date);
+    const previousDay = this.shiftedCalendarDay(date, -1);
+    const nextDay = this.shiftedCalendarDay(date, 1);
     const keysToRemove: string[] = [];
     for (const [key, validation] of this.validations) {
       if (validation.clientId !== clientId) {
@@ -384,7 +387,11 @@ export class CollisionDetectionService implements OnDestroy {
         PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS.includes(validation.comment) &&
         previousDay !== null &&
         validation.date === previousDay;
-      if (matchesCheckedDay || matchesCheckedWeek || matchesPreviousDayEntry) {
+      const matchesNextDayEntry =
+        NEXT_DAY_RETRACTED_VALIDATION_KEYS.includes(validation.comment) &&
+        nextDay !== null &&
+        validation.date === nextDay;
+      if (matchesCheckedDay || matchesCheckedWeek || matchesPreviousDayEntry || matchesNextDayEntry) {
         keysToRemove.push(key);
       }
     }
@@ -393,9 +400,9 @@ export class CollisionDetectionService implements OnDestroy {
     }
   }
 
-  private previousCalendarDay(date: string): string | null {
+  private shiftedCalendarDay(date: string, days: number): string | null {
     const parsed = parseCalendarDate(date);
-    return parsed ? formatDateOnly(addDays(parsed, -1)) : null;
+    return parsed ? formatDateOnly(addDays(parsed, days)) : null;
   }
 
   private buildCollisionKey(workId1: string, workId2: string): string {

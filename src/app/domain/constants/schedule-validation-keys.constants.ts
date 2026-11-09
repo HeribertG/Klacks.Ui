@@ -12,7 +12,11 @@
  * next day leaves one day before the day that is checked; the re-check of day X sends it again for X-1 and X, so it is
  * retracted on X-1 as well. SCHEDULE_VALIDATION_KEY_ON_CALL_OVERLAP is dated with the day of its work in the same way.
  * PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS lists those keys.
+ * SCHEDULE_VALIDATION_KEY_OVERTIME (daily work time) is re-evaluated for the checked day X and the day after, because a
+ * night shift of X adds hours to X+1; NEXT_DAY_RETRACTED_VALIDATION_KEYS lists the keys a re-check of X retracts on X+1.
  */
+export const SCHEDULE_VALIDATION_KEY_OVERTIME =
+  'schedule.error-list.overtime';
 export const SCHEDULE_VALIDATION_KEY_WEEKLY_OVERTIME =
   'schedule.error-list.weekly-overtime';
 export const SCHEDULE_VALIDATION_KEY_MIN_REST_DAYS =
@@ -72,6 +76,10 @@ export const PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
   SCHEDULE_VALIDATION_KEY_UNCOVERED_ABSENCE,
   SCHEDULE_VALIDATION_KEY_ON_CALL_OVERLAP,
+];
+
+export const NEXT_DAY_RETRACTED_VALIDATION_KEYS: readonly string[] = [
+  SCHEDULE_VALIDATION_KEY_OVERTIME,
 ];
 
 export const SCHEDULE_ERROR_LIST_PRE_EXISTING_KEY = 'schedule.error-list.pre-existing';
