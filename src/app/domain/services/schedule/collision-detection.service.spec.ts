@@ -1035,6 +1035,130 @@ describe('CollisionDetectionService', () => {
     }
   });
 
+  describe('consecutive-day retraction window (week Monday minus 14 days up to Sunday) across browser time zones', () => {
+    const CONSECUTIVE_KEY = 'schedule.error-list.consecutive-days';
+    const WEEKLY_OVERTIME_KEY = 'schedule.error-list.weekly-overtime';
+
+    function seed(entries: IScheduleValidationNotification[]): void {
+      scheduleValidationsDetected$.next({ isFullRefresh: true, entries });
+      flushAndTick();
+    }
+
+    function recheck(clientId: string, checkedDate: string): void {
+      scheduleValidationsDetected$.next({
+        isFullRefresh: false,
+        checkedClientId: clientId,
+        checkedDate,
+        entries: [],
+      });
+      flushAndTick();
+    }
+
+    function dates(): string[] {
+      return service.errorEntries().map((e) => e.date).sort();
+    }
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it('retracts a run dated on the first day of the window and keeps one dated the day before', () => {
+          seed([
+            createValidation({ clientId: 'client-1', date: '2026-03-08', comment: CONSECUTIVE_KEY }),
+            createValidation({ clientId: 'client-1', date: '2026-03-09', comment: CONSECUTIVE_KEY }),
+          ]);
+          expect(dates()).toEqual(['2026-03-08', '2026-03-09']);
+
+          recheck('client-1', '2026-03-25');
+
+          expect(dates()).toEqual(['2026-03-08']);
+        });
+
+        it('retracts a run dated on the Sunday of the checked week and keeps one dated the Monday after', () => {
+          seed([
+            createValidation({ clientId: 'client-1', date: '2026-03-29', comment: CONSECUTIVE_KEY }),
+            createValidation({ clientId: 'client-1', date: '2026-03-30', comment: CONSECUTIVE_KEY }),
+          ]);
+
+          recheck('client-1', '2026-03-25');
+
+          expect(dates()).toEqual(['2026-03-30']);
+        });
+
+        it('keeps a run of another client inside the window', () => {
+          seed([createValidation({ clientId: 'client-2', date: '2026-03-16', comment: CONSECUTIVE_KEY })]);
+
+          recheck('client-1', '2026-03-25');
+
+          expect(dates()).toEqual(['2026-03-16']);
+        });
+
+        it('keeps a weekly entry of an earlier week inside the window, because weekly entries stay week-scoped', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-16', comment: WEEKLY_OVERTIME_KEY })]);
+
+          recheck('client-1', '2026-03-25');
+
+          expect(dates()).toEqual(['2026-03-16']);
+        });
+
+        it('dates a re-sent run that began before the loaded window on the window start, like the range check', () => {
+          dataManagementMock.visibleStartDate = parseCalendarDate('2026-03-01');
+          seed([createValidation({
+            clientId: 'client-1',
+            date: '2026-03-01',
+            comment: CONSECUTIVE_KEY,
+            commentParams: { actualDays: '8', maxDays: '6' },
+          })]);
+
+          scheduleValidationsDetected$.next({
+            isFullRefresh: false,
+            checkedClientId: 'client-1',
+            checkedDate: '2026-03-10',
+            entries: [createValidation({
+              clientId: 'client-1',
+              date: '2026-02-26',
+              comment: CONSECUTIVE_KEY,
+              commentParams: { actualDays: '8', maxDays: '6' },
+            })],
+          });
+          flushAndTick();
+
+          expect(dates()).toEqual(['2026-03-01']);
+          expect(service.errorEntries()[0].commentParams?.['actualDays']).toBe('8');
+        });
+
+        it('keeps a re-sent run that ended before the loaded window out of the list', () => {
+          dataManagementMock.visibleStartDate = parseCalendarDate('2026-03-01');
+          scheduleValidationsDetected$.next({
+            isFullRefresh: false,
+            checkedClientId: 'client-1',
+            checkedDate: '2026-03-10',
+            entries: [createValidation({
+              clientId: 'client-1',
+              date: '2026-02-20',
+              comment: CONSECUTIVE_KEY,
+              commentParams: { actualDays: '7', maxDays: '6' },
+            })],
+          });
+          flushAndTick();
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('computes the window across the spring DST change (Europe)', () => {
+          seed([
+            createValidation({ clientId: 'client-1', date: '2026-03-15', comment: CONSECUTIVE_KEY }),
+            createValidation({ clientId: 'client-1', date: '2026-03-16', comment: CONSECUTIVE_KEY }),
+          ]);
+
+          recheck('client-1', '2026-03-30');
+
+          expect(dates()).toEqual(['2026-03-15']);
+        });
+      });
+    }
+  });
+
   describe('understaffed shift dates across browser time zones', () => {
     for (const zone of CALENDAR_TEST_ZONES) {
       describe(zone, () => {

@@ -3,9 +3,11 @@
 /**
  * Translation keys of schedule validation entries, mirroring the backend's ScheduleValidationKeys.
  * WEEK_SCOPED_VALIDATION_KEYS lists the entries the backend re-evaluates for a whole ISO week whenever
- * a single day of that week is checked. Their date can be any day of the week — the weekly checks
- * anchor on Monday, the consecutive-day check on the day its run starts — so the live merge has to
- * retract them by week rather than by exact date.
+ * a single day of that week is checked. Their date can be any day of the week (the weekly checks
+ * anchor on Monday), so the live merge has to retract them by week rather than by exact date.
+ * RUN_SCOPED_VALIDATION_KEYS lists the consecutive-day entry: it is dated on the day its run starts, which can lie in
+ * an earlier week, and the single check sends again every run in the window from the checked week's Monday minus
+ * RUN_RETRACT_LOOKBACK_DAYS (the backend's boundary days) up to its Sunday, so the live merge retracts it in that window.
  * SCHEDULE_VALIDATION_KEY_REST_VIOLATION is dated with the day of the PREVIOUS block's owner, so the pair
  * (X-1 -> X) sits on X-1; a re-check of day X therefore also retracts that key on X-1.
  * SCHEDULE_VALIDATION_KEY_UNCOVERED_ABSENCE is dated with the day of the work, which a night shift or an absence of the
@@ -69,8 +71,15 @@ export const DAY_DIRECTIVE_KIND_KEY_PREFIX = 'day-directive-kind.';
 export const WEEK_SCOPED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_WEEKLY_OVERTIME,
   SCHEDULE_VALIDATION_KEY_MIN_REST_DAYS,
+];
+
+export const RUN_SCOPED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_CONSECUTIVE_DAYS,
 ];
+
+export const RUN_RETRACT_LOOKBACK_DAYS = 14;
+
+export const RUN_LENGTH_PARAM = 'actualDays';
 
 export const PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_REST_VIOLATION,

@@ -37,6 +37,9 @@ import {
   DAY_DIRECTIVE_PARAM,
   NEXT_DAY_RETRACTED_VALIDATION_KEYS,
   PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS,
+  RUN_LENGTH_PARAM,
+  RUN_RETRACT_LOOKBACK_DAYS,
+  RUN_SCOPED_VALIDATION_KEYS,
   SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY,
   TEAM_SCOPED_VALIDATION_KEYS,
   WEEK_SCOPED_VALIDATION_KEYS,
@@ -46,6 +49,7 @@ import {
   parseCalendarDate,
 } from 'src/app/domain/helpers/calendar-date.helper';
 import { formatDateParams } from 'src/app/domain/helpers/date-params.helper';
+import { CALENDAR_DAYS_PER_WEEK } from 'src/app/domain/constants/biweekly-pay-period.constants';
 import { QUALIFICATION_LEVEL_VALIDATION } from 'src/app/domain/constants/qualification-level-validation.constants';
 import {
   hasHeldQualificationLevel,
@@ -330,10 +334,7 @@ export class CollisionDetectionService implements OnDestroy {
   ): void {
     if (notification.isFullRefresh) {
       this.validations.clear();
-      for (const entry of notification.entries) {
-        const key = this.buildValidationKey(entry);
-        this.validations.set(key, entry);
-      }
+      this.storeValidations(notification.entries);
       return;
     }
 
@@ -344,10 +345,36 @@ export class CollisionDetectionService implements OnDestroy {
       );
     }
 
-    for (const entry of notification.entries) {
-      const key = this.buildValidationKey(entry);
-      this.validations.set(key, entry);
+    this.storeValidations(notification.entries);
+  }
+
+  private storeValidations(entries: IScheduleValidationNotification[]): void {
+    for (const entry of entries) {
+      const stored = this.datedLikeTheRangeCheck(entry);
+      this.validations.set(this.buildValidationKey(stored), stored);
     }
+  }
+
+  /**
+   * The range check dates a run of consecutive days that began before the loaded window on the window's first day;
+   * the single check dates it on its true start. A run that reaches into the window is re-dated the same way, so both
+   * checks produce the same key and the single check replaces the visible entry instead of hiding it.
+   */
+  private datedLikeTheRangeCheck(entry: IScheduleValidationNotification): IScheduleValidationNotification {
+    const windowStart = this.dataManagement.visibleStartDate;
+    if (!RUN_SCOPED_VALIDATION_KEYS.includes(entry.comment) || !windowStart) {
+      return entry;
+    }
+
+    const windowStartKey = formatDateOnly(windowStart);
+    const runStart = parseCalendarDate(entry.date);
+    const runDays = Number(entry.commentParams?.[RUN_LENGTH_PARAM]);
+    if (entry.date >= windowStartKey || !runStart || !Number.isFinite(runDays)) {
+      return entry;
+    }
+
+    const runEnd = formatDateOnly(addDays(runStart, runDays - 1));
+    return runEnd >= windowStartKey ? { ...entry, date: windowStartKey } : entry;
   }
 
   private removeCollisionsForClientDate(clientId: string, date: string): void {
@@ -370,10 +397,13 @@ export class CollisionDetectionService implements OnDestroy {
     // Rest violations are dated with the previous block's owner day, so the pair (X-1 -> X) sits on X-1. An uncovered
     // absence and an on-call overlap are dated with their work's day; the check of day X sends them again for X-1 and X,
     // so they are retracted on X-1. The daily work time is sent for X and X+1 (a night shift of X adds hours to X+1),
-    // so it is retracted on X+1 as well.
+    // so it is retracted on X+1 as well. A consecutive-day entry is dated on the day its run starts; the check sends
+    // again every run from the week's Monday minus the lookback up to its Sunday, so it is retracted in that window.
     const weekMonday = isoWeekMondayOf(date);
     const previousDay = this.shiftedCalendarDay(date, -1);
     const nextDay = this.shiftedCalendarDay(date, 1);
+    const runWindowStart = this.shiftedCalendarDay(weekMonday, -RUN_RETRACT_LOOKBACK_DAYS);
+    const weekSunday = this.shiftedCalendarDay(weekMonday, CALENDAR_DAYS_PER_WEEK - 1);
     const keysToRemove: string[] = [];
     for (const [key, validation] of this.validations) {
       if (validation.clientId !== clientId) {
@@ -391,7 +421,13 @@ export class CollisionDetectionService implements OnDestroy {
         NEXT_DAY_RETRACTED_VALIDATION_KEYS.includes(validation.comment) &&
         nextDay !== null &&
         validation.date === nextDay;
-      if (matchesCheckedDay || matchesCheckedWeek || matchesPreviousDayEntry || matchesNextDayEntry) {
+      const matchesRunWindow =
+        RUN_SCOPED_VALIDATION_KEYS.includes(validation.comment) &&
+        runWindowStart !== null &&
+        weekSunday !== null &&
+        validation.date >= runWindowStart &&
+        validation.date <= weekSunday;
+      if (matchesCheckedDay || matchesCheckedWeek || matchesPreviousDayEntry || matchesNextDayEntry || matchesRunWindow) {
         keysToRemove.push(key);
       }
     }
