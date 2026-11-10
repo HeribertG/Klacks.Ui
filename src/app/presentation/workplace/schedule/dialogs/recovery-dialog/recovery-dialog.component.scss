@@ -28,6 +28,24 @@
   color: var(--standartTextColor);
 }
 
+.recovery-date-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto auto auto;
+  column-gap: 1.5rem;
+}
+
+.recovery-date-field {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+
+  > .form-label {
+    align-self: end;
+  }
+}
+
 .recovery-calendar-toggle {
   cursor: pointer;
 }
