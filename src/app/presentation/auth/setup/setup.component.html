@@ -13,6 +13,30 @@
       <h1 class="auth-title">{{ "setup.header" | translate }}</h1>
       <p class="intro first">{{ "setup.intro" | translate }}</p>
 
+      @if (requiresSetupCode()) {
+        <div class="setup-field first">
+          <label class="setup-label" [for]="fieldIds.setupCode">{{ "setup.setupCode" | translate }}</label>
+          <input
+            type="text"
+            class="form-control"
+            autocomplete="off"
+            spellcheck="false"
+            aria-required="true"
+            [id]="fieldIds.setupCode"
+            [formField]="setupForm.setupCode"
+            [class.is-invalid]="setupCodeInvalid()"
+            [attr.aria-invalid]="setupCodeInvalid() ? true : null"
+            [attr.aria-describedby]="(fieldErrors().setupCode.length > 0 ? errorIds.setupCode + ' ' : '') + setupCodeHintId"
+          />
+          <span class="setup-hint" [id]="setupCodeHintId">{{ "setup.setupCodeHint" | translate }}</span>
+          @if (fieldErrors().setupCode.length > 0) {
+            <div class="field-error" [id]="errorIds.setupCode">
+              <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: fieldErrors().setupCode }" />
+            </div>
+          }
+        </div>
+      }
+
       <div class="setup-field first">
         <label class="setup-label" [for]="fieldIds.firstName">{{ "setup.firstName" | translate }}</label>
         <input

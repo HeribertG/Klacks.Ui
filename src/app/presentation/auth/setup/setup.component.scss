@@ -12,6 +12,13 @@
   margin-top: 16px;
 }
 
+.setup-hint {
+  display: block;
+  margin-top: 4px;
+  color: var(--colorLabel);
+  font-size: var(--fontSizeLabel);
+}
+
 .setup-label {
   display: block;
   margin-bottom: 4px;

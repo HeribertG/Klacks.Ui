@@ -9,11 +9,15 @@
  * page; should that sign-in fail, the page falls back to the login page with the success message. The server derives
  * the user name itself; the new admin signs in with the email address. The password has to be
  * typed twice because a typo would otherwise lock the user out once the seeded admin is gone.
- * Errors are shown inline at the field they concern (or above the button), never as a toast.
+ * Errors are shown inline at the field they concern (or above the button), never as a toast. When the first-start
+ * status says this browser needs the installer's one-time setup code, a code field comes first; a refusal (409) while
+ * the first start is still pending then means the code did not match and is shown inline, a refusal after the setup
+ * was completed elsewhere leads to the login page.
  * @param setupFormModel - Signal holding the new admin's registration form values
  * @param passwordRules - Live state of every rule the backend password policy demands; empty when the policy could not be loaded
  * @param fieldErrors - Translation keys of the errors shown under each field
  * @param generalErrorKeys - Translation keys of the errors shown above the submit button
+ * @param requiresSetupCode - True while the first start of this browser needs the installer's setup code
  */
 import {
   afterNextRender,
@@ -29,6 +33,7 @@ import {
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { form, FormField } from '@angular/forms/signals';
@@ -59,6 +64,7 @@ import { SetupFormModel } from './setup-form-model.interface';
 import { SetupServerRejection } from './setup-server-rejection.interface';
 
 const SETUP_FIELD = {
+  SETUP_CODE: 'setupCode',
   FIRST_NAME: 'firstName',
   LAST_NAME: 'lastName',
   EMAIL: 'email',
@@ -76,6 +82,7 @@ const SETUP_ELEMENT_ID = {
   PASSWORD_RULES: 'setupForm-password-rules',
   PASSWORD_RULES_TITLE: 'setupForm-password-rules-title',
   GENERAL_ERROR: 'setup-general-error',
+  SETUP_CODE_HINT: 'setupForm-setupCode-hint',
 } as const;
 
 const SETUP_TEXT_KEY = {
@@ -85,6 +92,7 @@ const SETUP_TEXT_KEY = {
   GENERIC_ERROR: 'setup.error',
   SERVER_ERROR: 'setup.error.server',
   ALREADY_COMPLETED: 'setup.error.alreadyCompleted',
+  SETUP_CODE_REJECTED: 'setup.error.setupCodeRejected',
   SUCCESS: 'setup.success',
 } as const;
 
@@ -137,8 +145,10 @@ export class SetupComponent implements OnInit {
   readonly passwordRulesId = SETUP_ELEMENT_ID.PASSWORD_RULES;
   readonly passwordRulesTitleId = SETUP_ELEMENT_ID.PASSWORD_RULES_TITLE;
   readonly generalErrorId = SETUP_ELEMENT_ID.GENERAL_ERROR;
+  readonly setupCodeHintId = SETUP_ELEMENT_ID.SETUP_CODE_HINT;
 
   public setupFormModel = signal<SetupFormModel>({
+    setupCode: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -150,9 +160,14 @@ export class SetupComponent implements OnInit {
   public isSaving = signal(false);
 
   private readonly passwordPolicy = signal<PasswordPolicy | null>(null);
+  readonly requiresSetupCode = signal(false);
   private readonly submitAttempted = signal(false);
   private readonly serverRejection = signal<SetupServerRejection | null>(null);
   readonly generalErrorKeys = signal<string[]>([]);
+  readonly setupCodeInvalid = computed(
+    () =>
+      this.fieldErrors().setupCode.length > 0 || this.generalErrorKeys().includes(SETUP_TEXT_KEY.SETUP_CODE_REJECTED)
+  );
 
   private readonly ruleResults = computed(() => {
     const policy = this.passwordPolicy();
@@ -172,6 +187,7 @@ export class SetupComponent implements OnInit {
   private readonly clientErrors = computed<Record<SetupField, readonly string[]>>(() => {
     const model = this.setupFormModel();
     return {
+      setupCode: this.requiresSetupCode() && isBlank(model.setupCode) ? [SETUP_TEXT_KEY.REQUIRED] : NO_ERRORS,
       firstName: isBlank(model.firstName) ? [SETUP_TEXT_KEY.REQUIRED] : NO_ERRORS,
       lastName: isBlank(model.lastName) ? [SETUP_TEXT_KEY.REQUIRED] : NO_ERRORS,
       email: isBlank(model.email) ? [SETUP_TEXT_KEY.REQUIRED] : NO_ERRORS,
@@ -232,7 +248,10 @@ export class SetupComponent implements OnInit {
     status$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (status: SetupStatus | null) => this.passwordPolicy.set(this.readPasswordPolicy(status)),
+        next: (status: SetupStatus | null) => {
+          this.passwordPolicy.set(this.readPasswordPolicy(status));
+          this.requiresSetupCode.set(this.isFirstStart && status?.requiresSetupCode === true);
+        },
         error: () => this.passwordPolicy.set(null),
       });
   }
@@ -271,7 +290,7 @@ export class SetupComponent implements OnInit {
     };
 
     const complete$ = this.isFirstStart
-      ? this.dataSetupService.completeFirstStart(request)
+      ? this.dataSetupService.completeFirstStart({ ...request, setupCode: submitted.setupCode.trim() })
       : this.dataSetupService.completeOwnAdmin(request);
     complete$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -303,6 +322,31 @@ export class SetupComponent implements OnInit {
     this.navigationService.navigateToRoot();
   }
 
+  private async onConflict(): Promise<void> {
+    const codeRejected = this.requiresSetupCode() && (await this.isFirstStartStillPending());
+    this.isSaving.set(false);
+    if (codeRejected) {
+      this.generalErrorKeys.set([SETUP_TEXT_KEY.SETUP_CODE_REJECTED]);
+      this.focusFirstError();
+      return;
+    }
+
+    this.onAlreadyCompleted();
+  }
+
+  /**
+   * Asks the first-start status again after a refusal. A failed probe counts as "still pending", so a wrong code
+   * keeps the user on the page instead of sending them to the login page on a transient error.
+   */
+  private async isFirstStartStillPending(): Promise<boolean> {
+    try {
+      const status = await firstValueFrom(this.dataSetupService.getFirstStartStatus());
+      return status?.requiresOwnAdmin === true;
+    } catch {
+      return true;
+    }
+  }
+
   private endSeededSession(): void {
     if (this.authService.authenticated()) {
       this.authService.logOut();
@@ -314,12 +358,12 @@ export class SetupComponent implements OnInit {
   }
 
   private onRejected(error: unknown, submitted: SetupFormModel): void {
-    this.isSaving.set(false);
-
     if (error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict) {
-      this.onAlreadyCompleted();
+      void this.onConflict();
       return;
     }
+
+    this.isSaving.set(false);
 
     const reasons = readAccountRegistrationRejectionReasons(error);
     if (!reasons || reasons.length === 0) {

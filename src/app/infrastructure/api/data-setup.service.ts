@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
+import { FirstStartSetupRequest } from 'src/app/domain/models/setup/first-start-setup-request.interface';
 import { SetupOwnAdminRequest } from 'src/app/domain/models/setup/setup-own-admin-request.interface';
 import { SetupStatus } from 'src/app/domain/models/setup/setup-status.interface';
 import {
@@ -45,7 +46,7 @@ export class DataSetupService {
     return this.httpClient.get<SetupStatus>(`${environment.baseUrl}${SETUP_FIRST_START_STATUS_API_SEGMENT}`);
   }
 
-  completeFirstStart(value: SetupOwnAdminRequest): Observable<void> {
+  completeFirstStart(value: FirstStartSetupRequest): Observable<void> {
     return this.httpClient.post<void>(`${environment.baseUrl}${SETUP_COMPLETE_FIRST_START_API_SEGMENT}`, value);
   }
 }

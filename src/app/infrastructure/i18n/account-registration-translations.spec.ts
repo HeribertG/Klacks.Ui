@@ -28,6 +28,9 @@ const SETUP_KEYS = [
   'setup.passwordRules',
   'setup.error.required',
   'setup.error.passwordMismatch',
+  'setup.setupCode',
+  'setup.setupCodeHint',
+  'setup.error.setupCodeRejected',
   ...Object.values(PASSWORD_RULE).map((rule) => `${RULE_KEY_PREFIX}${rule}`),
 ];
 const REASON_KEYS = [

@@ -39,6 +39,7 @@ const CURRENT_POLICY: PasswordPolicy = {
 };
 
 const VALID_FORM = {
+  setupCode: '',
   firstName: ' Jane ',
   lastName: 'Doe',
   email: 'jane@example.com ',
@@ -94,7 +95,7 @@ describe('SetupComponent', () => {
       navigateToCompanySetup: vi.fn().mockResolvedValue(true),
     };
     realtimeSessionStart = { startAfterSignIn: vi.fn() };
-    firstStartStatus = { markCompleted: vi.fn() };
+    firstStartStatus = { markCompleted: vi.fn(), isPending: vi.fn().mockResolvedValue(false) };
     routeSnapshot = { data: {} };
     const toastServiceSpy = {
       showSuccess: vi.fn(),
@@ -501,6 +502,13 @@ describe('SetupComponent', () => {
       expect(navigationService.navigateToCompanySetup).toHaveBeenCalled();
     });
 
+    it('should not ask for a setup code when the status needs none', () => {
+      fixture.detectChanges();
+
+      expect(component.requiresSetupCode()).toBe(false);
+      expect(element().querySelector('#setupForm-setupCode')).toBeNull();
+    });
+
     it('should send the user to the login when somebody else completed the first start (409)', () => {
       dataSetupService.completeFirstStart.mockReturnValue(
         throwError(() => new HttpErrorResponse({ status: 409, error: { title: 'Conflict' } }))
@@ -514,6 +522,83 @@ describe('SetupComponent', () => {
       expect(toastService.showInfo).toHaveBeenCalledWith('setup.error.alreadyCompleted');
       expect(navigationService.navigateToRoot).toHaveBeenCalled();
       expect(authService.logIn).not.toHaveBeenCalled();
+    });
+
+    describe('with a required setup code', () => {
+      beforeEach(() => {
+        dataSetupService.getFirstStartStatus.mockReturnValue(
+          of({ requiresOwnAdmin: true, passwordPolicy: CURRENT_POLICY, requiresSetupCode: true })
+        );
+        fixture.detectChanges();
+      });
+
+      it('should show the setup code field first and require it', () => {
+        expect(element().querySelector('#setupForm-setupCode')).not.toBeNull();
+        component.setupFormModel.set(VALID_FORM);
+
+        component.onSave();
+
+        expect(component.fieldErrors().setupCode).toEqual([REQUIRED_KEY]);
+        expect(dataSetupService.completeFirstStart).not.toHaveBeenCalled();
+      });
+
+      it('should send the trimmed setup code with the account', () => {
+        dataSetupService.completeFirstStart.mockReturnValue(of(undefined));
+        component.setupFormModel.set({ ...VALID_FORM, setupCode: ' ABCD-EFGH-JK23 ' });
+
+        component.onSave();
+
+        expect(dataSetupService.completeFirstStart).toHaveBeenCalledWith(
+          expect.objectContaining({ setupCode: 'ABCD-EFGH-JK23', email: 'jane@example.com' })
+        );
+      });
+
+      it('should keep the form and say the code did not match when the first start is still pending (409)', async () => {
+        dataSetupService.completeFirstStart.mockReturnValue(
+          throwError(() => new HttpErrorResponse({ status: 409, error: { title: 'Conflict' } }))
+        );
+        component.setupFormModel.set({ ...VALID_FORM, setupCode: 'WRONG-CODE' });
+
+        component.onSave();
+        expect(component.isSaving()).toBe(true);
+        await flushPromises();
+
+        expect(component.generalErrorKeys()).toEqual(['setup.error.setupCodeRejected']);
+        expect(component.setupCodeInvalid()).toBe(true);
+        expect(navigationService.navigateToRoot).not.toHaveBeenCalled();
+        expect(firstStartStatus.markCompleted).not.toHaveBeenCalled();
+        expect(component.isSaving()).toBe(false);
+      });
+
+      it('should stay on the page when the status cannot be read after a refusal (409)', async () => {
+        dataSetupService.completeFirstStart.mockReturnValue(
+          throwError(() => new HttpErrorResponse({ status: 409, error: { title: 'Conflict' } }))
+        );
+        dataSetupService.getFirstStartStatus.mockReturnValue(throwError(() => new Error('offline')));
+        component.setupFormModel.set({ ...VALID_FORM, setupCode: 'WRONG-CODE' });
+
+        component.onSave();
+        await flushPromises();
+
+        expect(component.generalErrorKeys()).toEqual(['setup.error.setupCodeRejected']);
+        expect(navigationService.navigateToRoot).not.toHaveBeenCalled();
+      });
+
+      it('should lead to the login when the first start was completed elsewhere (409)', async () => {
+        dataSetupService.completeFirstStart.mockReturnValue(
+          throwError(() => new HttpErrorResponse({ status: 409, error: { title: 'Conflict' } }))
+        );
+        dataSetupService.getFirstStartStatus.mockReturnValue(
+          of({ requiresOwnAdmin: false, passwordPolicy: null, requiresSetupCode: false })
+        );
+        component.setupFormModel.set({ ...VALID_FORM, setupCode: 'ABCD-EFGH-JK23' });
+
+        component.onSave();
+        await flushPromises();
+
+        expect(toastService.showInfo).toHaveBeenCalledWith('setup.error.alreadyCompleted');
+        expect(navigationService.navigateToRoot).toHaveBeenCalled();
+      });
     });
   });
 });
