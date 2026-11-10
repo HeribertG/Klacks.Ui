@@ -13,8 +13,9 @@
  * loaded from and synced back to the shared app settings store. Typed as plain `string`
  * (not `string | null`) because Signal Forms requires a native radio's bound field to match
  * the control's native value type exactly.
- * @param showSelectionBanner - True while no single option is resolved (legacy multi-value
- * or an empty/unset setting); blocks syncing until the user picks explicitly.
+ * @param showSelectionBanner - True only while the stored setting still holds a legacy multi-industry value
+ * and the user has not picked a single option yet; an empty/unset setting shows no banner. Nothing is
+ * synced either way until the user picks explicitly.
  * @param isCustomOptionSelected - True only while the custom-planning-rule radio is the
  * selected option; gates visibility of its explanatory text and the Klacksy button, which
  * must never show while a real industry option is selected.
@@ -151,7 +152,11 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
 
   industriesForm = form(this.formModel);
 
-  public showSelectionBanner = computed(() => this.formModel().selectedOption === NO_PROFILE_SELECTED);
+  private readonly hasLegacyMultiSelection = signal(false);
+
+  public showSelectionBanner = computed(
+    () => this.hasLegacyMultiSelection() && this.formModel().selectedOption === NO_PROFILE_SELECTED
+  );
   public isCustomOptionSelected = computed(() => this.formModel().selectedOption === CUSTOM_PLANNING_RULE_SLUG);
 
   private expandedSlugs = signal<ReadonlySet<string>>(new Set());
@@ -291,6 +296,7 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
     const svc = this.dataManagementSettingsService;
     const raw = svc.appSettings.activeIndustriesSettings().activeIndustry;
     const resolved = this.resolveSingleOption(raw);
+    this.hasLegacyMultiSelection.set(this.storedTokens(raw).length > 1);
     this.previousSelectedOption = resolved;
     this.customGateStatus.set('idle');
     this.formModel.set({ selectedOption: resolved });
@@ -339,11 +345,15 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
     this.customGateStatus.set('blocked');
   }
 
-  private resolveSingleOption(raw: string): string {
-    const tokens = (raw ?? '')
+  private storedTokens(raw: string): string[] {
+    return (raw ?? '')
       .split(IndustrySlugs.Separator)
       .map((token) => token.trim())
       .filter((token) => token.length > 0);
+  }
+
+  private resolveSingleOption(raw: string): string {
+    const tokens = this.storedTokens(raw);
 
     if (tokens.length !== 1) {
       return NO_PROFILE_SELECTED;

@@ -104,10 +104,11 @@ describe('ActiveIndustriesSettingsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('preselects nothing and shows the banner when the setting is missing (default)', () => {
+  it('preselects nothing and shows no banner when the setting is missing (default, fresh installation)', () => {
     fixture.detectChanges();
     expect(component.formModel()).toEqual({ selectedOption: '' });
-    expect(component.showSelectionBanner()).toBe(true);
+    expect(component.showSelectionBanner()).toBe(false);
+    expect(fixture.nativeElement.querySelector('#active-industries-selection-banner')).toBeNull();
   });
 
   it('preselects the single stored industry slug', () => {
@@ -135,11 +136,21 @@ describe('ActiveIndustriesSettingsComponent', () => {
     expect(banner).toBeTruthy();
   });
 
-  it('shows the banner and preselects nothing for an unknown single slug', () => {
+  it('hides the legacy banner once the user picks a single option', () => {
+    activeIndustriesSignal.set({ activeIndustry: 'homecare,security' });
+    fixture.detectChanges();
+    expect(component.showSelectionBanner()).toBe(true);
+
+    component.formModel.set({ selectedOption: 'security' });
+
+    expect(component.showSelectionBanner()).toBe(false);
+  });
+
+  it('preselects nothing and shows no banner for an unknown single slug', () => {
     activeIndustriesSignal.set({ activeIndustry: 'not-a-real-industry' });
     fixture.detectChanges();
     expect(component.formModel()).toEqual({ selectedOption: '' });
-    expect(component.showSelectionBanner()).toBe(true);
+    expect(component.showSelectionBanner()).toBe(false);
   });
 
   it('persists exactly one value once the user picks an option', () => {
