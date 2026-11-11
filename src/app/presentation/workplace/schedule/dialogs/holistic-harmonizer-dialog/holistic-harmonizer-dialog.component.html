@@ -8,19 +8,6 @@
       @case ('running') {
         <div class="holisticHarmonizer-running">
           <p class="holisticHarmonizer-running-text">{{ 'holisticHarmonizer.dialog.running' | translate }}</p>
-          @if (isLlmMode()) {
-            @if (selectedLlmModelId()) {
-              <p class="holisticHarmonizer-llm-model">
-                <strong>{{ 'holisticHarmonizer.dialog.selected-model' | translate }}:</strong>
-                <span>{{ selectedLlmModelId() }}</span>
-              </p>
-            }
-          } @else {
-            <p class="holisticHarmonizer-llm-model">
-              <strong>{{ 'setting.holisticHarmonizer.mode' | translate }}:</strong>
-              <span>{{ 'setting.holisticHarmonizer.modeDeterministic' | translate }}</span>
-            </p>
-          }
           <div class="holisticHarmonizer-progress">
             <div class="holisticHarmonizer-progress-bar-outer">
               <div class="holisticHarmonizer-progress-bar-inner" [style.width.%]="progressPercent()"></div>
@@ -109,32 +96,12 @@
           </div>
 
           @if (holisticHarmonizerService.result(); as r) {
-            @if (r.llmParsingError || r.llmRawResponsePreview) {
-              <div class="alert alert-warning holisticHarmonizer-llm-diagnostic">
-                @if (r.llmParsingError) {
-                  <strong>{{ 'holisticHarmonizer.dialog.llm-parsing-error' | translate }}:</strong>
-                  <p class="mb-1">{{ r.llmParsingError }}</p>
-                }
-                @if (r.llmRawResponsePreview) {
-                  <details>
-                    <summary>{{ 'holisticHarmonizer.dialog.llm-raw-preview' | translate }}</summary>
-                    <pre class="holisticHarmonizer-raw">{{ r.llmRawResponsePreview }}</pre>
-                  </details>
-                }
-              </div>
-            }
-
             @if (r.qualificationGaps?.length) {
               <app-qualification-gap-report [gaps]="r.qualificationGaps" />
             }
 
             <app-planning-rule-warning-report [warnings]="planningRuleWarnings()" />
             <app-planning-rule-remaining-report [remaining]="planningRuleRemaining()" />
-            <app-plan-critic-report
-              [critic]="planCritic()"
-              [agentDisplayNames]="r.agentDisplayNames"
-              [periodStart]="periodStart()"
-            />
 
             @if (r.batches.length > 0) {
               <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.batches-section-title' | translate }}</h5>

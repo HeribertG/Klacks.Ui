@@ -8,7 +8,6 @@ import { ISchedulingDefaultSettings } from 'src/app/domain/models/settings/sched
 import { IDataRetentionSettings } from 'src/app/domain/models/settings/data-retention-settings.interface';
 import { IUpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.interface';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
-import { IHolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.interface';
 import { ICompensatoryRestSettings } from 'src/app/domain/models/settings/compensatory-rest-settings.interface';
 import { ISurchargeModeSettings } from 'src/app/domain/models/settings/surcharge-mode-settings.interface';
 import { IOvertimeSettings } from 'src/app/domain/models/settings/overtime-settings.interface';
@@ -33,7 +32,6 @@ export interface SettingsModels {
   erpImportCronExpression: string;
   erpImportCronTimeZone: string;
   speech: ISpeechSettings;
-  holisticHarmonizer: IHolisticHarmonizerSettings;
   compensatoryRest: ICompensatoryRestSettings;
   surchargeMode: ISurchargeModeSettings;
   overtime: IOvertimeSettings;

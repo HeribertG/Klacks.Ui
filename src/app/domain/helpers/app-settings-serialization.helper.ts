@@ -129,9 +129,6 @@ export const APP_SETTING_SERIALIZERS: readonly AppSettingSerializer[] = [
   { key: AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, serialize: (m) => String(m.speech.silenceThresholdMs) },
   { key: AppSetting.ASSISTANT_BARGE_IN_ENABLED, serialize: (m) => String(m.speech.bargeInEnabled) },
 
-  { key: AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, serialize: (m) => m.holisticHarmonizer.llmModelId },
-  { key: AppSetting.HOLISTIC_HARMONIZER_MODE, serialize: (m) => m.holisticHarmonizer.mode },
-
   { key: AppSetting.UPDATE_AUTO_ENABLED, serialize: (m) => String(m.update.autoEnabled) },
   { key: AppSetting.UPDATE_CHANNEL, serialize: (m) => m.update.channel },
   { key: AppSetting.UPDATE_CHECK_INTERVAL_HOURS, serialize: (m) => m.update.checkIntervalHours.toString() },

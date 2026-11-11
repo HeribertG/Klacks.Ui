@@ -15,7 +15,6 @@ import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/schedu
 import { DataRetentionSettings } from 'src/app/domain/models/settings/data-retention-settings.model';
 import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
-import { HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { CompensatoryRestSettings } from 'src/app/domain/models/settings/compensatory-rest-settings.model';
 import { SurchargeModeSettings } from 'src/app/domain/models/settings/surcharge-mode-settings.model';
 import { OvertimeSettings } from 'src/app/domain/models/settings/overtime-settings.model';
@@ -45,7 +44,6 @@ export function createDefaultSettingsModels(): SettingsModels {
     erpImportCronExpression: ErpImportScheduleDefaults.CronExpression,
     erpImportCronTimeZone: ErpImportScheduleDefaults.UseCompanyTimeZone,
     speech: new SpeechSettings(),
-    holisticHarmonizer: new HolisticHarmonizerSettings(),
     compensatoryRest: new CompensatoryRestSettings(),
     surchargeMode: new SurchargeModeSettings(),
     overtime: new OvertimeSettings(),

@@ -1,18 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Dialog for wizard stage 3 (Holistic Harmonizer). Starts an async run - deterministic local search by
- * default, the LLM vision engine only in LLM mode - that streams progress over SignalR until completion,
- * cancellation, or failure. The accepted result can be applied as a new AnalyseScenario via the shared
+ * Dialog for wizard stage 3 (Holistic Harmonizer). Starts an async deterministic local-search run that
+ * streams progress over SignalR until completion, cancellation, or failure. The accepted result can be applied as a new AnalyseScenario via the shared
  * harmonizer apply pipeline.
  * @param phase - Derived UI phase (running/done/cancelled/applying/applied/error)
- * @param isLlmMode - True when the stage-3 method setting selects the LLM engine (model line + model gate)
  * @param progressPercent - Iteration progress as a percentage of MaxIterations
  * @param fitnessDeltaPercent - Fitness improvement after - before, in percent
  * @param harmonyBeforePercent - Global harmony (rhythm and fairness between the rows) of the input plan, in percent;
- *   null when the engine did not measure it (LLM mode)
+ *   null when the engine did not measure it
  * @param harmonyDeltaPercent - Harmony change after - before, in percent; null when not measured
- * @param planCritic - Vision-critic review of the final plan, shown read-only below the result (never applied)
  */
 
 import { readStaleWizardResult } from 'src/app/domain/models/schedule/stale-wizard-result.model';
@@ -32,7 +29,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataHolisticHarmonizerService } from 'src/app/application/services/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import {
   HolisticHarmonizerBatchDto,
@@ -42,7 +38,6 @@ import { QualificationGapReportComponent } from 'src/app/presentation/workplace/
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { PlanningRuleWarningReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-warning-report/planning-rule-warning-report.component';
 import { PlanningRuleRemainingReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-remaining-report/planning-rule-remaining-report.component';
-import { PlanCriticReportComponent } from 'src/app/presentation/workplace/schedule/shared/plan-critic-report/plan-critic-report.component';
 import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import {
@@ -51,7 +46,6 @@ import {
 } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { HOLISTIC_HARMONIZER_MODE } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
 
 @Component({
@@ -66,7 +60,6 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
     ComplianceViolationReportComponent,
     PlanningRuleWarningReportComponent,
     PlanningRuleRemainingReportComponent,
-    PlanCriticReportComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -77,7 +70,6 @@ export class HolisticHarmonizerDialogComponent {
   readonly holisticHarmonizerService = inject(DataHolisticHarmonizerService);
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
-  private readonly appSettings = inject(AppSettingsManagementService);
   private readonly translate = inject(TranslateService);
   private readonly collisionService = inject(CollisionDetectionService);
   private readonly planningRulePreExisting = inject(PlanningRulePreExistingService);
@@ -96,16 +88,6 @@ export class HolisticHarmonizerDialogComponent {
   );
   readonly planningRuleRemaining = computed(
     () => this.holisticHarmonizerService.result()?.planningRuleRemaining ?? null,
-  );
-
-  readonly planCritic = computed(() => this.holisticHarmonizerService.result()?.planCritic ?? null);
-
-  readonly periodStart = signal<Date | null>(null);
-
-  readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
-
-  readonly isLlmMode = computed(
-    () => this.appSettings.holisticHarmonizerSettings().mode === HOLISTIC_HARMONIZER_MODE.llm,
   );
 
   readonly phase = computed<HolisticHarmonizerPhase>(() => {
@@ -247,12 +229,6 @@ export class HolisticHarmonizerDialogComponent {
     });
     this.modalRef.dismissed.pipe(take(1)).subscribe(() => this.cancelIfRunning());
 
-    if (this.isLlmMode() && !this.selectedLlmModelId()) {
-      this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noModel'));
-      return;
-    }
-
-    this.periodStart.set(this.dataManagementSchedule.periodStartDate);
     const request = this.buildRequest();
     if (!request) {
       this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noData'));
@@ -321,7 +297,7 @@ export class HolisticHarmonizerDialogComponent {
 
     if (isRunning && this.startPromise) {
       // Dismissed while the start round-trip was still in flight: without this the server keeps
-      // burning its LLM budget on a job nobody is listening to any more.
+      // burning its search budget on a job nobody is listening to any more.
       this.startPromise
         .then((startedJobId) => this.holisticHarmonizerService.cancel(startedJobId))
         .catch(() => undefined)

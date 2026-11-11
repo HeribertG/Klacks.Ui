@@ -21,7 +21,6 @@ import { ComplianceEnforcementRuleMode } from 'src/app/domain/models/settings/co
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
-import { parseHolisticHarmonizerMode } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
@@ -161,9 +160,6 @@ const APP_SETTING_PARSERS = new Map<string, (value: string, models: SettingsMode
   [AppSetting.ASSISTANT_OUTPUT_MODE, (v, m) => (m.speech.outputMode = v)],
   [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = SpeechDefaults.clampSilenceThresholdMs(parseInt(v, 10)))],
   [AppSetting.ASSISTANT_BARGE_IN_ENABLED, (v, m) => (m.speech.bargeInEnabled = v === 'true')],
-
-  [AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, (v, m) => (m.holisticHarmonizer.llmModelId = v)],
-  [AppSetting.HOLISTIC_HARMONIZER_MODE, (v, m) => (m.holisticHarmonizer.mode = parseHolisticHarmonizerMode(v))],
 
   [AppSetting.UPDATE_AUTO_ENABLED, (v, m) => (m.update.autoEnabled = (v ?? '').toLowerCase() === 'true')],
   [AppSetting.UPDATE_CHANNEL, (v, m) => (m.update.channel = v || 'Stable')],

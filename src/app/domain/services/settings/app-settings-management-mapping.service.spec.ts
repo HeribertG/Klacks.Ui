@@ -12,7 +12,6 @@ import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
-import { HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 
@@ -124,9 +123,6 @@ const RAW: Record<string, string> = {
   [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS]: '1500',
   [AppSetting.ASSISTANT_BARGE_IN_ENABLED]: 'true',
 
-  [AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL]: 'h-model',
-  [AppSetting.HOLISTIC_HARMONIZER_MODE]: 'llm',
-
   [AppSetting.UPDATE_AUTO_ENABLED]: 'true',
   [AppSetting.UPDATE_CHANNEL]: 'Beta',
   [AppSetting.UPDATE_CHECK_INTERVAL_HOURS]: '12',
@@ -201,7 +197,6 @@ const GROUP_SIGNALS = [
   'erpImportCronExpression',
   'erpImportCronTimeZone',
   'speechSettings',
-  'holisticHarmonizerSettings',
   'compensatoryRestSettings',
   'surchargeModeSettings',
   'overtimeSettings',
@@ -254,7 +249,7 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
   });
 
   it('covers every mapped setting key exactly once in the probe table', () => {
-    expect(Object.keys(RAW)).toHaveLength(150);
+    expect(Object.keys(RAW)).toHaveLength(148);
   });
 
   it('maps every stored key onto its typed group field', () => {
@@ -324,7 +319,6 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
       silenceThresholdMs: 1500,
       bargeInEnabled: true,
     });
-    expect(service.holisticHarmonizerSettings()).toEqual({ mode: 'llm', llmModelId: 'h-model' });
     expect(service.compensatoryRestSettings()).toEqual({ compensatoryRestEnabled: true, compensatoryRestDeadlineDays: 14 });
     expect(service.surchargeModeSettings()).toEqual({
       we3Rate: 1.3, nightRateMode: 'fixedperhour', holidayRateMode: 'fixedpershift', we1RateMode: 'fixedperhour',
@@ -381,7 +375,6 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
     expect(service.erpImportCronTimeZone()).toBe('');
     expect(service.speechSettings().silenceThresholdMs).toBe(new SpeechSettings().silenceThresholdMs);
     expect(service.speechSettings().enhancementEnabled).toBe(false);
-    expect(service.holisticHarmonizerSettings()).toEqual({ ...new HolisticHarmonizerSettings(), llmModelId: '' });
     expect(service.compensatoryRestSettings()).toEqual({ compensatoryRestEnabled: false, compensatoryRestDeadlineDays: 0 });
     expect(service.surchargeModeSettings()).toEqual({
       we3Rate: 0, nightRateMode: 'multiplier', holidayRateMode: 'multiplier', we1RateMode: 'multiplier',
@@ -412,7 +405,6 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
       [AppSetting.WORK_VACATION_DAYS_PER_YEAR]: '0',
       [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS]: '99999',
       [AppSetting.ACTIVE_INDUSTRIES]: '  retail  ',
-      [AppSetting.HOLISTIC_HARMONIZER_MODE]: ' LLM ',
       [AppSetting.UPDATE_AUTO_ENABLED]: 'TRUE',
     });
 
@@ -422,7 +414,6 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
     expect(service.workSettings().vacationDaysPerYear).toBe(25);
     expect(service.speechSettings().silenceThresholdMs).toBe(3000);
     expect(service.activeIndustriesSettings().activeIndustry).toBe('retail');
-    expect(service.holisticHarmonizerSettings().mode).toBe('llm');
     expect(service.updateConfigSettings().autoEnabled).toBe(true);
   });
 

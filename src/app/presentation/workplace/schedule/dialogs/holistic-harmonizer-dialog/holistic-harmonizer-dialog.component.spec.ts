@@ -10,8 +10,6 @@ import { HolisticHarmonizerDialogComponent } from './holistic-harmonizer-dialog.
 import { DataHolisticHarmonizerService } from 'src/app/application/services/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { HOLISTIC_HARMONIZER_MODE } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 import { HolisticHarmonizerStatus } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-status.type';
 import {
   HolisticHarmonizerProgress,
@@ -46,8 +44,6 @@ function runResponse(planningRuleWarnings?: ScheduleErrorEntry[] | null): Holist
     batches: [],
     agentDisplayNames: [],
     qualificationGaps: [],
-    llmParsingError: null,
-    llmRawResponsePreview: null,
     planningRuleWarnings,
   };
 }
@@ -88,12 +84,6 @@ describe('HolisticHarmonizerDialogComponent', () => {
         { provide: DataHolisticHarmonizerService, useValue: serviceMock },
         { provide: DataManagementScheduleService, useValue: { clients: [], readDatas, workFilter: {} } },
         { provide: AnalyseScenarioService, useValue: { activeToken: () => null, openCreatedScenario } },
-        {
-          provide: AppSettingsManagementService,
-          useValue: {
-            holisticHarmonizerSettings: signal({ llmModelId: '', mode: HOLISTIC_HARMONIZER_MODE.deterministic }),
-          },
-        },
         { provide: NgbModal, useValue: { open: vi.fn() } },
       ],
     }).compileComponents();

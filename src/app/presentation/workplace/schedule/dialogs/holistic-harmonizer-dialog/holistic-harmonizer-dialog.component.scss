@@ -10,10 +10,6 @@
   margin: 0;
 }
 
-.holisticHarmonizer-llm-model {
-  margin: 0;
-}
-
 .holisticHarmonizer-progress {
   width: 100%;
   display: flex;
@@ -100,18 +96,6 @@
 
 .holisticHarmonizer-rejected-list .holisticHarmonizer-swap-item {
   color: var(--colorInactive);
-}
-
-.holisticHarmonizer-llm-diagnostic {
-  margin-bottom: 1rem;
-}
-
-.holisticHarmonizer-raw {
-  white-space: pre-wrap;
-  font-size: 0.8rem;
-  max-height: 200px;
-  overflow: auto;
-  margin: 0.25rem 0 0 0;
 }
 
 .holisticHarmonizer-batch-list {

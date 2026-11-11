@@ -50,8 +50,6 @@ import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-conf
 import { IUpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.interface';
 import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
-import { HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
-import { IHolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.interface';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { SettingsModels } from 'src/app/domain/models/settings/settings-models.interface';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
@@ -85,7 +83,6 @@ export class AppSettingsManagementService {
   public erpImportCronExpression = signal<string>(ErpImportScheduleDefaults.CronExpression);
   public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.UseCompanyTimeZone);
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
-  public holisticHarmonizerSettings = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
   public compensatoryRestSettings = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
   public surchargeModeSettings = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
   public overtimeSettings = signal<IOvertimeSettings>(new OvertimeSettings());
@@ -179,7 +176,6 @@ export class AppSettingsManagementService {
     this.erpImportCronExpression.set(models.erpImportCronExpression);
     this.erpImportCronTimeZone.set(models.erpImportCronTimeZone);
     this.speechSettings.set(models.speech);
-    this.holisticHarmonizerSettings.set(models.holisticHarmonizer);
     this.compensatoryRestSettings.set(models.compensatoryRest);
     this.surchargeModeSettings.set(models.surchargeMode);
     this.overtimeSettings.set(models.overtime);
@@ -206,7 +202,6 @@ export class AppSettingsManagementService {
       erpImportCronExpression: this.erpImportCronExpression(),
       erpImportCronTimeZone: this.erpImportCronTimeZone(),
       speech: this.speechSettings(),
-      holisticHarmonizer: this.holisticHarmonizerSettings(),
       compensatoryRest: this.compensatoryRestSettings(),
       surchargeMode: this.surchargeModeSettings(),
       overtime: this.overtimeSettings(),

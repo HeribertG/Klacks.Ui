@@ -105,8 +105,6 @@ function makeResult(jobId: string): HolisticHarmonizerRunResponse {
     batches: [],
     agentDisplayNames: [],
     qualificationGaps: [],
-    llmParsingError: null,
-    llmRawResponsePreview: null,
   };
 }
 
