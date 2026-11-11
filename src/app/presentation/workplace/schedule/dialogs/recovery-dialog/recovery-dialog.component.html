@@ -51,6 +51,25 @@
                   {{ outcomeStateKey(slotOutcome(slot)) | translate }}
                 </span>
               </div>
+              @let relocations = slot.relocations ?? [];
+              @if (relocations.length > 0) {
+                <ul class="recovery-relocations">
+                  @for (relocation of relocations; track $index) {
+                    <li class="recovery-relocation">
+                      <span class="recovery-date">{{ relocation.date | calendarDate: 'numericDate' }}</span>
+                      <span class="recovery-time">
+                        {{ 'recovery.dialog.slotTime' | translate: { start: displayTime(relocation.startTime), end: displayTime(relocation.endTime) } }}
+                      </span>
+                      <span class="recovery-relocation-names">
+                        <span class="recovery-relocation-from">{{ relocation.fromName }}</span>
+                        <fa-icon class="recovery-relocation-arrow" [icon]="faArrowRight"></fa-icon>
+                        <span class="recovery-relocation-to">{{ relocation.toName }}</span>
+                      </span>
+                      <span class="recovery-tier badge text-bg-light">{{ tierKey(relocation.tier) | translate }}</span>
+                    </li>
+                  }
+                </ul>
+              }
               <div class="recovery-covered-actions">
                 <app-recovery-outcome-buttons
                   [name]="slot.replacementName"

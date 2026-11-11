@@ -9,11 +9,14 @@ import { TestBed } from '@angular/core/testing';
 import { EmbeddedViewRef, signal, TemplateRef } from '@angular/core';
 import { of, Subject, throwError } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RecoveryDialogComponent } from './recovery-dialog.component';
 import { DataRecoveryService } from 'src/app/infrastructure/api/schedule/data-recovery.service';
 import { ICoverAbsenceOutcome } from 'src/app/domain/models/schedule/cover-absence-outcome.interface';
 import { ICoveredSlot } from 'src/app/domain/models/schedule/covered-slot.interface';
+import { ICoverRelocation } from 'src/app/domain/models/schedule/cover-relocation.interface';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
 import { IReplacementCandidate } from 'src/app/domain/interfaces/replacement-candidate.interface';
 import { IReplacementRequest } from 'src/app/domain/interfaces/replacement-request.interface';
@@ -432,6 +435,116 @@ describe('RecoveryDialogComponent', () => {
 
       expect(query('[data-slot] a.recovery-phone')).toBeNull();
       expect(query('[data-slot] .recovery-no-phone')).not.toBeNull();
+    });
+
+    describe('swap chain moves', () => {
+      const firstMove: ICoverRelocation = {
+        shiftId: 'shift-7',
+        date: '2026-10-06',
+        fromClientId: 'client-9',
+        fromName: 'Berta Beispiel',
+        toClientId: 'client-7',
+        toName: 'Carla Cover',
+        startTime: '14:00:00',
+        endTime: '22:00:00',
+        tier: 1,
+      };
+      const secondMove: ICoverRelocation = {
+        shiftId: 'shift-8',
+        date: '2026-10-08',
+        fromClientId: 'client-7',
+        fromName: 'Carla Cover',
+        toClientId: 'client-5',
+        toName: 'Dora Dienst',
+        startTime: '22:00:00',
+        endTime: '06:00:00',
+        tier: 3,
+      };
+
+      const moveRows = (): HTMLElement[] => Array.from(host.querySelectorAll<HTMLElement>('[data-slot] .recovery-relocation'));
+      const textOf = (row: HTMLElement, selector: string): string | undefined =>
+        row.querySelector(selector)?.textContent?.trim();
+
+      it('lists the moves under the slot in the delivered order, each with day, time, both people and tier', async () => {
+        // Arrange
+        const translate = TestBed.inject(TranslateService);
+        translate.setTranslation('en', { 'recovery.dialog.slotTime': '{{start}}–{{end}}' });
+        translate.use('en');
+        const locale = TestBed.inject(LOCALE_PROVIDER).getLocale();
+
+        // Act
+        await submitWith([{ ...coveredSlot, tier: 1, relocations: [firstMove, secondMove] }]);
+
+        // Assert
+        const rows = moveRows();
+        expect(rows.map((row) => textOf(row, '.recovery-relocation-from'))).toEqual(['Berta Beispiel', 'Carla Cover']);
+        expect(rows.map((row) => textOf(row, '.recovery-relocation-to'))).toEqual(['Carla Cover', 'Dora Dienst']);
+        expect(rows.map((row) => textOf(row, '.recovery-date'))).toEqual([
+          formatCalendarDate('2026-10-06', locale, 'numericDate'),
+          formatCalendarDate('2026-10-08', locale, 'numericDate'),
+        ]);
+        expect(rows.map((row) => textOf(row, '.recovery-time'))).toEqual(['14:00–22:00', '22:00–06:00']);
+        expect(rows.map((row) => textOf(row, '.recovery-tier'))).toEqual(['recovery.dialog.tier.1', 'recovery.dialog.tier.3']);
+        expect(textOf(rows[0], '.recovery-date')).toBe(query('[data-slot] > .recovery-covered-head .recovery-date')?.textContent?.trim());
+      });
+
+      it('puts a decorative arrow between the person who hands on and the person who takes over', async () => {
+        await submitWith([{ ...coveredSlot, relocations: [firstMove] }]);
+
+        const names = Array.from(moveRows()[0].querySelector('.recovery-relocation-names')!.children);
+
+        expect(names.map((element) => element.className.split(' ').find((name) => name.startsWith('recovery-relocation-')))).toEqual([
+          'recovery-relocation-from',
+          'recovery-relocation-arrow',
+          'recovery-relocation-to',
+        ]);
+        expect(names[1].tagName).toBe('FA-ICON');
+        expect(names[1].querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+      });
+
+      it('keeps the moves of each slot under their own slot', async () => {
+        const otherSlot: ICoveredSlot = { ...coveredSlot, shiftId: 'shift-2', requestId: 'request-2', relocations: [secondMove] };
+
+        await submitWith([{ ...coveredSlot, relocations: [firstMove] }, otherSlot]);
+
+        const slots = Array.from(host.querySelectorAll<HTMLElement>('[data-slot]'));
+        expect(slots.map((slot) => Array.from(slot.querySelectorAll('.recovery-relocation-to')).map((el) => el.textContent?.trim()))).toEqual([
+          ['Carla Cover'],
+          ['Dora Dienst'],
+        ]);
+      });
+
+      it.each([
+        ['an absent list', undefined],
+        ['a null list', null],
+        ['an empty list', []],
+      ])('shows no move rows for a direct cover with %s', async (_label, relocations) => {
+        await submitWith([{ ...coveredSlot, relocations }]);
+
+        expect(query('[data-slot]')).not.toBeNull();
+        expect(query('.recovery-relocations')).toBeNull();
+        expect(moveRows()).toEqual([]);
+      });
+
+      it('drops the moves of the former stand-in once an accepted alternative took the slot', async () => {
+        // Arrange
+        await submitWith([{ ...coveredSlot, tier: 1, relocations: [firstMove] }]);
+        getCandidates.mockReturnValue(of({ eligible: [candidate('client-4', 'Tanja Moser')], excluded: [] }));
+        recordRequest.mockReturnValue(
+          of({ id: 'request-4', outcome: ReplacementRequestOutcome.Accepted, isScenarioReplacement: true }),
+        );
+        (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+        await settle();
+        expect(moveRows()).toHaveLength(1);
+
+        // Act
+        outcomeButton('[data-candidate="client-4"]', ReplacementRequestOutcome.Accepted).click();
+        await settle();
+
+        // Assert
+        expect(query('[data-slot] > .recovery-covered-head .recovery-name')?.textContent?.trim()).toBe('Tanja Moser');
+        expect(moveRows()).toEqual([]);
+      });
     });
 
     it('puts the clicked response and shows the state the server stored', async () => {

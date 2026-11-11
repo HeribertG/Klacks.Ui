@@ -11,7 +11,8 @@
  * request book); alternatives per slot can be listed and their contact attempts recorded as well. An alternative who
  * accepts becomes the slot's stand-in in the scenario (the server switches it, the dialog and the schedule follow);
  * nobody is contacted automatically. An alternative held below a non-binding minimum level (levelShortfall > 0) carries a
- * "level too low" hint. Submitted inside a scenario, the cover is built on that scenario (its token is sent), so the new
+ * "level too low" hint. A cover that needed a swap chain lists the further moves (who hands which work to whom) under
+ * its slot; they are dropped once an accepted alternative replaces the stand-in. Submitted inside a scenario, the cover is built on that scenario (its token is sent), so the new
  * scenario keeps everything the planner already changed there.
  * @param clients - Visible schedule employees, used to show the name of the preselected absent employee
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
@@ -28,7 +29,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbDatepickerModule, NgbDateStruct, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
@@ -171,6 +172,7 @@ export class RecoveryDialogComponent {
   }
 
   protected readonly faCalendar = faCalendar;
+  protected readonly faArrowRight = faArrowRight;
 
   protected readonly selectedDateStruct = computed<NgbDateStruct | null>(
     () => transformDateToNgbDateStruct(this.formModel().selectedDate) ?? null,
@@ -475,6 +477,7 @@ export class RecoveryDialogComponent {
       requestId: saved.id,
       phone: candidate.phone ?? null,
       outcome: saved.outcome,
+      relocations: [],
     };
     this.standIns.update((map) => ({ ...map, [key]: standIn }));
     this.slotOutcomes.update((map) => ({ ...map, [saved.id]: saved.outcome }));

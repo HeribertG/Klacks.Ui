@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
+import { ICoverRelocation } from './cover-relocation.interface';
 
 export interface ICoveredSlot {
   shiftId: string;
@@ -22,4 +23,9 @@ export interface ICoveredSlot {
   /** Mobile number before fixed line of the proposed stand-in. */
   phone?: string | null;
   outcome?: ReplacementRequestOutcome | null;
+  /**
+   * The other moves of a swap chain behind this cover, ordered from the cover outwards; empty or absent
+   * for a direct cover and on older backends.
+   */
+  relocations?: ICoverRelocation[] | null;
 }

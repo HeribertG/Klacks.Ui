@@ -132,6 +132,36 @@
   word-break: break-all;
 }
 
+.recovery-relocations {
+  list-style: none;
+  margin: 0;
+  margin-inline-start: 1rem;
+  padding: 0;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.85rem;
+}
+
+.recovery-relocation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.recovery-relocation-names {
+  flex: 1 1 auto;
+}
+
+.recovery-relocation-arrow {
+  display: inline-block;
+  margin-inline: 0.35rem;
+
+  &:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}
+
 .recovery-alternatives {
   margin-left: 1rem;
   padding-left: 0.75rem;
