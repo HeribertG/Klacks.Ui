@@ -67,7 +67,7 @@ function buildScheduleStub(startDate: Date, endDate: Date) {
     clients: Array.from({ length: AGENT_COUNT }, (_, i) => ({ id: `agent-${i}` })),
     shiftSchedules: Array.from({ length: SHIFT_COUNT }, (_, i) => ({ shiftId: `shift-${i}` })),
     workFilter: { selectedGroup: undefined },
-    isIndividualClientSortActive: false,
+    isAgentOrderUserDefined: false,
     isRead: signal({ count: 0, resetScroll: false }),
     readDatas: vi.fn(),
   } as unknown as DataManagementScheduleService;
@@ -226,7 +226,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       clients: [{ id: 'agent-1' }],
       shiftSchedules: [{ shiftId: 'shift-1' }],
       workFilter: { selectedGroup: JOB_GROUP as string | undefined },
-      isIndividualClientSortActive: false,
+      isAgentOrderUserDefined: false,
       isRead: signal({ count: 0, resetScroll: false }),
       readDatas: vi.fn(),
     };

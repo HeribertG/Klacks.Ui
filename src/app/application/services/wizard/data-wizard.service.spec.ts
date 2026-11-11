@@ -89,6 +89,7 @@ const REQUEST: WizardRequest = {
   agentIds: ['agent-1'],
   shiftIds: ['shift-1'],
   analyseToken: null,
+  agentOrderIsUserDefined: false,
 };
 
 function makeResult(jobId: string): WizardResult {

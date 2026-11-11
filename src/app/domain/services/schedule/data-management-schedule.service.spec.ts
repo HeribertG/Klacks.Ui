@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DataManagementScheduleService } from './data-management-schedule.service';
@@ -185,5 +186,70 @@ describe('DataManagementScheduleService load completion', () => {
     // Assert
     expect(service.isScheduleFullyLoaded).toBe(false);
     expect(service.isScheduleLoadStalled).toBe(true);
+  });
+});
+
+describe('DataManagementScheduleService user-defined roster order flag', () => {
+  let workLoader: { individualSortActive: boolean; clients: { id: string }[] };
+  let sortPreference: { ranksAny: Mock };
+  let service: DataManagementScheduleService;
+
+  beforeEach(() => {
+    workLoader = { individualSortActive: false, clients: [{ id: 'client-1' }, { id: 'client-2' }] };
+    sortPreference = { ranksAny: vi.fn().mockReturnValue(false) };
+    TestBed.configureTestingModule({
+      providers: [
+        DataManagementScheduleService,
+        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: { register: vi.fn() } },
+        { provide: BreakPlaceholderScheduleLoaderService, useValue: { isLoaded: signal(false) } },
+        { provide: ShiftScheduleLoaderService, useValue: { isRead: signal(0) } },
+        { provide: WorkScheduleLoaderService, useValue: workLoader },
+        { provide: DataManagementWorkService, useValue: {} },
+        { provide: AvailableShiftsCalculatorService, useValue: {} },
+        {
+          provide: ScheduleEntryCrudService,
+          useValue: { scheduleRefreshed: signal(false), shiftScheduleRefreshed: signal(false) },
+        },
+        { provide: AnalyseScenarioService, useValue: { activeToken: signal(null) } },
+        { provide: ClientSortPreferenceService, useValue: sortPreference },
+        { provide: AssistantPageContextService, useValue: {} },
+      ],
+    });
+    service = TestBed.inject(DataManagementScheduleService);
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('is false when individual sorting is on but the saved order ranks none of the loaded employees', () => {
+    // Arrange
+    workLoader.individualSortActive = true;
+    sortPreference.ranksAny.mockReturnValue(false);
+
+    // Act
+    const flag = service.isAgentOrderUserDefined;
+
+    // Assert
+    expect(flag).toBe(false);
+    expect(sortPreference.ranksAny).toHaveBeenCalledWith(['client-1', 'client-2']);
+  });
+
+  it('is true when individual sorting is on and the saved order ranks a loaded employee', () => {
+    // Arrange
+    workLoader.individualSortActive = true;
+    sortPreference.ranksAny.mockReturnValue(true);
+
+    // Assert
+    expect(service.isAgentOrderUserDefined).toBe(true);
+  });
+
+  it('is false when individual sorting is off, even when the saved order ranks a loaded employee', () => {
+    // Arrange
+    workLoader.individualSortActive = false;
+    sortPreference.ranksAny.mockReturnValue(true);
+
+    // Assert
+    expect(service.isAgentOrderUserDefined).toBe(false);
   });
 });

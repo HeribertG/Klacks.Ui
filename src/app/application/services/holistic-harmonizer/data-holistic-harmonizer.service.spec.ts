@@ -91,6 +91,7 @@ const REQUEST: HolisticHarmonizerRunRequest = {
   agentIds: ['agent-1'],
   analyseToken: null,
   language: 'en',
+  agentOrderIsUserDefined: false,
 };
 
 function makeResult(jobId: string): HolisticHarmonizerRunResponse {

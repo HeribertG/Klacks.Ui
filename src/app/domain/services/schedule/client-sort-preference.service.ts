@@ -25,6 +25,15 @@ export class ClientSortPreferenceService {
     }
   }
 
+  /**
+   * True when the saved order of the active group ranks at least one of the given clients; the alphabetical fallback ranks nobody.
+   * @param clientIds - Ids of the clients to look up in the saved order
+   */
+  ranksAny(clientIds: readonly string[]): boolean {
+    const map = this._sortMap();
+    return clientIds.some((id) => map.has(id));
+  }
+
   applyTo<T extends { id: string; name?: string; firstName?: string }>(clients: T[]): T[] {
     const map = this._sortMap();
 

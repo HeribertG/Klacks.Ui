@@ -9,5 +9,5 @@ export interface WizardRequest {
   shiftIds?: string[] | null;
   analyseToken?: string | null;
   trainingOverrides?: WizardTrainingOverrides | null;
-  agentOrderIsUserDefined?: boolean;
+  agentOrderIsUserDefined: boolean;
 }

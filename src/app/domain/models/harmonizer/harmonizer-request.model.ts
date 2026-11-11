@@ -5,4 +5,5 @@ export interface HarmonizerRequest {
   periodUntil: string;
   agentIds: string[];
   analyseToken?: string | null;
+  agentOrderIsUserDefined: boolean;
 }

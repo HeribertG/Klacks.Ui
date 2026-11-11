@@ -216,6 +216,7 @@ export class HarmonizerDialogComponent {
       periodUntil:  formatDateOnly(end),
       agentIds:     clients.map(c => c.id),
       analyseToken: this.analyseScenarioService.activeToken(),
+      agentOrderIsUserDefined: this.dataManagementSchedule.isAgentOrderUserDefined,
     };
   }
 }

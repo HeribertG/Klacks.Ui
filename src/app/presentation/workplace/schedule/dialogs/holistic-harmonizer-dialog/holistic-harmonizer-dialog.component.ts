@@ -346,6 +346,7 @@ export class HolisticHarmonizerDialogComponent {
       agentIds: clients.map((c) => c.id),
       analyseToken: this.analyseScenarioService.activeToken(),
       language: this.translate.currentLang ?? DomainMessages.DEFAULT_LANG,
+      agentOrderIsUserDefined: this.dataManagementSchedule.isAgentOrderUserDefined,
     };
   }
 }

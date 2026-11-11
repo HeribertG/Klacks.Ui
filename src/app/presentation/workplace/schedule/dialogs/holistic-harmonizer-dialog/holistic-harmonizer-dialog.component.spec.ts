@@ -3,7 +3,8 @@
 import { EmbeddedViewRef, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import type { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { HolisticHarmonizerDialogComponent } from './holistic-harmonizer-dialog.component';
 import { DataHolisticHarmonizerService } from 'src/app/application/services/holistic-harmonizer/data-holistic-harmonizer.service';
@@ -61,6 +62,7 @@ describe('HolisticHarmonizerDialogComponent', () => {
     failureReason: WritableSignal<string | null>;
     currentJobId: WritableSignal<string | null>;
     applyAsScenario: Mock;
+    start: Mock;
   };
   let openCreatedScenario: Mock;
   let readDatas: Mock;
@@ -73,6 +75,7 @@ describe('HolisticHarmonizerDialogComponent', () => {
       failureReason: signal<string | null>(null),
       currentJobId: signal<string | null>(null),
       applyAsScenario: vi.fn().mockResolvedValue({ scenarioId: 'scenario-1', scenarioName: 'Harmonized', scenarioToken: 'token-1' }),
+      start: vi.fn().mockResolvedValue('job-1'),
     };
     openCreatedScenario = vi.fn().mockResolvedValue(true);
     readDatas = vi.fn();
@@ -131,6 +134,34 @@ describe('HolisticHarmonizerDialogComponent', () => {
   it('exposes the planning-rule warnings of the run response', () => {
     serviceMock.result.set(runResponse([planningRuleWarning]));
     expect(component.planningRuleWarnings()).toEqual([planningRuleWarning]);
+  });
+
+  describe('start request', () => {
+    beforeEach(() => {
+      Object.assign(TestBed.inject(DataManagementScheduleService), {
+        periodStartDate: new Date(2026, 3, 1),
+        periodEndDate: new Date(2026, 3, 30),
+        clients: [{ id: 'agent-2' }, { id: 'agent-1' }],
+      });
+      vi.mocked(TestBed.inject(NgbModal).open).mockReturnValue({
+        dismissed: new Subject<unknown>(),
+        close: vi.fn(),
+      } as unknown as NgbModalRef);
+      fixture.detectChanges();
+    });
+
+    it.each([true, false])('sends the roster order and the user-defined order flag (%s)', (userDefined) => {
+      // Arrange
+      Object.assign(TestBed.inject(DataManagementScheduleService), { isAgentOrderUserDefined: userDefined });
+
+      // Act
+      component.open();
+
+      // Assert
+      expect(serviceMock.start).toHaveBeenCalledWith(
+        expect.objectContaining({ agentIds: ['agent-2', 'agent-1'], agentOrderIsUserDefined: userDefined }),
+      );
+    });
   });
 
   describe('rendered result', () => {

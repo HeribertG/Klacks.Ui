@@ -200,7 +200,7 @@ export class AutoWizardOrchestratorService {
         groupId: scope.groupId,
         analyseToken: this.analyseScenarioService.activeToken(),
         language: this.translateService.currentLang ?? null,
-        agentOrderIsUserDefined: this.dataManagementSchedule.isIndividualClientSortActive,
+        agentOrderIsUserDefined: this.dataManagementSchedule.isAgentOrderUserDefined,
         softKeywordRetry: true,
       });
       this.tracker.attachJobId(jobId);

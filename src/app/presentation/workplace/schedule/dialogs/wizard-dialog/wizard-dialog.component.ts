@@ -463,7 +463,7 @@ export class WizardDialogComponent {
       shiftIds:     allShiftIds,
       analyseToken: this.analyseScenarioService.activeToken(),
       trainingOverrides: { initAuctionRatio: this.auctionRatio() },
-      agentOrderIsUserDefined: this.dataManagementSchedule.isIndividualClientSortActive,
+      agentOrderIsUserDefined: this.dataManagementSchedule.isAgentOrderUserDefined,
     };
   }
 }

@@ -12,4 +12,5 @@ export interface HolisticHarmonizerRunRequest {
   agentIds: string[];
   analyseToken: string | null;
   language: string | null;
+  agentOrderIsUserDefined: boolean;
 }

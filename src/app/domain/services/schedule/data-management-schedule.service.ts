@@ -233,8 +233,12 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.clients;
   }
 
-  get isIndividualClientSortActive(): boolean {
-    return this.workScheduleLoader.individualSortActive;
+  /** True when the individual-sort switch is on and the saved order ranks at least one loaded person; fills the request field agentOrderIsUserDefined. */
+  get isAgentOrderUserDefined(): boolean {
+    return (
+      this.workScheduleLoader.individualSortActive &&
+      this.clientSortPreference.ranksAny(this.workScheduleLoader.clients.map((client) => client.id))
+    );
   }
 
   get workScheduleEntries(): IScheduleCell[] {
