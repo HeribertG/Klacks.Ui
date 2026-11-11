@@ -107,6 +107,14 @@
                                 @if (candidate.isOnCall) {
                                   <span class="badge text-bg-info">{{ 'recovery.dialog.onCall' | translate }}</span>
                                 }
+                                @if (candidate.isBorrowed) {
+                                  <span class="badge text-bg-light recovery-borrowed">{{ 'recovery.dialog.borrowed' | translate }}</span>
+                                }
+                                @if (candidate.isContractDayOff) {
+                                  <span class="badge text-bg-light recovery-contract-day-off">
+                                    {{ 'recovery.dialog.contractDayOff' | translate }}
+                                  </span>
+                                }
                                 @if ((candidate.rhythmDelta ?? 0) < 0) {
                                   <span class="badge text-bg-success recovery-rhythm-fits">{{ 'recovery.dialog.rhythmFits' | translate }}</span>
                                 }

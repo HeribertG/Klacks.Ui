@@ -4,4 +4,6 @@ export interface IExcludedCandidate {
   clientId: string;
   name: string;
   reason: string;
+  /** The person belongs to a sister group under the same root; absent on older servers (= false). */
+  isBorrowed?: boolean;
 }

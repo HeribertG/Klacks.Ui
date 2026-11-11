@@ -59,6 +59,8 @@ const REVIEW_KEYS = [
   'alternativesFailed',
   'noAlternatives',
   'onCall',
+  'borrowed',
+  'contractDayOff',
   'conflicts',
   'alternativeOutcomeHint',
   'slotTime',
@@ -694,11 +696,16 @@ describe('RecoveryDialogComponent', () => {
         expect(readDatas).toHaveBeenCalledTimes(1);
       });
 
-      it('labels an accepted on-call alternative with the on-call tier', async () => {
+      it.each<[string, Partial<IReplacementCandidate>, string]>([
+        ['own group, not on call', {}, 'recovery.dialog.tier.0'],
+        ['own group, on call', { isOnCall: true }, 'recovery.dialog.tier.5'],
+        ['borrowed, not on call', { isBorrowed: true }, 'recovery.dialog.tier.2'],
+        ['borrowed, on call', { isBorrowed: true, isOnCall: true }, 'recovery.dialog.tier.6'],
+      ])('labels an accepted alternative (%s) with its tier', async (_label, extra, expectedTier) => {
         // Arrange
-        await submitWith([coveredSlot]);
+        await submitWith([{ ...coveredSlot, tier: 1 }]);
         getRequests.mockReturnValue(of([]));
-        getCandidates.mockReturnValue(of({ eligible: [candidate('client-7', 'Tanja Moser', { isOnCall: true })], excluded: [] }));
+        getCandidates.mockReturnValue(of({ eligible: [candidate('client-7', 'Tanja Moser', extra)], excluded: [] }));
         (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
         await settle();
 
@@ -706,7 +713,7 @@ describe('RecoveryDialogComponent', () => {
         await acceptTanja(true);
 
         // Assert
-        expect(query('[data-slot] .recovery-tier')?.textContent?.trim()).toBe('recovery.dialog.tier.5');
+        expect(query('[data-slot] .recovery-tier')?.textContent?.trim()).toBe(expectedTier);
       });
 
       it('saves the next answer on the row of the new stand-in', async () => {
@@ -800,6 +807,47 @@ describe('RecoveryDialogComponent', () => {
         'recovery.dialog.levelShortfall',
       );
       expect(query('[data-candidate="client-8"] .recovery-level-shortfall')).toBeNull();
+    });
+
+    it('marks a borrowed alternative and one whose contract has the day off, each with its own text', async () => {
+      await submitWith([coveredSlot]);
+      getCandidates.mockReturnValue(
+        of({
+          eligible: [
+            candidate('client-5', 'Dora Dienst', { isBorrowed: false, isContractDayOff: false }),
+            candidate('client-6', 'Lea Leihkraft', { isBorrowed: true, isContractDayOff: false }),
+            candidate('client-7', 'Frida Frei', { isBorrowed: false, isContractDayOff: true }),
+            candidate('client-8', 'Berit Beides', { isBorrowed: true, isContractDayOff: true }),
+          ],
+          excluded: [],
+        }),
+      );
+
+      (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+      await settle();
+
+      const marks = (clientId: string): (string | undefined)[] =>
+        ['.recovery-borrowed', '.recovery-contract-day-off'].map((selector) =>
+          query(`[data-candidate="${clientId}"] ${selector}`)?.textContent?.trim(),
+        );
+      expect(marks('client-5')).toEqual([undefined, undefined]);
+      expect(marks('client-6')).toEqual(['recovery.dialog.borrowed', undefined]);
+      expect(marks('client-7')).toEqual([undefined, 'recovery.dialog.contractDayOff']);
+      expect(marks('client-8')).toEqual(['recovery.dialog.borrowed', 'recovery.dialog.contractDayOff']);
+    });
+
+    it('shows neither mark when an older server does not send the two fields', async () => {
+      await submitWith([coveredSlot]);
+      const legacy = candidate('client-7', 'Carla Cover');
+      expect('isBorrowed' in legacy || 'isContractDayOff' in legacy).toBe(false);
+      getCandidates.mockReturnValue(of({ eligible: [legacy], excluded: [] }));
+
+      (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+      await settle();
+
+      expect(query('[data-candidate="client-7"]')).not.toBeNull();
+      expect(query('[data-candidate="client-7"] .recovery-borrowed')).toBeNull();
+      expect(query('[data-candidate="client-7"] .recovery-contract-day-off')).toBeNull();
     });
 
     it('marks the alternatives whose own row the cover fits or breaks, and leaves neutral ones unmarked', async () => {

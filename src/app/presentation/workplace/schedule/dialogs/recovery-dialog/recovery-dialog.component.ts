@@ -11,7 +11,8 @@
  * request book); alternatives per slot can be listed and their contact attempts recorded as well. An alternative who
  * accepts becomes the slot's stand-in in the scenario (the server switches it, the dialog and the schedule follow);
  * nobody is contacted automatically. An alternative held below a non-binding minimum level (levelShortfall > 0) carries a
- * "level too low" hint. A cover that needed a swap chain lists the further moves (who hands which work to whom) under
+ * "level too low" hint; one borrowed from a sister group (isBorrowed) and one whose contract has no working day on that
+ * weekday (isContractDayOff) are listed and marked, not hidden. A cover that needed a swap chain lists the further moves (who hands which work to whom) under
  * its slot; they are dropped once an accepted alternative replaces the stand-in. Submitted inside a scenario, the cover is built on that scenario (its token is sent), so the new
  * scenario keeps everything the planner already changed there.
  * @param clients - Visible schedule employees, used to show the name of the preselected absent employee
@@ -39,6 +40,7 @@ import { DataRecoveryService } from 'src/app/infrastructure/api/schedule/data-re
 import { ICoverAbsenceOutcome } from 'src/app/domain/models/schedule/cover-absence-outcome.interface';
 import { ICoveredSlot } from 'src/app/domain/models/schedule/covered-slot.interface';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
+import { EscalationTier } from 'src/app/domain/enums/escalation-tier.enum';
 import { IReplacementCandidate } from 'src/app/domain/interfaces/replacement-candidate.interface';
 import { IReplacementRequest } from 'src/app/domain/interfaces/replacement-request.interface';
 import { isReplacementRequestApplied } from 'src/app/domain/helpers/replacement-request-applied.helper';
@@ -65,8 +67,6 @@ const KEY_SEPARATOR = '|';
 const TEL_SCHEME = 'tel:';
 const PHONE_WHITESPACE = /\s+/g;
 const OUTCOME_STATE_KEY_PREFIX = 'recovery.dialog.outcomeState.';
-const TIER_IN_GROUP_FREE = 0;
-const TIER_IN_GROUP_ON_CALL = 5;
 const ALTERNATIVES_LOADING: IRecoveryAlternativesState = {
   status: RecoveryAlternativesStatus.Loading,
   candidates: [],
@@ -473,7 +473,7 @@ export class RecoveryDialogComponent {
       ...slot,
       replacementClientId: candidate.clientId,
       replacementName: candidate.name,
-      tier: candidate.isOnCall ? TIER_IN_GROUP_ON_CALL : TIER_IN_GROUP_FREE,
+      tier: this.standInTier(candidate),
       requestId: saved.id,
       phone: candidate.phone ?? null,
       outcome: saved.outcome,
@@ -484,6 +484,14 @@ export class RecoveryDialogComponent {
     this.storedRequestsToken = null;
     this.dataManagementSchedule.readDatas();
     void this.loadAlternatives(standIn, key);
+  }
+
+  /** The tier label of an accepted alternative: borrowed from a sister group or own group, each with or without on-call. */
+  private standInTier(candidate: IReplacementCandidate): EscalationTier {
+    if (candidate.isBorrowed) {
+      return candidate.isOnCall ? EscalationTier.CrossGroupOnCall : EscalationTier.CrossGroupFree;
+    }
+    return candidate.isOnCall ? EscalationTier.InGroupOnCall : EscalationTier.InGroupFree;
   }
 
   private async loadAlternatives(slot: ICoveredSlot, key: string): Promise<void> {

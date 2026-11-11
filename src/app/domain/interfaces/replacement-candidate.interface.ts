@@ -10,6 +10,8 @@ import { IScheduleValidationNotification } from './schedule-validation-notificat
  * @param rhythmDelta - How the cover changes the rhythm of the person's own row: negative = closes or extends a block of
  *   the same kind, 0 = neutral, positive = a lonely shift, a mixed block or a backward rotation; absent on older servers
  * @param levelShortfall - Levels missing over the mandatory qualifications held below a non-binding minimum level; 0 = fully qualified
+ * @param isBorrowed - The person belongs to a sister group under the same root, not to the group of the slot; absent on older servers (= false)
+ * @param isContractDayOff - The contract of the person has no working day on the weekday of the slot; absent on older servers (= false)
  */
 export interface IReplacementCandidate {
   clientId: string;
@@ -21,4 +23,6 @@ export interface IReplacementCandidate {
   phone?: string | null;
   levelShortfall: number;
   rhythmDelta?: number;
+  isBorrowed?: boolean;
+  isContractDayOff?: boolean;
 }
