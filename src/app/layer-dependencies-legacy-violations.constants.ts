@@ -60,7 +60,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/workplace/settings/llm-sync-log/llm-sync-log.component.ts': ['infrastructure'],
   'presentation/workplace/settings/personal-access-tokens/personal-access-tokens.component.ts': ['infrastructure'],
   'presentation/workplace/settings/settings-general/settings-general.component.ts': ['infrastructure'],
-  'presentation/workplace/settings/wizard-settings/wizard-settings.component.ts': ['infrastructure'],
   'presentation/workplace/shift/all-shift/all-shift-list/all-shift-list.component.ts': ['infrastructure'],
   'presentation/workplace/shift/container-template/services/container-template-lifecycle.service.ts': ['infrastructure'],
   'presentation/workplace/shift/container-template/services/map-rendering.service.ts': ['infrastructure'],

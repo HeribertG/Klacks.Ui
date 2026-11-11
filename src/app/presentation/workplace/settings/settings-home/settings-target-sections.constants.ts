@@ -18,7 +18,6 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'work-setting': 'work',
   'scheduling-defaults': 'work',
   'scheduling-rules': 'work',
-  'wizard': 'work',
   'individual-periods': 'work',
   'monthly-target-hours': 'work',
   'active-industries': 'compliance',

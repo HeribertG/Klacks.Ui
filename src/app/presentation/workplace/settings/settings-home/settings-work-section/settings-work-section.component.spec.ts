@@ -11,7 +11,6 @@ const EXPECTED_IDS = [
   'settings-scheduling-defaults',
   'settings-home-scheduling-rules-row',
   'settings-scheduling-rules',
-  'settings-wizard',
   'settings-home-individual-periods-row',
   'settings-individual-periods',
   'settings-monthly-target-hours',

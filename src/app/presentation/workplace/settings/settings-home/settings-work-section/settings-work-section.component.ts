@@ -2,13 +2,12 @@
 
 /**
  * Work section of the expert settings page: the rows with the work, scheduling-default, scheduling-rule,
- * wizard, individual-period and monthly-target-hour cards (each card loads and saves its own settings).
+ * individual-period and monthly-target-hour cards (each card loads and saves its own settings).
  */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { WorkSettingComponent } from '../../work-setting/work-setting.component';
 import { SchedulingDefaultsSettingComponent } from '../../scheduling-defaults-setting/scheduling-defaults-setting.component';
 import { SchedulingRulesComponent } from '../../scheduling-rules/scheduling-rules.component';
-import { WizardSettingsComponent } from '../../wizard-settings/wizard-settings.component';
 import { IndividualPeriodsComponent } from '../../individual-periods/individual-periods.component';
 import { MonthlyTargetHoursComponent } from '../../monthly-target-hours/monthly-target-hours.component';
 
@@ -21,7 +20,6 @@ import { MonthlyTargetHoursComponent } from '../../monthly-target-hours/monthly-
     WorkSettingComponent,
     SchedulingDefaultsSettingComponent,
     SchedulingRulesComponent,
-    WizardSettingsComponent,
     IndividualPeriodsComponent,
     MonthlyTargetHoursComponent,
   ],

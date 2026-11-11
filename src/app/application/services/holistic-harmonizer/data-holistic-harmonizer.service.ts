@@ -10,7 +10,7 @@
  * @param currentJobId - Signal with the currently tracked job id (or null)
  */
 
-import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { firstValueFrom, timeout } from 'rxjs';
@@ -18,7 +18,6 @@ import { environment } from 'src/environments/environment';
 import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { HUB_SESSION_COOKIE_OPTIONS } from 'src/app/infrastructure/signalr/signalr-hub-request.constants';
 import { HolisticHarmonizerSignalRConstants } from 'src/app/infrastructure/signalr/signalr.constants';
-import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { HolisticHarmonizerStatus } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-status.type';
 import {
@@ -30,9 +29,6 @@ import {
 import {
   HolisticHarmonizerApplyResponse,
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-apply-response.interface';
-import {
-  HolisticHarmonizerModelCheckResponse,
-} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-model-check-response.interface';
 import {
   HolisticHarmonizerProgress,
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-progress.interface';
@@ -106,14 +102,6 @@ export class DataHolisticHarmonizerService implements OnDestroy {
       this.http
         .post<HolisticHarmonizerApplyResponse>(`${this.apiBase}/ApplyAsScenario`, payload)
         .pipe(timeout(DataHolisticHarmonizerService.APPLY_TIMEOUT_MS)),
-    );
-  }
-
-  async checkAllModels(): Promise<HolisticHarmonizerModelCheckResponse> {
-    return firstValueFrom(
-      this.http.post<HolisticHarmonizerModelCheckResponse>(`${this.apiBase}/CheckAllModels`, {}, {
-        context: new HttpContext().set(SKIP_LOADING, true),
-      }),
     );
   }
 

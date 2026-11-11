@@ -125,7 +125,6 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: ONBOARDING_STATION_LLM_PROVIDER, type: 'navigate', target: 'llm-provider', explainKey: EXPLAIN + 'llm-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'llm-sync', type: 'navigate', target: 'llm-sync-log', explainKey: EXPLAIN + 'llm-sync', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'llm-model-check', type: 'navigate', target: 'klacksy-model-check', explainKey: EXPLAIN + 'llm-model-check', navIconId: ONBOARDING_NAV_ICON.Settings },
-  { id: 'harmonizer', type: 'ask', target: 'wizard', explainKey: EXPLAIN + 'harmonizer', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'klacksy-settings', type: 'ask', target: 'assistant-speech', explainKey: EXPLAIN + 'klacksy-settings', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'calendar', type: 'navigate', target: 'owner-address', explainKey: EXPLAIN + 'calendar', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'email', type: 'explain', target: 'email-config', explainKey: EXPLAIN + 'email', navIconId: ONBOARDING_NAV_ICON.Inbox },
