@@ -45,7 +45,6 @@ import {
   toComplianceEntries,
 } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 
-import { DomainMessages } from 'src/app/domain/constants/messages';
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
 
 @Component({
@@ -321,7 +320,6 @@ export class HolisticHarmonizerDialogComponent {
       periodUntil: formatDateOnly(end),
       agentIds: clients.map((c) => c.id),
       analyseToken: this.analyseScenarioService.activeToken(),
-      language: this.translate.currentLang ?? DomainMessages.DEFAULT_LANG,
       agentOrderIsUserDefined: this.dataManagementSchedule.isAgentOrderUserDefined,
     };
   }

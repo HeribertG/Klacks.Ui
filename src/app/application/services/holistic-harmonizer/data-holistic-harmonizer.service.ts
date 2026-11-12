@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Infrastructure service for Holistic Harmonizer (Wizard 3, LLM-driven schedule harmonizer).
+ * Infrastructure service for Holistic Harmonizer (Wizard 3, deterministic schedule harmonizer).
  * Combines REST (start/cancel/applyAsScenario) with SignalR (progress + completion stream).
  * @param progress - Signal with the latest HolisticHarmonizerProgress event
  * @param result - Signal with the final HolisticHarmonizerRunResponse, populated on completion

@@ -90,7 +90,6 @@ const REQUEST: HolisticHarmonizerRunRequest = {
   periodUntil: '2026-04-30',
   agentIds: ['agent-1'],
   analyseToken: null,
-  language: 'en',
   agentOrderIsUserDefined: false,
 };
 
