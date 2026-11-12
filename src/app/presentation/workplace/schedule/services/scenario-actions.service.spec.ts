@@ -19,13 +19,22 @@ import { SCENARIO_VARIANT_ERROR_CODES } from 'src/app/domain/constants/scenario-
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { IScenarioVariantCoverage } from 'src/app/domain/models/schedule/scenario-variant-coverage.interface';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
+import { calendarDateKey, setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
+import { SCENARIO_DROPS_REAL_ABSENCE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-drops-real-absence.model';
+import { RecoveryDialogLauncherService } from './recovery-dialog-launcher.service';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+
+const SPEC_LOCALE = 'de-CH';
+
+registerLocaleData(localeDe, SPEC_LOCALE);
 
 interface OpenModalOptions {
   type: ModalType;
   message: string;
+  confirmText: string;
   onConfirm: () => void;
 }
 
@@ -97,7 +106,7 @@ describe('ScenarioActionsService', () => {
               params ? `${key}:${Object.values(params).join('|')}` : key,
           },
         },
-        { provide: LocaleService, useValue: { getLocale: () => 'de-CH' } },
+        { provide: LocaleService, useValue: { getLocale: () => SPEC_LOCALE } },
       ],
     });
 
@@ -346,6 +355,219 @@ describe('ScenarioActionsService', () => {
       // Assert
       expect(lastModal().message).not.toBe('stale');
       expect(lastModal().message).toContain('scenario.accept.staleMessage');
+    });
+  });
+
+  describe('a stale absence cover built on the real plan (not overridable)', () => {
+    const CLIENT_ID = 'client-1';
+    const ABSENCE_ID = 'absence-1';
+
+    const coverStale = (preset: Record<string, unknown>): HttpErrorResponse =>
+      conflict({
+        detail: 'stale cover',
+        errorCode: SCENARIO_STALE_ERROR_CODE,
+        changedEntryCount: 2,
+        lastChangeUtc: '2026-04-20T10:00:00Z',
+        acceptedScenarioNames: [],
+        overridable: false,
+        ...preset,
+      });
+
+    const fullPreset = {
+      coverClientId: CLIENT_ID,
+      coverAbsenceId: ABSENCE_ID,
+      coverFromDate: '2026-04-21',
+      coverUntilDate: '2026-04-23',
+    };
+
+    let launcher: RecoveryDialogLauncherService;
+
+    const createWithLauncher = (): ScenarioActionsService => {
+      const service = createService();
+      launcher = TestBed.inject(RecoveryDialogLauncherService);
+      vi.spyOn(launcher, 'requestOpen');
+      return service;
+    };
+
+    beforeEach(() => setCompanyTimeZone('UTC'));
+    afterEach(() => setCompanyTimeZone(null));
+
+    it('offers to discard and cover again instead of accepting anyway', () => {
+      // Arrange
+      held.add(ROLE_ADMIN);
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => coverStale(fullPreset)));
+      const service = createWithLauncher();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(modalService.openModal).toHaveBeenCalledTimes(2);
+      expect(lastModal().confirmText).toBe('scenario.accept.coverStaleRedoButton');
+      expect(lastModal().message).toContain('scenario.accept.coverStaleMessage:2|');
+      expect(lastModal().message).not.toContain('scenario.accept.staleMessage');
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(1);
+    });
+
+    it('rejects the cover and opens the absence dialog with the cover preset once confirmed', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => coverStale(fullPreset)));
+      const service = createWithLauncher();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(1);
+      expect(scenarioService.rejectScenario).toHaveBeenCalledWith('scenario-1');
+      expect(launcher.requestOpen).toHaveBeenCalledTimes(1);
+      const preset = vi.mocked(launcher.requestOpen).mock.calls[0][0]!;
+      expect(preset.clientId).toBe(CLIENT_ID);
+      expect(preset.absenceId).toBe(ABSENCE_ID);
+      expect(calendarDateKey(preset.date)).toBe('2026-04-21');
+      expect(calendarDateKey(preset.untilDate)).toBe('2026-04-23');
+    });
+
+    it('opens the absence dialog with the days only when the cover has no unique person', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(
+        throwError(() =>
+          coverStale({ coverClientId: null, coverAbsenceId: ABSENCE_ID, coverFromDate: '2026-04-21', coverUntilDate: null }),
+        ),
+      );
+      const service = createWithLauncher();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      const preset = vi.mocked(launcher.requestOpen).mock.calls[0][0]!;
+      expect(preset.clientId).toBeUndefined();
+      expect(preset.absenceId).toBeUndefined();
+      expect(calendarDateKey(preset.date)).toBe('2026-04-21');
+      expect(preset.untilDate).toBeUndefined();
+    });
+
+    it('does not open the absence dialog when the reject fails', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => coverStale(fullPreset)));
+      scenarioService.rejectScenario.mockReturnValueOnce(
+        throwError(() => conflict({ errorCode: SCENARIO_NOT_ACTIVE_ERROR_CODE })),
+      );
+      const service = createWithLauncher();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(launcher.requestOpen).not.toHaveBeenCalled();
+      expect(toastShowService.showError).toHaveBeenCalledWith('scenario.notActive');
+    });
+  });
+
+  describe('a stale warning that comes back after it was acknowledged', () => {
+    it('shows the stale text as an error and never offers the compliance override', () => {
+      // Arrange
+      held.add(ROLE_ADMIN);
+      const stale = conflict({
+        detail: 'stale',
+        errorCode: SCENARIO_STALE_ERROR_CODE,
+        changedEntryCount: 1,
+        lastChangeUtc: '2026-04-20T10:00:00Z',
+        acceptedScenarioNames: [],
+        overridable: true,
+      });
+      scenarioService.acceptScenario.mockReturnValue(throwError(() => stale));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(2);
+      expect(modalService.openModal).toHaveBeenCalledTimes(2);
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError.mock.calls[0][0]).toContain('scenario.accept.staleMessage');
+    });
+  });
+
+  describe('an accept that would delete real absences', () => {
+    const drops = (count: number, names: string[]): HttpErrorResponse =>
+      conflict({
+        detail: 'drops',
+        errorCode: SCENARIO_DROPS_REAL_ABSENCE_ERROR_CODE,
+        droppedAbsenceCount: count,
+        droppedAbsences: names.map((clientName, index) => ({
+          clientId: `client-${index}`,
+          clientName,
+          date: '2026-04-21',
+          absenceId: 'absence-1',
+        })),
+        overridable: false,
+      });
+
+    it('names the absences and offers only to discard, never an override', () => {
+      // Arrange
+      held.add(ROLE_ADMIN);
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => drops(12, ['Elsa Muster', 'Hans Beispiel'])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(modalService.openModal).toHaveBeenCalledTimes(2);
+      const modal = lastModal();
+      expect(modal.confirmText).toBe('scenario.reject');
+      expect(modal.message).toContain('scenario.accept.dropsAbsenceMessage:12|');
+      expect(modal.message).toContain('Elsa Muster 21.04.2026');
+      expect(modal.message).toContain('Hans Beispiel 21.04.2026');
+      expect(modal.message).toContain('scenario.accept.dropsAbsenceMore:10');
+
+      modal.onConfirm();
+      expect(scenarioService.rejectScenario).toHaveBeenCalledWith('scenario-1');
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves out the remainder when every absence is listed', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => drops(1, ['Elsa Muster'])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(lastModal().message).not.toContain('scenario.accept.dropsAbsenceMore');
+    });
+
+    it('is not taken for the compliance block after a supervisor override', () => {
+      // Arrange
+      held.add(ROLE_AUTHORISED);
+      scenarioService.acceptScenario
+        .mockReturnValueOnce(throwError(() => conflict({ detail: 'blocked' })))
+        .mockReturnValueOnce(throwError(() => drops(1, ['Elsa Muster'])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(lastModal().message).toContain('scenario.accept.dropsAbsenceMessage');
+      expect(toastShowService.showError).not.toHaveBeenCalled();
     });
   });
 

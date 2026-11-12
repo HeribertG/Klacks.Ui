@@ -8,6 +8,12 @@
  * - a 409 with the "scenario stale" code: the original plan changed after the scenario was created, and accepting
  *   overwrites those changes; the user sees what changed and may accept anyway (overrideStale);
  * - any other 409: the compliance block, which offers the authorised-only supervisor override (overrideBlock).
+ * The stale warning of an absence cover built on the real plan, and of every scenario built on such a cover, is not
+ * overridable: the dialog offers no "accept anyway", only to discard the current scenario and open the absence dialog again
+ * on the original plan, prefilled with the person, type and days of the scenario's absences that are not real yet. A stale
+ * warning that comes back after it was acknowledged is shown as an error and never taken for the compliance block.
+ * A 409 with the "drops real absence" code means accepting would delete real absences the scenario does not carry; it
+ * names them and offers only to discard the scenario, never an override.
  * A 409 carrying the "scenario not active" code means the scenario was already decided elsewhere, so the list is
  * reloaded and the view returns to the original plan instead of offering an override that cannot succeed.
  * After a successful accept, entries the backend did not take over because they fall on a locked day are reported
@@ -48,15 +54,23 @@ import {
   NO_SCENARIO_ACCEPT_OVERRIDES,
   readScenarioStaleness,
 } from 'src/app/domain/models/schedule/scenario-stale.model';
+import { readScenarioDroppedAbsences } from 'src/app/domain/models/schedule/scenario-drops-real-absence.model';
+import { IScenarioDroppedAbsences } from 'src/app/domain/interfaces/scenario-dropped-absences.interface';
+import { IScenarioCoverRedoPreset } from 'src/app/domain/interfaces/scenario-cover-redo-preset.interface';
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
 import { IScenarioStaleness } from 'src/app/domain/interfaces/scenario-staleness.interface';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
-import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
+import { companyTimeZone, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
+import { RecoveryDialogLauncherService } from './recovery-dialog-launcher.service';
+import { IRecoveryDialogPreset } from './recovery-dialog-preset.interface';
 
 const SCENARIO_NAME_SEPARATOR = ', ';
 const LOCKED_SKIPPED_TOAST_NAME = 'scenario-accept-locked-skipped';
+const STALE_MESSAGE_KEY = 'scenario.accept.staleMessage';
+const COVER_STALE_MESSAGE_KEY = 'scenario.accept.coverStaleMessage';
 
 @Injectable({ providedIn: 'root' })
 export class ScenarioActionsService {
@@ -67,6 +81,7 @@ export class ScenarioActionsService {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
   private localeService = inject(LocaleService);
+  private recoveryLauncher = inject(RecoveryDialogLauncherService);
 
   readonly canDecide = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule));
 
@@ -182,9 +197,9 @@ export class ScenarioActionsService {
     );
   }
 
-  private reject(id: string): void {
+  private reject(id: string, onRejected?: () => void): void {
     this.analyseScenarioService.rejectScenario(id).subscribe({
-      next: () => undefined,
+      next: () => onRejected?.(),
       error: (err: HttpErrorResponse) => {
         if (isScenarioNotActiveError(err)) {
           this.handleNotActive();
@@ -209,9 +224,15 @@ export class ScenarioActionsService {
       return;
     }
 
+    const droppedAbsences = readScenarioDroppedAbsences(err);
+    if (droppedAbsences) {
+      this.explainDroppedAbsences(id, droppedAbsences);
+      return;
+    }
+
     const staleness = readScenarioStaleness(err);
-    if (staleness && !overrides.overrideStale) {
-      this.confirmStaleOverwrite(id, overrides, staleness);
+    if (staleness) {
+      this.handleStale(id, overrides, staleness);
       return;
     }
 
@@ -225,6 +246,69 @@ export class ScenarioActionsService {
     this.offerComplianceOverride(id, overrides, err);
   }
 
+  private handleStale(id: string, overrides: IScenarioAcceptOverrides, staleness: IScenarioStaleness): void {
+    if (!staleness.overridable) {
+      this.offerCoverRedo(id, staleness);
+      return;
+    }
+
+    if (!overrides.overrideStale) {
+      this.confirmStaleOverwrite(id, overrides, staleness);
+      return;
+    }
+
+    this.toastShowService.showError(this.buildStaleMessage(staleness));
+  }
+
+  private offerCoverRedo(id: string, staleness: IScenarioStaleness): void {
+    const preset = this.toRecoveryPreset(staleness.coverRedo);
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translateService.instant('scenario.accept.coverStaleTitle'),
+      message: this.buildStaleMessage(staleness, COVER_STALE_MESSAGE_KEY),
+      confirmText: this.translateService.instant('scenario.accept.coverStaleRedoButton'),
+      cancelText: this.translateService.instant('cancel'),
+      onConfirm: () => this.reject(id, () => this.recoveryLauncher.requestOpen(preset)),
+    });
+  }
+
+  private toRecoveryPreset(coverRedo: IScenarioCoverRedoPreset | null): IRecoveryDialogPreset {
+    const date = parseCalendarDate(coverRedo?.fromDate) ?? undefined;
+    const untilDate = parseCalendarDate(coverRedo?.untilDate) ?? undefined;
+    if (!coverRedo?.clientId) {
+      return { date, untilDate };
+    }
+
+    return { clientId: coverRedo.clientId, absenceId: coverRedo.absenceId, date, untilDate };
+  }
+
+  private explainDroppedAbsences(id: string, dropped: IScenarioDroppedAbsences): void {
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translateService.instant('scenario.accept.dropsAbsenceTitle'),
+      message: this.buildDroppedAbsencesMessage(dropped),
+      confirmText: this.translateService.instant('scenario.reject'),
+      cancelText: this.translateService.instant('close'),
+      onConfirm: () => this.reject(id),
+    });
+  }
+
+  private buildDroppedAbsencesMessage(dropped: IScenarioDroppedAbsences): string {
+    const locale = this.localeService.getLocale();
+    const listed = dropped.droppedAbsences.map(
+      (absence) => `${absence.clientName} ${formatCalendarDate(absence.date, locale) ?? absence.date}`,
+    );
+    const remaining = dropped.droppedAbsenceCount - dropped.droppedAbsences.length;
+    if (remaining > 0) {
+      listed.push(this.translateService.instant('scenario.accept.dropsAbsenceMore', { count: remaining }));
+    }
+
+    return this.translateService.instant('scenario.accept.dropsAbsenceMessage', {
+      count: dropped.droppedAbsenceCount,
+      absences: listed.join(SCENARIO_NAME_SEPARATOR),
+    });
+  }
+
   private confirmStaleOverwrite(id: string, overrides: IScenarioAcceptOverrides, staleness: IScenarioStaleness): void {
     this.modalService.openModal({
       type: ModalType.Confirmation,
@@ -236,11 +320,11 @@ export class ScenarioActionsService {
     });
   }
 
-  private buildStaleMessage(staleness: IScenarioStaleness): string {
+  private buildStaleMessage(staleness: IScenarioStaleness, messageKey = STALE_MESSAGE_KEY): string {
     const lastChange =
       formatCompanyInstant(staleness.lastChangeUtc, 'dateTime', this.localeService.getLocale(), companyTimeZone()) ??
       staleness.lastChangeUtc;
-    const message = this.translateService.instant('scenario.accept.staleMessage', {
+    const message = this.translateService.instant(messageKey, {
       count: staleness.changedEntryCount,
       lastChange,
     });

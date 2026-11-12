@@ -7,4 +7,6 @@ export interface IRecoveryDialogPreset {
   date?: Date;
   /** Last day of the absence; empty means a single day. */
   untilDate?: Date;
+  /** Absence type to preselect; empty means the type of the previous run. */
+  absenceId?: string;
 }

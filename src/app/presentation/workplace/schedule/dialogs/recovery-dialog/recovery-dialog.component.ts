@@ -161,7 +161,7 @@ export class RecoveryDialogComponent {
     this.formModel.set({
       ...this.emptyModel(),
       selectedClientId: preset.clientId ?? '',
-      selectedAbsenceId: this.rememberedAbsenceId(),
+      selectedAbsenceId: preset.absenceId ?? this.rememberedAbsenceId(),
       selectedDate: preset.date ? formatDateOnly(preset.date) : this.defaultDate(),
       selectedUntilDate: preset.untilDate ? formatDateOnly(preset.untilDate) : '',
     });
