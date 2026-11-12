@@ -3045,7 +3045,7 @@
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.rationale": "An aborted bulk order-sealing run came up {{count}} time(s) in the last {{days}} days.",
   "assistant-chat.goal-candidates.type.evalRegression.title": "Keep Klacksy's answer quality from slipping",
   "assistant-chat.goal-candidates.type.evalRegression.rationale": "A drop in measured answer quality was reported {{count}} time(s) in the last {{days}} days.",
-  "autoWizard.tooltip": "AutoWizard - run plan + harmonizer + holistic harmonizer",
+  "autoWizard.tooltip": "AutoWizard - run plan + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "AutoWizard menu",
   "autoWizard.menu.plan": "Plan",
   "autoWizard.menu.fuzzyHarmonizer": "Fuzzy Harmonizer",

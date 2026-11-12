@@ -3044,7 +3044,7 @@
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.rationale": "Una sigillatura in blocco interrotta si è verificata {{count}} volta/e negli ultimi {{days}} giorni.",
   "assistant-chat.goal-candidates.type.evalRegression.title": "Evitare il calo della qualità delle risposte di Klacksy",
   "assistant-chat.goal-candidates.type.evalRegression.rationale": "Un calo della qualità misurata delle risposte è stato segnalato {{count}} volte negli ultimi {{days}} giorni.",
-  "autoWizard.tooltip": "AutoWizard - esegui plan + harmonizer + holistic harmonizer",
+  "autoWizard.tooltip": "AutoWizard - esegui plan + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "Menu AutoWizard",
   "autoWizard.menu.plan": "Plan",
   "autoWizard.menu.fuzzyHarmonizer": "Fuzzy Harmonizer",
