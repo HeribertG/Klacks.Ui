@@ -817,7 +817,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       reason: 'model unreachable',
       partialScenarioId: 'scenario-2',
       partialScenarioToken: 'token-2',
-      partialScenarioName: 'Auto Harmonizer',
+      partialScenarioName: 'Auto-created plan',
     });
     h.wizard.status.set('failed');
     TestBed.tick();
@@ -846,7 +846,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       reason: 'model unreachable',
       partialScenarioId: 'scenario-2',
       partialScenarioToken: 'token-2',
-      partialScenarioName: 'Auto Harmonizer',
+      partialScenarioName: 'Auto-created plan',
     });
     h.wizard.status.set('failed');
     TestBed.tick();

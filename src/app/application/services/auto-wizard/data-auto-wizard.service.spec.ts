@@ -227,12 +227,12 @@ describe('DataAutoWizardService', () => {
       reason: 'model unreachable',
       partialScenarioId: 'scenario-2',
       partialScenarioToken: 'token-2',
-      partialScenarioName: 'Auto Harmonizer',
+      partialScenarioName: 'Auto-created plan',
     });
 
     expect(service.status()).toBe('failed');
     expect(service.failureReason()).toContain('model unreachable');
-    expect(service.partialResult()?.partialScenarioName).toBe('Auto Harmonizer');
+    expect(service.partialResult()?.partialScenarioName).toBe('Auto-created plan');
   });
 
   it('reports no partial result when the first stage already failed', async () => {
