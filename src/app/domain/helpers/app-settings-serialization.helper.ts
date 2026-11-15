@@ -11,6 +11,7 @@ import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
 import { AppSettingSerializer } from 'src/app/domain/models/settings/app-setting-serializer.interface';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
+import { serializeOAuthCustomTargets } from 'src/app/domain/helpers/oauth-custom-targets.helper';
 
 /**
  * Serializes a nullable numeric setting into its stored string form.
@@ -186,4 +187,9 @@ export const APP_SETTING_SERIALIZERS: readonly AppSettingSerializer[] = [
   { key: AppSetting.PLANNING_DEADLINE_LEAD_DAYS, serialize: (m) => m.complianceEnforcement.planningDeadlineLeadDays.toString() },
 
   { key: AppSetting.ACTIVE_INDUSTRIES, serialize: (m) => m.activeIndustries.activeIndustry },
+
+  { key: AppSetting.OAUTH_CONNECTIONS_MODE, serialize: (m) => m.oauthConnection.mode },
+  { key: AppSetting.OAUTH_ALLOW_LOOPBACK, serialize: (m) => String(m.oauthConnection.allowLoopback) },
+  { key: AppSetting.OAUTH_ALLOW_WRITE, serialize: (m) => String(m.oauthConnection.allowWrite) },
+  { key: AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS, serialize: (m) => serializeOAuthCustomTargets(m.oauthConnection.customTargets) },
 ];

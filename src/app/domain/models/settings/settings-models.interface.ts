@@ -15,6 +15,7 @@ import {
   IComplianceEnforcementSettings,
 } from 'src/app/domain/models/settings/compliance-enforcement-settings.interface';
 import { IActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.interface';
+import { IOAuthConnectionSettings } from 'src/app/domain/models/settings/oauth-connection-settings.interface';
 
 export interface SettingsModels {
   contact: IAppContactSettings;
@@ -37,4 +38,5 @@ export interface SettingsModels {
   overtime: IOvertimeSettings;
   complianceEnforcement: IComplianceEnforcementSettings;
   activeIndustries: IActiveIndustriesSettings;
+  oauthConnection: IOAuthConnectionSettings;
 }

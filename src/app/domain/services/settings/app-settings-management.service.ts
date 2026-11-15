@@ -36,6 +36,8 @@ import {
   IComplianceEnforcementSettings,
 } from 'src/app/domain/models/settings/compliance-enforcement-settings.interface';
 import { IActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.interface';
+import { IOAuthConnectionSettings } from 'src/app/domain/models/settings/oauth-connection-settings.interface';
+import { OAuthConnectionSettings } from 'src/app/domain/models/settings/oauth-connection-settings.model';
 import { EmailServerSettings } from 'src/app/domain/models/settings/email-server-settings.model';
 import { ImapServerSettings } from 'src/app/domain/models/settings/imap-server-settings.model';
 import { WorkSettings } from 'src/app/domain/models/settings/work-settings.model';
@@ -88,6 +90,7 @@ export class AppSettingsManagementService {
   public overtimeSettings = signal<IOvertimeSettings>(new OvertimeSettings());
   public complianceEnforcementSettings = signal<IComplianceEnforcementSettings>(new ComplianceEnforcementSettings());
   public activeIndustriesSettings = signal<IActiveIndustriesSettings>(new ActiveIndustriesSettings());
+  public oauthConnectionSettings = signal<IOAuthConnectionSettings>(new OAuthConnectionSettings());
 
   private originalModels = signal<SettingsModels>(createDefaultSettingsModels());
 
@@ -181,6 +184,7 @@ export class AppSettingsManagementService {
     this.overtimeSettings.set(models.overtime);
     this.complianceEnforcementSettings.set(models.complianceEnforcement);
     this.activeIndustriesSettings.set(models.activeIndustries);
+    this.oauthConnectionSettings.set(models.oauthConnection);
 
     this.originalModels.set(cloneObject(models));
   }
@@ -207,6 +211,7 @@ export class AppSettingsManagementService {
       overtime: this.overtimeSettings(),
       complianceEnforcement: this.complianceEnforcementSettings(),
       activeIndustries: this.activeIndustriesSettings(),
+      oauthConnection: this.oauthConnectionSettings(),
     };
   }
 

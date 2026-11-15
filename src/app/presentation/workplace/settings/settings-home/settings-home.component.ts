@@ -51,6 +51,7 @@ import { UpdatesSettingComponent } from '../updates-setting/updates-setting.comp
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { ClientImportCardComponent } from '../client-import-card/client-import-card.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
+import { OAuthConnectionSettingsComponent } from '../oauth-connection-settings/oauth-connection-settings.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
 import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -116,6 +117,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     QualificationsComponent,
     ClientImportCardComponent,
     PersonalAccessTokensComponent,
+    OAuthConnectionSettingsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

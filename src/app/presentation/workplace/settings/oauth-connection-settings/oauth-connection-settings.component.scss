@@ -1,0 +1,81 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
+}
+
+input[type="text"] {
+  width: 420px;
+  max-width: 100%;
+}
+
+select {
+  width: 420px;
+  max-width: 100%;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  max-width: 100%;
+}
+
+.row-line-single {
+  margin-top: 5px;
+}
+
+.section-gap {
+  margin-top: 16px;
+}
+
+.firstColumn {
+  margin-inline-start: 30px;
+}
+
+.secondColumn {
+  margin-inline-start: 16px;
+}
+
+.target-list {
+  margin-top: 8px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
+  width: 660px;
+  max-width: 100%;
+}
+
+.target-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 6px;
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.target-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.target-remove {
+  flex: 0 0 auto;
+}
+
+.validation-error {
+  display: block;
+  margin-inline-start: 30px;
+  color: var(--standartRedColor);
+}

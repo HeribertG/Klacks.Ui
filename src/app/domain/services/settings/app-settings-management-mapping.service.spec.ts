@@ -7,6 +7,7 @@ import { AppSettingsManagementService } from './app-settings-management.service'
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
+import { IOAuthConnectionSettings } from 'src/app/domain/models/settings/oauth-connection-settings.interface';
 import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
@@ -179,6 +180,11 @@ const RAW: Record<string, string> = {
   [AppSetting.PLANNING_DEADLINE_LEAD_DAYS]: '10',
 
   [AppSetting.ACTIVE_INDUSTRIES]: 'security',
+
+  [AppSetting.OAUTH_CONNECTIONS_MODE]: 'off',
+  [AppSetting.OAUTH_ALLOW_LOOPBACK]: 'false',
+  [AppSetting.OAUTH_ALLOW_WRITE]: 'false',
+  [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: '["https://tool.example.com/oauth/callback","https://other.example.org/cb"]',
 };
 
 const GROUP_SIGNALS = [
@@ -202,6 +208,7 @@ const GROUP_SIGNALS = [
   'overtimeSettings',
   'complianceEnforcementSettings',
   'activeIndustriesSettings',
+  'oauthConnectionSettings',
 ] as const;
 
 function toSettingList(raw: Record<string, string>): ISetting[] {
@@ -249,7 +256,7 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
   });
 
   it('covers every mapped setting key exactly once in the probe table', () => {
-    expect(Object.keys(RAW)).toHaveLength(148);
+    expect(Object.keys(RAW)).toHaveLength(152);
   });
 
   it('maps every stored key onto its typed group field', () => {
@@ -339,6 +346,10 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
       rosterPublicationMinLeadDays: 14, rosterPublicationCountWorkdaysOnly: true, planningDeadlineLeadDays: 10,
     });
     expect(service.activeIndustriesSettings()).toEqual({ activeIndustry: 'security' });
+    expect(service.oauthConnectionSettings()).toEqual({
+      mode: 'off', allowLoopback: false, allowWrite: false,
+      customTargets: ['https://tool.example.com/oauth/callback', 'https://other.example.org/cb'],
+    });
     expect(service.isDirty()).toBe(false);
   });
 
@@ -395,6 +406,109 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
       rosterPublicationMinLeadDays: 0, rosterPublicationCountWorkdaysOnly: false, planningDeadlineLeadDays: 0,
     });
     expect(service.activeIndustriesSettings()).toEqual({ activeIndustry: '' });
+    expect(service.oauthConnectionSettings()).toEqual({
+      mode: 'trusted', allowLoopback: true, allowWrite: true, customTargets: [],
+    });
+  });
+
+  describe('OAuth connection settings', () => {
+    const OAUTH_DEFAULTS = { mode: 'trusted', allowLoopback: true, allowWrite: true, customTargets: [] };
+
+    const writtenSettings = (mock: { mock: { calls: [ISetting][] } }): [string, string][] =>
+      mock.mock.calls.map(([setting]) => [setting.type, setting.value]);
+
+    it('keeps the server defaults for every key that is not stored', () => {
+      load({});
+
+      expect(service.oauthConnectionSettings()).toEqual(OAUTH_DEFAULTS);
+      expect(service.isDirty()).toBe(false);
+    });
+
+    it('reads the stored values the way the server does', () => {
+      load({
+        [AppSetting.OAUTH_CONNECTIONS_MODE]: ' OFF ',
+        [AppSetting.OAUTH_ALLOW_LOOPBACK]: 'TRUE',
+        [AppSetting.OAUTH_ALLOW_WRITE]: 'yes',
+        [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: '["https://a.example.com", 7, null, "https://b.example.com/x"]',
+      });
+
+      expect(service.oauthConnectionSettings()).toEqual({
+        mode: 'off', allowLoopback: true, allowWrite: false,
+        customTargets: ['https://a.example.com', 'https://b.example.com/x'],
+      });
+    });
+
+    it('keeps the default for an empty switch value and fails closed for an unreadable one', () => {
+      load({ [AppSetting.OAUTH_ALLOW_LOOPBACK]: '  ', [AppSetting.OAUTH_ALLOW_WRITE]: 'maybe' });
+
+      expect(service.oauthConnectionSettings().allowLoopback).toBe(true);
+      expect(service.oauthConnectionSettings().allowWrite).toBe(false);
+    });
+
+    it('falls back to trusted for an unknown mode and to an empty list for an unreadable list', () => {
+      load({
+        [AppSetting.OAUTH_CONNECTIONS_MODE]: 'something',
+        [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: 'not json',
+      });
+      expect(service.oauthConnectionSettings().mode).toBe('trusted');
+      expect(service.oauthConnectionSettings().customTargets).toEqual([]);
+
+      load({ [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: '{"a":1}' });
+      expect(service.oauthConnectionSettings().customTargets).toEqual([]);
+    });
+
+    it.each<[string, string, Partial<IOAuthConnectionSettings>, string]>([
+      ['mode', AppSetting.OAUTH_CONNECTIONS_MODE, { mode: 'off' }, 'off'],
+      ['loopback switch', AppSetting.OAUTH_ALLOW_LOOPBACK, { allowLoopback: false }, 'false'],
+      ['write switch', AppSetting.OAUTH_ALLOW_WRITE, { allowWrite: false }, 'false'],
+      [
+        'custom targets',
+        AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS,
+        { customTargets: ['https://tool.example.com/cb'] },
+        '["https://tool.example.com/cb"]',
+      ],
+    ])('creates the absent %s key on the first save with its explicit value', (_name, key, change, value) => {
+      load({});
+      service.oauthConnectionSettings.update((s) => ({ ...s, ...change }));
+
+      service.save();
+
+      expect(writtenSettings(dataSettingsService.addSetting)).toEqual([[key, value]]);
+      expect(dataSettingsService.updateSetting).not.toHaveBeenCalled();
+    });
+
+    it('updates the key in place on a later save once the first save created it', () => {
+      load({});
+      dataSettingsService.addSetting.mockImplementation((setting: ISetting) => of({ ...setting, id: 'created' }));
+      service.oauthConnectionSettings.update((s) => ({ ...s, mode: 'off' }));
+      service.save();
+      expect(service.isDirty()).toBe(false);
+
+      service.oauthConnectionSettings.update((s) => ({ ...s, mode: 'trusted' }));
+      service.save();
+
+      expect(writtenSettings(dataSettingsService.addSetting)).toEqual([[AppSetting.OAUTH_CONNECTIONS_MODE, 'off']]);
+      expect(writtenSettings(dataSettingsService.updateSetting)).toEqual([[AppSetting.OAUTH_CONNECTIONS_MODE, 'trusted']]);
+    });
+
+    it('stores an emptied list as an empty JSON array and never as an empty string', () => {
+      load({ [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: '["https://a.example.com"]' });
+      service.oauthConnectionSettings.update((s) => ({ ...s, customTargets: [] }));
+
+      service.save();
+
+      expect(writtenSettings(dataSettingsService.updateSetting)).toEqual([[AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS, '[]']]);
+    });
+
+    it('sends no OAuth key while the group still holds the defaults', () => {
+      load({});
+      service.oauthConnectionSettings.update((s) => ({ ...s }));
+
+      service.save();
+
+      expect(dataSettingsService.addSetting).not.toHaveBeenCalled();
+      expect(dataSettingsService.updateSetting).not.toHaveBeenCalled();
+    });
   });
 
   it('applies the numeric fallbacks when stored values are not numbers', () => {

@@ -169,6 +169,8 @@ const EXPERT_MODE_IDS: readonly string[] = [
   'settings-updates',
   'settings-home-personal-access-tokens-row',
   'settings-personal-access-tokens',
+  'settings-home-oauth-connections-row',
+  'settings-oauth-connections',
 ];
 
 const BASIC_MODE_IDS: readonly string[] = [
@@ -386,6 +388,7 @@ const KLACKSY_TARGET_CARDS: readonly KlacksyTargetCard[] = [
   ['settings-feature-plugins', 'border-bottom-card border-right-card container-profile first', 'feature-plugins', 'settings.featurePlugins', 'settings.admin', '/workplace/settings', null],
   ['settings-updates', 'border-bottom-card border-right-card container-profile container-setting-user-administration first', 'updates', 'settings.updates.title', 'settings.admin', '/workplace/settings', null],
   ['settings-personal-access-tokens', 'border-bottom-card border-right-card container-profile first', 'personal-access-tokens', 'settings.personalAccessTokens', 'settings.admin', '/workplace/settings', null],
+  ['settings-oauth-connections', 'border-bottom-card border-right-card container-profile first', 'oauth-connections', 'settings.oauthConnections', 'settings.admin', '/workplace/settings', 'Admin'],
 ];
 
 describe('SettingsHomeComponent (DOM characterization)', () => {

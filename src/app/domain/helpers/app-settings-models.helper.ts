@@ -20,6 +20,7 @@ import { SurchargeModeSettings } from 'src/app/domain/models/settings/surcharge-
 import { OvertimeSettings } from 'src/app/domain/models/settings/overtime-settings.model';
 import { ComplianceEnforcementSettings } from 'src/app/domain/models/settings/compliance-enforcement-settings.model';
 import { ActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.model';
+import { OAuthConnectionSettings } from 'src/app/domain/models/settings/oauth-connection-settings.model';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 
@@ -49,6 +50,7 @@ export function createDefaultSettingsModels(): SettingsModels {
     overtime: new OvertimeSettings(),
     complianceEnforcement: new ComplianceEnforcementSettings(),
     activeIndustries: new ActiveIndustriesSettings(),
+    oauthConnection: new OAuthConnectionSettings(),
   };
 }
 

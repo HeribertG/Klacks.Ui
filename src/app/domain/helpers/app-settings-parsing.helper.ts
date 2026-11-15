@@ -18,6 +18,9 @@ import {
   ComplianceEnforcementDefaultMode,
 } from 'src/app/domain/models/settings/compliance-enforcement-default-mode.type';
 import { ComplianceEnforcementRuleMode } from 'src/app/domain/models/settings/compliance-enforcement-rule-mode.type';
+import { OAuthConnectionMode } from 'src/app/domain/models/settings/oauth-connection-mode.type';
+import { OAUTH_CONNECTION_MODE } from 'src/app/domain/constants/oauth-connection.constants';
+import { parseOAuthCustomTargets } from 'src/app/domain/helpers/oauth-custom-targets.helper';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
@@ -36,6 +39,30 @@ import { createDefaultSettingsModels } from 'src/app/domain/helpers/app-settings
  */
 function normalizeActiveIndustry(value: string): string {
   return (value ?? '').trim();
+}
+
+/**
+ * Reads the stored OAuth connections mode the way the server does: only "off" switches OAuth connections off,
+ * every other stored value counts as trusted.
+ * @param value - The raw setting value as stored
+ * @returns The off mode for "off" (case-insensitive), otherwise the trusted mode
+ */
+function parseOAuthConnectionMode(value: string): OAuthConnectionMode {
+  return (value ?? '').trim().toLowerCase() === OAUTH_CONNECTION_MODE.Off
+    ? OAUTH_CONNECTION_MODE.Off
+    : OAUTH_CONNECTION_MODE.Trusted;
+}
+
+/**
+ * Reads a stored switch the way the server does: an empty value means the default (on), any other value is on only
+ * when it is the text "true" (case-insensitive), so an unreadable value fails closed. An absent key never reaches this
+ * parser and keeps its group default.
+ * @param value - The raw setting value as stored
+ * @returns True for an empty value or the text "true", otherwise false
+ */
+function parseServerSwitch(value: string): boolean {
+  const text = (value ?? '').trim().toLowerCase();
+  return text === '' || text === 'true';
 }
 
 const APP_SETTING_PARSERS = new Map<string, (value: string, models: SettingsModels) => void>([
@@ -228,6 +255,11 @@ const APP_SETTING_PARSERS = new Map<string, (value: string, models: SettingsMode
   }],
 
   [AppSetting.ACTIVE_INDUSTRIES, (v, m) => (m.activeIndustries.activeIndustry = normalizeActiveIndustry(v))],
+
+  [AppSetting.OAUTH_CONNECTIONS_MODE, (v, m) => (m.oauthConnection.mode = parseOAuthConnectionMode(v))],
+  [AppSetting.OAUTH_ALLOW_LOOPBACK, (v, m) => (m.oauthConnection.allowLoopback = parseServerSwitch(v))],
+  [AppSetting.OAUTH_ALLOW_WRITE, (v, m) => (m.oauthConnection.allowWrite = parseServerSwitch(v))],
+  [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS, (v, m) => (m.oauthConnection.customTargets = parseOAuthCustomTargets(v))],
 ]);
 
 /**

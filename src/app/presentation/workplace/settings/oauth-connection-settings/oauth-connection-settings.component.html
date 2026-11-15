@@ -1,0 +1,141 @@
+<div id="oauth-connection-settings-container" class="container-dashboard">
+  <div id="oauth-connection-settings-header" class="container-header">
+    {{ "setting.oauthConnection.headline" | translate }}
+  </div>
+
+  <div id="oauth-connection-settings-line" class="container-line"></div>
+
+  <div class="standard-tab-body">
+    <div id="oauth-connection-intro-row" class="row-line-single">
+      <p class="hint-text">{{ "setting.oauthConnection.hint" | translate }}</p>
+    </div>
+
+    <div id="oauth-connection-mode-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="oauthConnectionMode">{{ "setting.oauthConnection.mode" | translate }}</label>
+        <select
+          #modeSelect
+          id="oauthConnectionMode"
+          class="form-select"
+          (change)="setMode(modeSelect.value)"
+        >
+          <option [value]="modeTrusted" [selected]="!isOff()">
+            {{ "setting.oauthConnection.mode.trusted" | translate }}
+          </option>
+          <option [value]="modeOff" [selected]="isOff()">
+            {{ "setting.oauthConnection.mode.off" | translate }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div id="oauth-connection-mode-hint-row" class="row-line-single">
+      <p class="hint-text">{{ "setting.oauthConnection.mode.hint" | translate }}</p>
+    </div>
+
+    <div id="oauth-connection-loopback-row" class="row-line section-gap">
+      <div class="form-group firstColumn">
+        <label class="checkbox-label">
+          <input
+            #loopbackBox
+            id="oauthConnectionAllowLoopback"
+            type="checkbox"
+            [checked]="settings().allowLoopback"
+            (change)="setAllowLoopback(loopbackBox.checked)"
+          />
+          {{ "setting.oauthConnection.allow-loopback" | translate }}
+        </label>
+      </div>
+    </div>
+    <div id="oauth-connection-loopback-hint-row" class="row-line-single">
+      <p class="hint-text">{{ "setting.oauthConnection.allow-loopback.hint" | translate }}</p>
+    </div>
+
+    <div id="oauth-connection-write-row" class="row-line section-gap">
+      <div class="form-group firstColumn">
+        <label class="checkbox-label">
+          <input
+            #writeBox
+            id="oauthConnectionAllowWrite"
+            type="checkbox"
+            [checked]="settings().allowWrite"
+            (change)="setAllowWrite(writeBox.checked)"
+          />
+          {{ "setting.oauthConnection.allow-write" | translate }}
+        </label>
+      </div>
+    </div>
+    <div id="oauth-connection-write-hint-row" class="row-line-single">
+      <p class="hint-text">{{ "setting.oauthConnection.allow-write.hint" | translate }}</p>
+    </div>
+
+    <div id="oauth-connection-builtin-row" class="row-line-single section-gap">
+      <p class="hint-text">{{ "setting.oauthConnection.builtin.hint" | translate }}</p>
+    </div>
+
+    <div id="oauth-connection-targets-header-row" class="row-line section-gap">
+      <div class="form-group firstColumn">
+        <label for="oauthConnectionNewTarget">
+          {{ "setting.oauthConnection.targets.header" | translate }}
+          ({{ settings().customTargets.length }} / {{ maxTargets }})
+        </label>
+      </div>
+    </div>
+    <div id="oauth-connection-targets-hint-row" class="row-line-single">
+      <p class="hint-text">{{ "setting.oauthConnection.targets.hint" | translate }}</p>
+    </div>
+
+    @if (settings().customTargets.length === 0) {
+      <div id="oauth-connection-targets-empty-row" class="row-line-single">
+        <p class="hint-text">{{ "setting.oauthConnection.targets.empty" | translate }}</p>
+      </div>
+    } @else {
+      <div id="oauth-connection-target-list" class="target-list">
+        @for (target of settings().customTargets; track target) {
+          <div class="target-row">
+            <span class="target-name">{{ target }}</span>
+            <button
+              type="button"
+              class="link-button red-font target-remove"
+              (click)="removeTarget(target)"
+            >
+              {{ "setting.oauthConnection.targets.remove" | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <div id="oauth-connection-target-add-row" class="row-line">
+      <div class="form-group firstColumn">
+        <input
+          #targetInput
+          id="oauthConnectionNewTarget"
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          [value]="newTarget()"
+          [placeholder]="'setting.oauthConnection.targets.placeholder' | translate"
+          [disabled]="limitReached()"
+          (input)="onTargetInput(targetInput.value)"
+          (keydown.enter)="addTarget()"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <button
+          id="oauth-connection-target-add-btn"
+          type="button"
+          class="btn save-btn"
+          [disabled]="limitReached()"
+          (click)="addTarget()"
+        >
+          {{ "setting.oauthConnection.targets.add" | translate }}
+        </button>
+      </div>
+    </div>
+    @if (targetErrorKey(); as errorKey) {
+      <div id="oauth-connection-target-error-row" class="row-line-single" role="alert">
+        <span class="validation-error">{{ errorKey | translate }}</span>
+      </div>
+    }
+  </div>
+</div>

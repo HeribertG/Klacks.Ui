@@ -81,4 +81,5 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'feature-plugins': 'plugins',
   'updates': 'system',
   'personal-access-tokens': 'system',
+  'oauth-connections': 'system',
 };

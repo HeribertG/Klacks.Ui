@@ -44,6 +44,7 @@ const SETTINGS_CARD_EXPLAIN_TARGETS: Record<string, string> = {
   explain_klacksy_llm_setup: 'llm-provider',
   explain_software_updates: 'updates',
   explain_personal_access_tokens: 'personal-access-tokens',
+  explain_oauth_connections: 'oauth-connections',
 };
 
 export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
