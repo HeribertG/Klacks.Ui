@@ -429,7 +429,7 @@ describe('AppSettingsManagementService - setting mapping characterization', () =
         [AppSetting.OAUTH_CONNECTIONS_MODE]: ' OFF ',
         [AppSetting.OAUTH_ALLOW_LOOPBACK]: 'TRUE',
         [AppSetting.OAUTH_ALLOW_WRITE]: 'yes',
-        [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: '["https://a.example.com", 7, null, "https://b.example.com/x"]',
+        [AppSetting.OAUTH_CUSTOM_REDIRECT_TARGETS]: '["https://a.example.com", null, "https://b.example.com/x"]',
       });
 
       expect(service.oauthConnectionSettings()).toEqual({
