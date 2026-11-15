@@ -21,10 +21,10 @@ const HOST_SEPARATOR = '.';
 const LABEL_HYPHEN = '-';
 const LOCALHOST = 'localhost';
 const MAX_ASCII_CODE = 127;
-const MAX_CONTROL_CODE = 31;
 const LABEL_PATTERN = /^[a-z0-9-]+$/;
 const SEGMENT_PATTERN = /^[A-Za-z0-9._~-]+$/;
 const WHITESPACE_PATTERN = /\s/;
+const CONTROL_CHARACTER_PATTERN = /\p{Cc}/u;
 const NUMERIC_LABEL_PATTERN = /^(\d+|0x[0-9a-f]*)$/;
 const CURRENT_DIRECTORY_SEGMENT = '.';
 const PARENT_DIRECTORY_SEGMENT = '..';
@@ -34,10 +34,7 @@ function fail(errorKey: string): OAuthCustomTargetCheck {
 }
 
 function hasControlCharacter(text: string): boolean {
-  return [...text].some((character) => {
-    const code = character.charCodeAt(0);
-    return code <= MAX_CONTROL_CODE || code === MAX_ASCII_CODE;
-  });
+  return CONTROL_CHARACTER_PATTERN.test(text);
 }
 
 function isAscii(text: string): boolean {
@@ -165,8 +162,9 @@ export function checkNewOAuthCustomTarget(existing: readonly string[], input: st
 }
 
 /**
- * Reads the stored JSON array of the custom targets setting the way the server does: entries are canonicalised, invalid
- * entries and duplicates are skipped, and anything that is not an array of strings yields an empty list.
+ * Reads the stored JSON array of the custom targets setting the way the server does: entries are canonicalised, and
+ * invalid entries, null entries and duplicates are skipped. Fails closed: anything that is not a JSON array, or an array
+ * holding any element that is neither a string nor null, yields an empty list.
  * @param json - Stored value of the setting
  * @returns The canonical targets in stored order
  */
@@ -178,6 +176,10 @@ export function parseOAuthCustomTargets(json: string): string[] {
     return [];
   }
   if (!Array.isArray(parsed)) {
+    return [];
+  }
+
+  if (parsed.some((entry) => entry !== null && typeof entry !== 'string')) {
     return [];
   }
 

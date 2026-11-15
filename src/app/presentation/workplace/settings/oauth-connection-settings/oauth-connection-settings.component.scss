@@ -81,6 +81,11 @@ select {
   color: var(--standartRedColor);
   text-decoration: underline;
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--colorFocus);
+    outline-offset: 2px;
+  }
 }
 
 input[type="text"]::placeholder {

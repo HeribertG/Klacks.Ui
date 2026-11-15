@@ -39,6 +39,10 @@ describe('checkOAuthCustomTarget', () => {
     ['https://tool.example.com\\@evil.com/cb', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
     ['https://tool.example.com/%2e%2e/cb', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
     ['https://tool.example.com/a b', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
+    ['https://tool.example.com/a\u0085b', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
+    ['https://tool.example.com/a\u009fb', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
+    ['https://tool.example.com/a\u007fb', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
+    ['https://tool.example.com/a\u0001b', OAUTH_CUSTOM_TARGET_ERROR.ForbiddenCharacters],
     ['https://tool.example.com:8443/cb', OAUTH_CUSTOM_TARGET_ERROR.Port],
     ['https://tool.example.com:/cb', OAUTH_CUSTOM_TARGET_ERROR.Port],
     ['https:///cb', OAUTH_CUSTOM_TARGET_ERROR.HostMissing],
@@ -103,11 +107,24 @@ describe('parseOAuthCustomTargets and serializeOAuthCustomTargets', () => {
       'HTTPS://Tool.Example.com:443/cb',
       'https://tool.example.com/cb',
       'http://insecure.example.com',
-      42,
+      null,
       'https://other.example.org',
     ]);
 
     expect(parseOAuthCustomTargets(json)).toEqual(['https://tool.example.com/cb', 'https://other.example.org']);
+  });
+
+  it.each([
+    ['a number', '["https://a.example.com", 5]'],
+    ['an object', '["https://a.example.com", {"x":1}]'],
+    ['an array', '["https://a.example.com", ["https://b.example.com"]]'],
+    ['a boolean', '["https://a.example.com", true]'],
+  ])('treats the whole list as empty when it holds %s like the server', (_label, json) => {
+    expect(parseOAuthCustomTargets(json)).toEqual([]);
+  });
+
+  it('skips a null element and keeps the valid entries', () => {
+    expect(parseOAuthCustomTargets('["https://a.example.com", null]')).toEqual(['https://a.example.com']);
   });
 
   it('serialises an empty list as an empty JSON array', () => {
