@@ -5,7 +5,7 @@
       class="form-control"
       [id]="inputId() || null"
       [attr.data-klacksy-target]="klacksyTarget() || null"
-      [placeholder]="translatedPlaceholder"
+      [placeholder]="(placeholderKey() || defaultPlaceholderKey) | translate"
       [disabled]="disabled()"
       [ngModel]="value"
       (ngModelChange)="onModelChange($event)"

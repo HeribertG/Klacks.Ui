@@ -1,12 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchInputComponent } from './search-input.component';
 
 type Emission = ['value' | 'submit', string];
 
 const DEBOUNCE_MS = 300;
+const DEFAULT_PLACEHOLDER_KEY = 'placeholder.search';
+const CUSTOM_PLACEHOLDER_KEY = 'periodClosing.form.searchPlaceholder';
+const TRANSLATION_LANGUAGE = 'de';
+const DEFAULT_PLACEHOLDER_TEXT = 'Suchen';
+const CUSTOM_PLACEHOLDER_TEXT = 'Perioden suchen';
 
 describe('SearchInputComponent', () => {
   let fixture: ComponentFixture<SearchInputComponent>;
@@ -139,5 +144,30 @@ describe('SearchInputComponent', () => {
     vi.advanceTimersByTime(DEBOUNCE_MS);
 
     expect(emissions).toEqual([]);
+  });
+
+  it('shows the translated default placeholder once the translations arrive after the first render', () => {
+    expect(inputElement().placeholder).toBe(DEFAULT_PLACEHOLDER_KEY);
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(TRANSLATION_LANGUAGE, { [DEFAULT_PLACEHOLDER_KEY]: DEFAULT_PLACEHOLDER_TEXT });
+    translate.use(TRANSLATION_LANGUAGE);
+    fixture.detectChanges();
+
+    expect(inputElement().placeholder).toBe(DEFAULT_PLACEHOLDER_TEXT);
+  });
+
+  it('shows the translated custom placeholder once the translations arrive after the first render', () => {
+    fixture.componentRef.setInput('placeholderKey', CUSTOM_PLACEHOLDER_KEY);
+    fixture.detectChanges();
+
+    expect(inputElement().placeholder).toBe(CUSTOM_PLACEHOLDER_KEY);
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(TRANSLATION_LANGUAGE, { [CUSTOM_PLACEHOLDER_KEY]: CUSTOM_PLACEHOLDER_TEXT });
+    translate.use(TRANSLATION_LANGUAGE);
+    fixture.detectChanges();
+
+    expect(inputElement().placeholder).toBe(CUSTOM_PLACEHOLDER_TEXT);
   });
 });

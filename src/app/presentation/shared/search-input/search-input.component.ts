@@ -18,13 +18,12 @@ import {
   Component,
   Input,
   OnDestroy,
-  inject,
   input,
   output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Subscription, timer } from 'rxjs';
@@ -40,7 +39,7 @@ const DEFAULT_PLACEHOLDER_KEY = 'placeholder.search';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInputComponent implements OnDestroy {
-  private translateService = inject(TranslateService);
+  readonly defaultPlaceholderKey = DEFAULT_PLACEHOLDER_KEY;
 
   readonly placeholderKey = input(DEFAULT_PLACEHOLDER_KEY);
   @Input() value = '';
@@ -62,12 +61,6 @@ export class SearchInputComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.cancelPending();
-  }
-
-  get translatedPlaceholder(): string {
-    return this.translateService.instant(
-      this.placeholderKey() || DEFAULT_PLACEHOLDER_KEY,
-    );
   }
 
   get buttonId(): string | null {
