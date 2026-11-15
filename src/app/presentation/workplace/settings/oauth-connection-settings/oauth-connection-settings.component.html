@@ -95,7 +95,8 @@
             <span class="target-name">{{ target }}</span>
             <button
               type="button"
-              class="link-button red-font target-remove"
+              class="target-remove"
+              [attr.aria-label]="'setting.oauthConnection.targets.remove-aria' | translate: { target: target }"
               (click)="removeTarget(target)"
             >
               {{ "setting.oauthConnection.targets.remove" | translate }}
@@ -116,6 +117,8 @@
           [value]="newTarget()"
           [placeholder]="'setting.oauthConnection.targets.placeholder' | translate"
           [disabled]="limitReached()"
+          [attr.aria-invalid]="targetErrorKey() ? 'true' : null"
+          [attr.aria-describedby]="targetErrorKey() ? 'oauth-connection-target-error' : null"
           (input)="onTargetInput(targetInput.value)"
           (keydown.enter)="addTarget()"
         />
@@ -134,7 +137,7 @@
     </div>
     @if (targetErrorKey(); as errorKey) {
       <div id="oauth-connection-target-error-row" class="row-line-single" role="alert">
-        <span class="validation-error">{{ errorKey | translate }}</span>
+        <span id="oauth-connection-target-error" class="validation-error">{{ errorKey | translate }}</span>
       </div>
     }
   </div>

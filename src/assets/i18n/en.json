@@ -5030,6 +5030,7 @@
   "setting.oauthConnection.targets.placeholder": "https://tool.example.com/oauth/callback",
   "setting.oauthConnection.targets.add": "Add",
   "setting.oauthConnection.targets.remove": "Remove",
+  "setting.oauthConnection.targets.remove-aria": "Remove target {{target}}",
   "setting.oauthConnection.error.empty": "Enter an address.",
   "setting.oauthConnection.error.too-long": "The address is too long.",
   "setting.oauthConnection.error.not-https": "The address must start with https://.",

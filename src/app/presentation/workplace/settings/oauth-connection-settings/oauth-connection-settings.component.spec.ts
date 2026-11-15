@@ -2,7 +2,7 @@
 
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OAuthConnectionSettingsComponent } from './oauth-connection-settings.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { IOAuthConnectionSettings } from 'src/app/domain/models/settings/oauth-connection-settings.interface';
@@ -165,5 +165,35 @@ describe('OAuthConnectionSettingsComponent', () => {
     expect(settings().customTargets).toEqual(['https://b.example.com']);
     expect(listedTargets()).toEqual(['https://b.example.com']);
     expect(changeTrigger()).toBe(1);
+  });
+
+  it('names the target in the accessible label of its remove button', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { 'setting.oauthConnection.targets.remove-aria': 'Remove target {{target}}' });
+    translate.use('en');
+    settings.set({ ...new OAuthConnectionSettings(), customTargets: ['https://a.example.com'] });
+    fixture.detectChanges();
+
+    expect(element<HTMLButtonElement>('#oauth-connection-target-list .target-remove').getAttribute('aria-label')).toBe(
+      'Remove target https://a.example.com',
+    );
+  });
+
+  it('marks the input as invalid and links it to the message only while a message is shown', () => {
+    const input = element<HTMLInputElement>('#oauthConnectionNewTarget');
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+    expect(input.hasAttribute('aria-describedby')).toBe(false);
+
+    typeTarget('http://tool.example.com');
+    clickAdd();
+
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(input.getAttribute('aria-describedby')).toBe('oauth-connection-target-error');
+    expect(element('#oauth-connection-target-error')).not.toBeNull();
+
+    typeTarget('https://tool.example.com');
+
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+    expect(input.hasAttribute('aria-describedby')).toBe(false);
   });
 });
