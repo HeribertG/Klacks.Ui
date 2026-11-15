@@ -17,6 +17,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataRetentionFormModel } from './data-retention-form-model.interface';
+import { translationVersionSignal } from 'src/app/application/helpers/translation-version.helper';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
 const MIN_RETENTION_DAYS = 30;
@@ -44,7 +45,10 @@ export class DataRetentionSettingComponent implements OnInit {
 
   retentionForm = form(this.formModel);
 
+  private readonly translationVersion = translationVersionSignal();
+
   public retentionDisplay = computed(() => {
+    this.translationVersion();
     const days = this.formModel().dataRetentionDays;
     const totalMonths = Math.round(days / DAYS_PER_MONTH);
     const years = Math.floor(totalMonths / MONTHS_PER_YEAR);

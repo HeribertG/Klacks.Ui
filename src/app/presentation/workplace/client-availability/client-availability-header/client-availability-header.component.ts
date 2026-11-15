@@ -34,6 +34,8 @@ import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { ClientAvailabilityLegendComponent } from '../client-availability-legend/client-availability-legend.component';
 import { ClientAvailabilityClearDayComponent } from '../client-availability-clear-day/client-availability-clear-day.component';
 
+const CALENDAR_WEEK_KEY = 'client-availability.calendar-week';
+
 const GROUPING_LABEL_KEYS = [
   'client-availability.grouping.1h',
   'client-availability.grouping.2h',
@@ -162,18 +164,23 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
     this.settings.hourGroupingMode.set(change.value as HourGroupingMode);
   }
 
-  get displayPeriod(): string {
-    const cw = this.translateService.instant('client-availability.calendar-week');
+  get displayPeriodKey(): string {
+    if (this.viewMode() === PaymentInterval.Monthly) {
+      return this.gridSettingsService.monthsName[this.currentMonth - 1];
+    }
+    return CALENDAR_WEEK_KEY;
+  }
+
+  get displayPeriodSuffix(): string {
     switch (this.viewMode()) {
       case PaymentInterval.Weekly:
-        return `${cw} ${this.currentWeek}`;
+        return ` ${this.currentWeek}`;
       case PaymentInterval.Biweekly: {
         const weeks = this.calendarUtil.getBiweeklyWeeks(this.currentYear, this.currentWeek);
-        return `${cw} ${weeks.start.week}-${weeks.end.week}`;
+        return ` ${weeks.start.week}-${weeks.end.week}`;
       }
-      case PaymentInterval.Monthly:
       default:
-        return this.translateService.instant(this.gridSettingsService.monthsName[this.currentMonth - 1]);
+        return '';
     }
   }
 

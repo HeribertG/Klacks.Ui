@@ -391,7 +391,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutDate()"
       [disabled]="!isCutDateEnabled || analyseScenarioService.isScenarioMode()"
-      [title]="scenarioBlockedTitle()"
+      [title]="scenarioBlockedTitleKey() | translate"
       >
       {{ "shift.cut-shift.buttons.cut-date" | translate }}
     </button>
@@ -401,7 +401,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutTime()"
       [disabled]="!isCutTimeEnabled || analyseScenarioService.isScenarioMode()"
-      [title]="scenarioBlockedTitle()"
+      [title]="scenarioBlockedTitleKey() | translate"
       >
       {{ "shift.cut-shift.buttons.cut-time" | translate }}
     </button>
@@ -411,7 +411,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutWeekdays()"
       [disabled]="!isCutWeekdaysEnabled || analyseScenarioService.isScenarioMode()"
-      [title]="scenarioBlockedTitle()"
+      [title]="scenarioBlockedTitleKey() | translate"
       >
       {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
     </button>
@@ -421,7 +421,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutStaff()"
       [disabled]="!isCutStaffEnabled || analyseScenarioService.isScenarioMode()"
-      [title]="scenarioBlockedTitle()"
+      [title]="scenarioBlockedTitleKey() | translate"
       >
       {{ "shift.cut-shift.buttons.cut-staff" | translate }}
     </button>
@@ -431,7 +431,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutTask()"
       [disabled]="!isCutTaskEnabled || analyseScenarioService.isScenarioMode()"
-      [title]="scenarioBlockedTitle()"
+      [title]="scenarioBlockedTitleKey() | translate"
       >
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
     </button>
@@ -441,7 +441,7 @@
       class="btn btn-sm btn-warning"
       (click)="onResetCuts()"
       [disabled]="!isResetCutsEnabled || analyseScenarioService.isScenarioMode()"
-      [title]="scenarioBlockedTitle()"
+      [title]="scenarioBlockedTitleKey() | translate"
       >
       <fa-icon [icon]="faRotateLeft"></fa-icon>
       {{ "shift.cut-shift.buttons.reset-cuts" | translate }}

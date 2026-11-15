@@ -26,7 +26,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   NgbModal,
   NgbCalendar,
@@ -54,6 +54,8 @@ import { CutByWeekdayService } from './services/cut-by-weekday.service';
 import { CutByStaffService } from './services/cut-by-staff.service';
 import { createDefaultCutParameterState } from './services/cut-parameter-state';
 
+const SCENARIO_SHIFT_EDIT_BLOCKED_KEY = 'scenario.shiftEditBlocked';
+
 @Component({
   selector: 'app-cut-shift-list',
   standalone: true,
@@ -75,16 +77,13 @@ export class CutShiftListComponent implements OnInit, OnDestroy {
   private dataShiftCutsService = inject(DataShiftCutsService);
   private shiftCutOperationService = inject(ShiftCutOperationService);
   protected analyseScenarioService = inject(AnalyseScenarioService);
-  private translateService = inject(TranslateService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
 
-  protected scenarioBlockedTitle = computed(() =>
-    this.analyseScenarioService.isScenarioMode()
-      ? this.translateService.instant('scenario.shiftEditBlocked')
-      : ''
+  protected scenarioBlockedTitleKey = computed(() =>
+    this.analyseScenarioService.isScenarioMode() ? SCENARIO_SHIFT_EDIT_BLOCKED_KEY : ''
   );
 
   private cutByTimeService = inject(CutByTimeService);

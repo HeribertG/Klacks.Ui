@@ -114,7 +114,7 @@ describe('ClientAvailabilityHomeComponent', () => {
     TestBed.overrideComponent(ClientAvailabilityHeaderComponent, {
       set: {
         template:
-          '<span id="header-period">{{ displayPeriod }} {{ displayYear }}</span>'
+          '<span id="header-period">{{ displayPeriodKey }}{{ displayPeriodSuffix }} {{ displayYear }}</span>'
           + '<button id="header-next" (click)="goToNext()"></button>',
         imports: [],
       },

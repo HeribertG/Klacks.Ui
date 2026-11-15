@@ -18,7 +18,7 @@
         ngbDropdownToggle
         aria-label="calendar settings"
       >
-        <span>{{ displayPeriod }} {{ displayYear }}</span>
+        <span>{{ displayPeriodKey | translate }}{{ displayPeriodSuffix }} {{ displayYear }}</span>
       </button>
       <div ngbDropdownMenu>
         @switch (viewMode()) {

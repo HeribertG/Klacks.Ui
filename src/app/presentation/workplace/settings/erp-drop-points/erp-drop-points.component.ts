@@ -59,6 +59,7 @@ import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
+import { translationVersionSignal } from 'src/app/application/helpers/translation-version.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
@@ -113,7 +114,10 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
 
   public readonly showUtcWarning = computed(() => isCompanyClockUtcFallback(this.companyClockService.source()));
 
+  private readonly translationVersion = translationVersionSignal();
+
   public readonly companyTimeZoneOptionLabel = computed(() => {
+    this.translationVersion();
     const zone = companyTimeZone();
     const label = this.translate.instant('settings.erp-drop-points.schedule.companyTimeZoneOption');
     return zone ? `${label} (${zone})` : label;

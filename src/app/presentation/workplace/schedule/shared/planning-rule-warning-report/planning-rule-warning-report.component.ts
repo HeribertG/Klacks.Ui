@@ -9,6 +9,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { translationVersionSignal } from 'src/app/application/helpers/translation-version.helper';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import {
@@ -28,13 +29,16 @@ export class PlanningRuleWarningReportComponent {
 
   readonly warnings = input<ScheduleErrorEntry[] | null | undefined>([]);
 
-  readonly rows = computed<ScheduleErrorEntry[]>(() =>
-    (this.warnings() ?? []).map((warning) => ({
+  private readonly translationVersion = translationVersionSignal();
+
+  readonly rows = computed<ScheduleErrorEntry[]>(() => {
+    this.translationVersion();
+    return (this.warnings() ?? []).map((warning) => ({
       ...warning,
       commentParams: localizePlanningRuleKind(warning.comment, warning.commentParams, (key) =>
         this.translate.instant(key),
       ),
       tooltip: planningRuleTooltip(warning.comment, warning.commentParams),
-    })),
-  );
+    }));
+  });
 }

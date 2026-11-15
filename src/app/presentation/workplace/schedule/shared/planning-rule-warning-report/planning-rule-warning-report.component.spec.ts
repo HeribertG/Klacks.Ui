@@ -69,4 +69,28 @@ describe('PlanningRuleWarningReportComponent', () => {
     ]).querySelector('.planning-rule-warning') as HTMLElement;
     expect(line.textContent).toContain('Regel Unzulässige Dienstfolge verletzt');
   });
+
+  it('shows the rule kind in the new language after a language switch', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      'schedule.error-list.planning-rule': 'Rule {{kind}} violated',
+      'planning-rule-kind.forbiddentransition': 'Forbidden shift sequence',
+    });
+    const fixture = TestBed.createComponent(PlanningRuleWarningReportComponent);
+    fixture.componentRef.setInput('warnings', [
+      {
+        ...invalidRuleWarning(),
+        comment: 'schedule.error-list.planning-rule',
+        commentParams: { kind: 'ForbiddenTransition', ruleId: RULE_ID },
+      },
+    ]);
+    fixture.detectChanges();
+    const line = (): HTMLElement => fixture.nativeElement.querySelector('.planning-rule-warning');
+    expect(line().textContent).toContain('Regel Unzulässige Dienstfolge verletzt');
+
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect(line().textContent).toContain('Rule Forbidden shift sequence violated');
+  });
 });

@@ -7,12 +7,14 @@
  */
 import { Component, inject, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
+
+const SCENARIO_SHIFT_EDIT_BLOCKED_KEY = 'scenario.shiftEditBlocked';
 
 @Component({
   selector: 'app-savebar',
@@ -59,7 +61,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
         tabindex="0"
         (click)="onClickSave()"
         [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled || isShiftScenarioBlocked()"
-        [title]="scenarioBlockTitle()"
+        [title]="scenarioBlockTitleKey() | translate"
         aria-label="Save changes"
       >
         {{ 'store' | translate }}
@@ -72,7 +74,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
         tabindex="0"
         (click)="onClickSaveAndClose()"
         [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled || isShiftScenarioBlocked()"
-        [title]="scenarioBlockTitle()"
+        [title]="scenarioBlockTitleKey() | translate"
         aria-label="Save changes and close"
       >
         {{ 'saveAndClose' | translate }}
@@ -89,7 +91,6 @@ export class SavebarComponent {
   public workplaceStateService = inject(WorkplaceStateService);
   public savebarService = inject(SavebarService);
   private analyseScenarioService = inject(AnalyseScenarioService);
-  private translateService = inject(TranslateService);
   private navigationService = inject(NavigationService);
 
   public showGoBackButton = computed(() => {
@@ -104,10 +105,8 @@ export class SavebarComponent {
     return entity === EntityName.SHIFT_EDIT || entity === EntityName.SHIFT_CUT;
   });
 
-  public scenarioBlockTitle = computed(() =>
-    this.isShiftScenarioBlocked()
-      ? this.translateService.instant('scenario.shiftEditBlocked')
-      : ''
+  public scenarioBlockTitleKey = computed(() =>
+    this.isShiftScenarioBlocked() ? SCENARIO_SHIFT_EDIT_BLOCKED_KEY : ''
   );
 
   onClickSave(): void {
