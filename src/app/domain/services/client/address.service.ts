@@ -14,6 +14,8 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/domain/helpers/number.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { SWISS_COUNTRY_CODE } from 'src/app/domain/constants/country-codes.constants';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +23,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-
 export class AddressService {
   private dataCountryStateService = inject(DataCountryStateService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private appSettingsService = inject(AppSettingsManagementService);
 
   public maxAddressType = 3;
 
@@ -38,19 +41,22 @@ export class AddressService {
       let lastCountries: IPostCodeCH[] = [];
       let stateList: StateCountryToken[] = [];
 
-      if (isNumeric(address.zip)) {
+      if (isNumeric(address.zip) && !this.isSwissAddress(address)) {
+        stateList = this.filterState(address, countries);
+        resolve({ address, lastCountries, stateList });
+      } else if (isNumeric(address.zip)) {
         this.dataCountryStateService
           .SearchCity(address.zip)
           .then((res) => {
             if (res!.length === 1) {
               address.city = res![0].city;
               address.state = res![0].state;
-              address.country = 'CH';
+              address.country = SWISS_COUNTRY_CODE;
             } else if (res!.length > 1) {
               address.city = res![0].city;
               lastCountries = res!;
               address.state = res![0].state;
-              address.country = 'CH';
+              address.country = SWISS_COUNTRY_CODE;
             }
             stateList = this.filterState(address, countries);
             resolve({ address, lastCountries, stateList });
@@ -79,6 +85,11 @@ export class AddressService {
         resolve({ address, lastCountries, stateList });
       }
     });
+  }
+
+  private isSwissAddress(address: IAddress): boolean {
+    const country = address.country?.trim() || this.appSettingsService.contactSettings().country?.trim() || '';
+    return country.toUpperCase() === SWISS_COUNTRY_CODE;
   }
 
   public filterState(address: IAddress, stateTokenList: StateCountryToken[]): StateCountryToken[] {

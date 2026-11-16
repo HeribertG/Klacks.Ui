@@ -17,6 +17,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-
 import { SessionStore } from 'src/app/infrastructure/storage/session-store.service';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { sortStateTokens } from 'src/app/domain/helpers/state-token-sort.helper';
+import { SWISS_COUNTRY_CODE } from 'src/app/domain/constants/country-codes.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +43,7 @@ export class ClientConfigService {
   public communicationPrefixList = signal<ICommunicationPrefix[]>([]);
   public hasRootGroups = signal(false);
 
-  public isSwissAbbreviation = 'CH';
+  public isSwissAbbreviation = SWISS_COUNTRY_CODE;
   public isSwissPrefixId = signal('');
   public defaultTypePhone = signal(-1);
   public defaultTypeEmail = signal(-1);

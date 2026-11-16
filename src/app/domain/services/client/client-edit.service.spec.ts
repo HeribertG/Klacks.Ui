@@ -17,6 +17,7 @@ import {
   IEventBus,
 } from 'src/app/domain/interfaces/event-bus.interface';
 import { ClientConfigService } from './client-config.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { of } from 'rxjs';
 import { APP_BASE_HREF, Location } from '@angular/common';
 import { provideLocationMocks, SpyLocation } from '@angular/common/testing';
@@ -33,6 +34,11 @@ class MockEventBus implements IEventBus {
     return of();
   }
 }
+
+const APP_SETTINGS_STUB = {
+  provide: AppSettingsManagementService,
+  useValue: { contactSettings: () => ({ country: '' }) },
+};
 
 class MockClientConfigService {
   hasRootGroups(): boolean {
@@ -53,6 +59,7 @@ describe('ClientEditService', () => {
         ClientEditService,
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
         { provide: ClientConfigService, useClass: MockClientConfigService },
+        APP_SETTINGS_STUB,
       ],
     });
     service = TestBed.inject(ClientEditService);
@@ -556,6 +563,7 @@ describe('ClientEditService edit-address URL sync', () => {
         ClientEditService,
         { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
         { provide: ClientConfigService, useClass: MockClientConfigService },
+        APP_SETTINGS_STUB,
         { provide: DataClientService, useValue: { getClient: () => of(client) } },
         { provide: CommunicationService, useValue: { setCommunication: () => undefined } },
       ],
@@ -613,6 +621,7 @@ describe('ClientEditService edit-address URL sync against the browser history', 
         ClientEditService,
         { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
         { provide: ClientConfigService, useClass: MockClientConfigService },
+        APP_SETTINGS_STUB,
         { provide: DataClientService, useValue: { getClient: () => of(client) } },
         { provide: CommunicationService, useValue: { setCommunication: () => undefined } },
       ],
@@ -664,6 +673,7 @@ describe('ClientEditService stand-in', () => {
         ClientEditService,
         { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
         { provide: ClientConfigService, useClass: MockClientConfigService },
+        APP_SETTINGS_STUB,
         { provide: DataClientService, useValue: { getClient: () => of(standIn()), updateClient } },
         {
           provide: CommunicationService,

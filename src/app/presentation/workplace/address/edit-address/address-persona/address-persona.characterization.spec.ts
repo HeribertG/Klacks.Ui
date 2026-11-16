@@ -839,6 +839,41 @@ describe('AddressPersonaComponent characterization', () => {
       expect(classesOf(fixture, 'city')).toEqual({ valid: true, invalid: false });
     });
 
+    it('keeps the canton and country of a Swiss hit in the form model', async () => {
+      const client = makeClient({ addresses: [makeAddress({ zip: '3011', city: '', state: '', country: 'CH' })] });
+      const { fixture, parts, data } = await setup({ client });
+      data.writeCity.mockImplementation(async () => {
+        Object.assign(client.addresses[0], { zip: '3000', city: 'Bern', state: 'BE', country: 'CH' });
+      });
+
+      byId(fixture, 'zip')!.dispatchEvent(new Event('focusout'));
+      await settle(fixture);
+
+      expect(parts.form.formModel().city).toBe('Bern');
+      expect(parts.form.formModel().state).toBe('BE');
+      expect(parts.form.formModel().country).toBe('CH');
+      expect(client.addresses[0].city).toBe('Bern');
+      expect(client.addresses[0].state).toBe('BE');
+      expect(client.addresses[0].country).toBe('CH');
+    });
+
+    it('keeps a non-Swiss address as typed when the lookup changes nothing', async () => {
+      const client = makeClient({
+        addresses: [makeAddress({ zip: '1010', city: 'Wien', state: 'W', country: 'AT' })],
+      });
+      const { fixture, parts, data } = await setup({ client });
+
+      byId(fixture, 'zip')!.dispatchEvent(new Event('focusout'));
+      await settle(fixture);
+
+      expect(data.writeCity).toHaveBeenCalledTimes(1);
+      expect(parts.form.formModel().city).toBe('Wien');
+      expect(parts.form.formModel().state).toBe('W');
+      expect(parts.form.formModel().country).toBe('AT');
+      expect(client.addresses[0].state).toBe('W');
+      expect(client.addresses[0].country).toBe('AT');
+    });
+
     it('keeps the typed address when the zip has no city', async () => {
       const client = makeClient();
       const { fixture, parts, data } = await setup({ client });

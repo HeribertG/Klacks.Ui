@@ -3,7 +3,7 @@
 /**
  * Keeps the persona form and the edited client in sync: loads the client and the current address into the form,
  * switches gender and client type with the legal entity flag, writes every form change back to the client and
- * copies the city found for a zip into the form.
+ * copies the city, canton and country found for a zip into the form.
  * @param client - Edited client the form is loaded from and written back to
  * @param idx - Index of the current address of the client
  * @param data - Form values written back to the client and its current address
@@ -47,7 +47,13 @@ export class AddressPersonaFormSyncService {
     const client = this.dataManagementClientService.editClient();
     const idx = this.dataManagementClientService.currentAddressIndex();
     if (client?.addresses[idx]) {
-      this.state.formModel.update(m => ({ ...m, city: client.addresses[idx].city ?? '' }));
+      const address = client.addresses[idx];
+      this.state.formModel.update(m => ({
+        ...m,
+        city: address.city ?? '',
+        state: address.state ?? '',
+        country: address.country ?? '',
+      }));
     }
     this.validation.calcValidation();
     this.cdr.markForCheck();
