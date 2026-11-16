@@ -230,17 +230,9 @@ export class EditShiftItemComponent
   }
 
   private calcValidationFromDate() {
-    this.isFromDateValid = undefined;
-
     const fromDate = this.shiftFormService.shiftForm()?.internalFromDate;
 
-    if (fromDate) {
-      if (fromDate === undefined || fromDate === null) {
-        this.isFromDateValid = undefined;
-      } else {
-        this.isFromDateValid = true;
-      }
-    }
+    this.isFromDateValid = fromDate ? true : undefined;
   }
 
   private calcLockButtonValidation() {

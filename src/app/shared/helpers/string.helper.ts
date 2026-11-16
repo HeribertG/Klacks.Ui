@@ -16,11 +16,11 @@ export function replaceUmlaud(value: string): string {
   value = value.toLowerCase();
   return value
     .replace(/[áàâäāăąåæã]/g, 'a')
-    .replace(/[úùûüůūŭųů]/g, 'u')
+    .replace(/[úùûüůūŭų]/g, 'u')
     .replace(/[éèëêȩ]/g, 'e')
     .replace(/[òóôõöōŏœ]/g, 'o')
     .replace(/[ìíîï]/g, 'i')
-    .replace(/[çćĉċčċ]/g, 'c')
+    .replace(/[çćĉċč]/g, 'c')
     .replace(/[śŝşš]/g, 's')
     .replace(/[ŕŗř]/g, 'r')
     .replace(/[źżž]/g, 'z');

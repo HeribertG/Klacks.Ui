@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   AfterViewInit,
   Component,
@@ -10,7 +9,6 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  Renderer2,
   effect,
   inject,
   runInInjectionContext,

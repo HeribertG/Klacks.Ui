@@ -17,7 +17,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
 import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';

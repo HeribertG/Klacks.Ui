@@ -36,14 +36,10 @@ export function compareComplexObjects(o1: unknown, o2: unknown, listOfExcludedOb
     }
 
     for (const p in asPropertyBag(o1)) {
-      if (p !== null) {
-        if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
-      }
+      if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
     }
     for (const p in asPropertyBag(o2)) {
-      if (p !== null) {
-        if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
-      }
+      if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
     }
   } catch {
     return false;

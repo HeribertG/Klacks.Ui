@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // resize-table.directive.ts
 import {
   DestroyRef,
@@ -74,12 +73,10 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
       return;
     }
 
-    this.resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (this.isMeasureTable) {
-          this.isMeasureTable = false;
-          this.deferWhileAlive(() => this.recalcHeight(true), 100);
-        }
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.isMeasureTable) {
+        this.isMeasureTable = false;
+        this.deferWhileAlive(() => this.recalcHeight(true), 100);
       }
     });
 

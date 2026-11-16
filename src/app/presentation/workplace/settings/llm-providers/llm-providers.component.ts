@@ -46,7 +46,6 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 const DEFAULT_PROVIDER_PRIORITY = 10;
 const API_KEY_MASK_PLACEHOLDER = '••••••••';
 const API_KEY_EXAMPLE_PLACEHOLDER = 'sk-...';
-const API_KEY_NOT_REQUIRED_KEY = 'settings.llm-providers.api-key-not-required';
 
 @Component({
   selector: 'app-llm-providers',
@@ -380,9 +379,9 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     return this.formModel().requiresApiKey !== false;
   }
 
-  getApiKeyPlaceholder(): string {
+  getApiKeyPlaceholder(): string | null {
     if (!this.isApiKeyRequired()) {
-      return this.translate.instant(API_KEY_NOT_REQUIRED_KEY);
+      return null;
     }
     if (!this.isNewProvider && this.editingProvider?.hasApiKey) {
       return API_KEY_MASK_PLACEHOLDER;

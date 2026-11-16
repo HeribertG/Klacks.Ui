@@ -380,7 +380,7 @@ export class ClientEditService {
         if (error?.error?.errors) {
           const errors = error.error.errors;
 
-          for (const [field, messages] of Object.entries(errors)) {
+          for (const messages of Object.values(errors)) {
             if (Array.isArray(messages)) {
               errorKeys.push(...messages);
             }

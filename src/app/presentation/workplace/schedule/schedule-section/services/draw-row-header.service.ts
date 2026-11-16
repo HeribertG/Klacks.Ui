@@ -475,7 +475,6 @@ export class BaseDrawRowHeaderService {
   }
 
   drawRowHeaderSelection(redraw = false) {
-    this.lastSelection;
     if (this.cellManipulation.Position === undefined || !this.canvas || !this.ctx) {
       return;
     }

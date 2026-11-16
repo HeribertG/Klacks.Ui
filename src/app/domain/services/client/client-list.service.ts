@@ -18,7 +18,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';

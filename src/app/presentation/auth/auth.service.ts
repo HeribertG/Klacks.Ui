@@ -87,11 +87,7 @@ export class AuthService {
           return false;
         }
 
-        if (
-          tok &&
-          typeof tok === 'object' &&
-          tok.hasOwnProperty('user not exist')
-        ) {
+        if (typeof tok === 'object' && tok.hasOwnProperty('user not exist')) {
           this.toastShowService.showInfo(DomainMessages.AUTH_USER_NOT_EXIST!);
           return false;
         } else {

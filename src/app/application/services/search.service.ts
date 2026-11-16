@@ -61,8 +61,6 @@ export class SearchService {
   ];
   
   constructor() {
-    // React to entity changes from WorkplaceStateService
-    this.workplaceState.nameOfVisibleEntity; // Subscribe to changes
     this.updateSearchVisibility();
   }
   

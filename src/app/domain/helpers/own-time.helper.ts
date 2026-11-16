@@ -17,17 +17,7 @@ import { isNumeric } from './number.helper';
  * @returns true if valid, false otherwise
  */
 export function isOwnTimeStructOk(event: OwnTime | undefined): boolean {
-  if (event) {
-    if (
-      typeof event === 'object' &&
-      event !== null &&
-      'hours' in event &&
-      'minutes' in event
-    ) {
-      return true;
-    }
-  }
-  return false;
+  return !!event && typeof event === 'object' && 'hours' in event && 'minutes' in event;
 }
 
 /**

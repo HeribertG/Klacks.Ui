@@ -20,6 +20,7 @@ import type { MyPosition } from '../../classes/position';
 import { WindowWithTestFrameworks } from './window-with-test-frameworks.interface';
 import { IScrollControllerWithVertical } from './scroll-controller-with-vertical.interface';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 
 /**
  * Service that manages test accessibility for the Schedule Grid.
@@ -43,6 +44,7 @@ import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 export class GridTestAccessibilityService {
   private testAccessibility = inject(TestAccessibilityService);
   private injector = inject(Injector);
+  private scrollEventService = inject(ScrollEventService);
 
   // References to grid components (set during initialization)
   private dataService!: ITestableGridDataSource;
@@ -148,9 +150,7 @@ export class GridTestAccessibilityService {
     runInInjectionContext(this.injector, () => {
       // Sync on scroll changes
       effect(() => {
-        // Trigger on scroll changes
-        this.scrollService.horizontalScrollPosition;
-        this.scrollService.verticalScrollPosition;
+        this.scrollEventService.scrollPosition();
 
         this.updateMetadata();
       });

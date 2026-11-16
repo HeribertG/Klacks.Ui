@@ -139,7 +139,7 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
   private subFunctionDefinition(): { isOk: boolean; skipFunctionPC: number } {
     const formalParameters: string[] = [];
     const isSub = this._symbol.token === Tokens.tokSUB;
-    let definition: Identifier = new Identifier();
+    let definition: Identifier;
     let skipFunctionPC = -1;
     let isOk = false;
 

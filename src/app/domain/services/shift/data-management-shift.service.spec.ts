@@ -35,6 +35,9 @@ import { SessionStorageService } from 'src/app/infrastructure/storage/session-st
 import { environment } from 'src/environments/environment';
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { calendarDateKey, companyToday } from 'src/app/domain/helpers/calendar-date.helper';
+import { Address } from 'src/app/domain/models/client/address';
+import { Client } from 'src/app/domain/models/client/client';
+import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 
 const DRAFT_ROUND_TRIP_KEY = 'shift-draft-round-trip-spec';
 
@@ -906,6 +909,64 @@ describe('DataManagementShiftService', () => {
             }
 
             expect(service.editShift!.macroId).toBeUndefined();
+        });
+    });
+
+    describe('current address selection', () => {
+        const FROM_DATE = new Date(2025, 5, 15);
+        const OLD_VALID_FROM = new Date(2020, 0, 1);
+        const NEW_VALID_FROM = new Date(2024, 0, 1);
+
+        const buildAddress = (id: string, type: AddressTypeEnum, validFrom: Date): Address =>
+            Object.assign(new Address(), { id, type, validFrom });
+
+        const selectCurrentIndex = (addresses: Address[]): { client: Client; index: number } => {
+            const client = Object.assign(new Client(), { addresses });
+            const select = service as unknown as {
+                setCurrentAddressIndex(target: Client, fromDate: Date): number;
+            };
+            return { client, index: select.setCurrentAddressIndex(client, FROM_DATE) };
+        };
+
+        const sameTypeInputs: [string, () => Address[]][] = [
+            ['older address first', () => [
+                buildAddress('old', AddressTypeEnum.customer, OLD_VALID_FROM),
+                buildAddress('new', AddressTypeEnum.customer, NEW_VALID_FROM),
+            ]],
+            ['newer address first', () => [
+                buildAddress('new', AddressTypeEnum.customer, NEW_VALID_FROM),
+                buildAddress('old', AddressTypeEnum.customer, OLD_VALID_FROM),
+            ]],
+        ];
+
+        sameTypeInputs.forEach(([label, createInput]) => {
+            it(`keeps only the newest address of equal type in scope (${label})`, () => {
+                const { client, index } = selectCurrentIndex(createInput());
+
+                expect(client.addresses.map((a) => a.id)).toEqual(['new', 'old']);
+                expect(client.addresses[index].id).toBe('new');
+                expect(client.addresses.map((a) => a.isScoped)).toEqual([true, false]);
+            });
+        });
+
+        const mixedTypeInputs: [string, () => Address[]][] = [
+            ['ascending input', () => [
+                buildAddress('customer', AddressTypeEnum.customer, NEW_VALID_FROM),
+                buildAddress('workplace', AddressTypeEnum.workplace, NEW_VALID_FROM),
+            ]],
+            ['descending input', () => [
+                buildAddress('workplace', AddressTypeEnum.workplace, NEW_VALID_FROM),
+                buildAddress('customer', AddressTypeEnum.customer, NEW_VALID_FROM),
+            ]],
+        ];
+
+        mixedTypeInputs.forEach(([label, createInput]) => {
+            it(`orders addresses by ascending type and selects the lowest type (${label})`, () => {
+                const { client, index } = selectCurrentIndex(createInput());
+
+                expect(client.addresses.map((a) => a.id)).toEqual(['customer', 'workplace']);
+                expect(client.addresses[index].id).toBe('customer');
+            });
         });
     });
 });

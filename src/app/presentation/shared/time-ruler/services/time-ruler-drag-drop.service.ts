@@ -157,7 +157,6 @@ export class TimeRulerDragDropService {
 
     let newStartMinutes =
       this._dragState.originalStartMinutes + snappedMinutesDelta;
-    let newEndMinutes = newStartMinutes + duration;
 
     newStartMinutes = Math.max(
       this._dragState.displayFromMinutes,
@@ -168,7 +167,7 @@ export class TimeRulerDragDropService {
           duration
       )
     );
-    newEndMinutes = newStartMinutes + duration;
+    let newEndMinutes = newStartMinutes + duration;
 
     let displacements: Map<IContainerTemplateItem, ItemPosition>;
 

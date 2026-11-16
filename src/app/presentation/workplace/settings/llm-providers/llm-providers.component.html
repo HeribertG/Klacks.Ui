@@ -123,7 +123,7 @@
             type="password"
             [formField]="providerForm.providerApiKey"
             class="form-control"
-            [placeholder]="getApiKeyPlaceholder()"
+            [placeholder]="getApiKeyPlaceholder() ?? ('settings.llm-providers.api-key-not-required' | translate)"
           />
           <small class="info-text">
             @if (!isApiKeyRequired()) {

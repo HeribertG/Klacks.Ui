@@ -2,6 +2,7 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
+import { compareAddressesByType } from 'src/app/domain/helpers/address-type-compare.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { DataMacroService } from 'src/app/infrastructure/api/settings/data-macro.service';
@@ -689,8 +690,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
       const collectScopeAddresses = new Array<IAddress>();
       const collectFutureAddresses = new Array<IAddress>();
-      let currentIndex = value.addresses.length - 1;
-
       value.addresses.forEach((itm) => {
         itm.isScoped = false;
         itm.isFuture = false;
@@ -705,12 +704,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         }
       });
 
-      collectScopeAddresses.sort((a: IAddress, b: IAddress) => {
-        const first = a.type as number;
-        const second = b.type as number;
-
-        return first < second ? -1 : first > second ? 0 : 1;
-      });
+      collectScopeAddresses.sort(compareAddressesByType);
 
       for (let i = 0; i < this.maxAddressType; i++) {
         const findTypeArray = collectScopeAddresses.filter((x) => x.type === i);
@@ -721,13 +715,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         }
       }
 
-      value.addresses.sort((a: IAddress, b: IAddress) => {
-        const first = a.type as number;
-        const second = b.type as number;
-        return first < second ? -1 : first > second ? 0 : 1;
-      });
+      value.addresses.sort(compareAddressesByType);
 
-      currentIndex = value.addresses.findIndex(
+      const currentIndex = value.addresses.findIndex(
         (x) => x.id === collectScopeAddresses[0].id
       );
 

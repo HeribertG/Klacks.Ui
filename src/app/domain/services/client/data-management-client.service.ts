@@ -32,7 +32,6 @@ import { ClientGroupItemService } from './client-group-item.service';
 import { ClientQualificationService } from './client-qualification.service';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -288,11 +287,7 @@ export class DataManagementClientService
   public writeCity = async () => {
     if (this.editClient()) {
       const address = this.editClient()!.addresses[this.currentAddressIndex()];
-      const {
-        address: newAddress,
-        lastCountries,
-        stateList,
-      } = await this.addressService.writeCity(address, this.stateList());
+      const { lastCountries } = await this.addressService.writeCity(address, this.stateList());
       this.lastCountries.set(lastCountries);
     }
   };
