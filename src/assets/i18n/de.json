@@ -2877,7 +2877,7 @@
   "assistant-chat.error.speech-error": "Speech Error: ",
   "assistant-chat.error.browser-language": "Browser-Sprache: ",
   "assistant-chat.error.available-languages": "Verfügbare Sprachen: ",
-  "assistant-chat.welcome.content": "👋 Hallo! Ich bin Klacksy, dein Assistent. Ich helfe dir:\n\n• Mitarbeiter zu erstellen\n• Nach Personen zu suchen\n• Verträge zu verwalten\n\nDu kannst mit mir sprechen oder einfach tippen. Versuch's mit: \"Erstelle Mitarbeiter Max Muster\"",
+  "assistant-chat.welcome.content": "👋 Hallo! Ich bin Klacksy, der Assistent von Klacks. Ich helfe beim:\n\n• Erfassen von Mitarbeitenden\n• Suchen nach Personen\n• Verwalten von Verträgen\n\nSprechen oder tippen genügt. Zum Beispiel: \"Erstelle Mitarbeiter Max Muster\"",
   "assistant-chat.welcome.suggestion-1": "Erstelle einen neuen Mitarbeiter",
   "assistant-chat.welcome.suggestion-2": "Suche nach Mitarbeitern",
   "assistant-chat.welcome.suggestion-3": "Erkläre mir Container-Dienste",
