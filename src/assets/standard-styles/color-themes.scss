@@ -156,6 +156,10 @@
   --accentHeaderTitleColor: var(--standartTextColor);
 }
 
+body {
+  color: var(--standartTextColor);
+}
+
 :root[data-theme="dark"] {
   --VersionNumberColor: #b6b6c3;
   --backgroundColorWorkplace: #34495e;
