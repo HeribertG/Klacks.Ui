@@ -476,7 +476,7 @@ describe('AssistantChatComponent', () => {
                 return 'Test suggestion';
             }
             if (k === 'assistant-chat.action-toast.prompt') {
-                return 'Was möchtest du tun?';
+                return 'Wie soll es weitergehen?';
             }
             if (k.startsWith('klacksy.focus.') || k.startsWith('setupConsultation.')) {
                 return `T:${k}`;
@@ -4161,7 +4161,7 @@ describe('AssistantChatComponent', () => {
                 { label: 'Einstellungen öffnen', value: '/workplace/settings' },
             ]);
 
-            expect(showSpy.mock.calls[0][0].prompt).toBe('Was möchtest du tun?');
+            expect(showSpy.mock.calls[0][0].prompt).toBe('Wie soll es weitergehen?');
         });
 
         it('navigates when the focus action is a navigate action', () => {

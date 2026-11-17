@@ -21,7 +21,7 @@ describe('WelcomeFocusToastService', () => {
     'klacksy.focus.no-orders.prompt': 'Es gibt noch keine Bestellungen.',
     'setupConsultation.startButton': 'Beratung starten',
     'klacksy.focus.later': 'Später',
-    'assistant-chat.action-toast.prompt': 'Was möchtest du tun?',
+    'assistant-chat.action-toast.prompt': 'Wie soll es weitergehen?',
   };
 
   const translateMock = {
@@ -91,7 +91,7 @@ describe('WelcomeFocusToastService', () => {
 
     const result = service.build(focus);
 
-    expect(result.prompt).toBe('Was möchtest du tun?');
+    expect(result.prompt).toBe('Wie soll es weitergehen?');
   });
 
   it('offers only the focus action and later', () => {

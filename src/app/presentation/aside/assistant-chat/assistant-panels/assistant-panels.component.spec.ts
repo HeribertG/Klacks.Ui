@@ -30,7 +30,7 @@ import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 const PANEL_TRANSLATIONS = {
   'assistant-chat.panels.goal-candidates': 'Zielvorschläge',
   'assistant-chat.panels.plan-execution': 'Plan-Ausführung',
-  'assistant-chat.proactive.inbox-heading': 'Während du weg warst…',
+  'assistant-chat.proactive.inbox-heading': 'In der Zwischenzeit…',
   'assistant-chat.proactive.hide-all': 'Alle ausblenden',
 };
 
@@ -564,7 +564,7 @@ describe('AssistantPanelsComponent', () => {
     expect(component.isCandidatesExpanded()).toBe(true);
   });
 
-  describe('proactive inbox card ("Während du weg warst…")', () => {
+  describe('proactive inbox card ("In der Zwischenzeit…")', () => {
     it('renders no inbox card when there are no inbox messages', () => {
       expect(fixture.nativeElement.querySelector('.audio-panel-card')).toBeNull();
     });
@@ -580,7 +580,7 @@ describe('AssistantPanelsComponent', () => {
       expect(card.classList.contains('collapsed')).toBe(false);
 
       const header = card.querySelector('.audio-panel-toggle');
-      expect(header.textContent).toContain('Während du weg warst…');
+      expect(header.textContent).toContain('In der Zwischenzeit…');
       const badge = card.querySelector('.audio-panel-badge');
       expect(badge.textContent.trim()).toBe('2');
     });
@@ -599,8 +599,8 @@ describe('AssistantPanelsComponent', () => {
       expect(header.querySelector('.audio-panel-title')).toBeNull();
       expect(header.querySelector('.audio-panel-chevron')).toBeNull();
       expect(header.querySelector('.audio-panel-badge').textContent.trim()).toBe('1');
-      expect(header.getAttribute('aria-label')).toContain('Während du weg warst…');
-      expect(header.getAttribute('title')).toContain('Während du weg warst…');
+      expect(header.getAttribute('aria-label')).toContain('In der Zwischenzeit…');
+      expect(header.getAttribute('title')).toContain('In der Zwischenzeit…');
 
       // Content, including the hide-all button, is gone while collapsed.
       expect(fixture.nativeElement.querySelector('.audio-panel-content')).toBeNull();

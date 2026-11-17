@@ -58,7 +58,7 @@
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
       @for (message of messages; track message.id) {
-      <!-- Inbox rows ("Während du weg warst…") render exclusively inside AssistantPanelsComponent,
+      <!-- Inbox rows ("In der Zwischenzeit…") render exclusively inside AssistantPanelsComponent,
            never as ordinary rows of the conversation. -->
       @if (!isInboxMessage(message) && !isHiddenProactiveMessage(message)) {
       <app-chat-message [message]="message"></app-chat-message>
