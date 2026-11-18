@@ -11,6 +11,8 @@ COPY package.json package-lock.json* ./
 # Install dependencies from the lockfile only, so the image is reproducible.
 # --legacy-peer-deps is passed explicitly (ngx-codemirror@20 has no v22 release yet)
 # because .npmrc is not copied into the build context.
+# ONNXRUNTIME_NODE_INSTALL_CUDA=skip: onnxruntime-node would download unused CUDA binaries from GitHub (see deploy.yml).
+ENV ONNXRUNTIME_NODE_INSTALL_CUDA=skip
 RUN npm ci --legacy-peer-deps
 
 # Build identity. Release builds pass the tag version and the commit SHA (deploy.yml); a build

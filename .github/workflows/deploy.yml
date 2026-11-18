@@ -15,6 +15,11 @@ concurrency:
   group: deploy-klacks-ui-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # onnxruntime-node (via @huggingface/transformers) downloads CUDA binaries on Linux x64 during install; the UI never
+  # uses them, and a missing GitHub asset (404 on 2026-11-18) broke the v1.0.76 release build.
+  ONNXRUNTIME_NODE_INSTALL_CUDA: skip
+
 jobs:
   test:
     runs-on: ubuntu-latest

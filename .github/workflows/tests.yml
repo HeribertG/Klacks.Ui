@@ -22,6 +22,9 @@ concurrency:
 
 env:
   NODE_VERSION: '22'
+  # onnxruntime-node (via @huggingface/transformers) downloads CUDA binaries on Linux x64 during install; the UI never
+  # uses them, and a missing GitHub asset (404 on 2026-11-18) broke every install.
+  ONNXRUNTIME_NODE_INSTALL_CUDA: skip
 
 jobs:
   frontend-tests:
