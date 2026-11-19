@@ -245,9 +245,7 @@
             [user]="c"
             [enabled]="!(c.id === userAdminService.currentAccountId())"
             (isSentToEvent)="onSentTo($event)"
-            (isRoleChangeEvent)="
-              onRoleChange($event.account, $event.roleName, $event.isSelected)
-            "
+            (isRightsChangeEvent)="onRightsChange($event.account, $event.level)"
             (isDeactivateEvent)="onDeactivate(i)"
             (isEditEvent)="onEdit($event, content)"
           >

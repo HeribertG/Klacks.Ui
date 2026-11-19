@@ -38,6 +38,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { TelegramInvitationService } from 'src/app/domain/services/messaging/telegram-invitation.service';
+import { UserRightsLevel } from 'src/app/domain/constants/user-rights-level.constants';
 import { UserFormModel } from './user-form-model.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
@@ -204,8 +205,8 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     }
   }
 
-  onRoleChange(account: IAuthentication, roleName: 'Admin' | 'Authorised', isSelected: boolean): void {
-    this.userAdminService.updateAccountRole(account, roleName, isSelected);
+  onRightsChange(account: IAuthentication, level: UserRightsLevel): void {
+    this.userAdminService.updateAccountRights(account, level);
   }
 
   onDeactivate(index: number): void {

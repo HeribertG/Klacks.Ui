@@ -10,6 +10,7 @@ import { IAuthentication } from 'src/app/domain/models/authentication.interface'
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { USER_RIGHTS_LEVEL } from 'src/app/domain/constants/user-rights-level.constants';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import {
     ACCOUNT_REGISTRATION_REASONS,
@@ -188,35 +189,73 @@ describe('UserAdministrationManagementService', () => {
         });
     });
 
-    describe('updateAccountRole', () => {
-        it('should update admin role', async () => {
+    describe('updateAccountRights', () => {
+        const rolesSent = () => mockUserAdministrationService.changeRole.mock.calls
+            .map((call: any[]) => `${call[0].roleName}:${call[0].isSelected}`);
+        const accountOf = (isAdmin: boolean, isAuthorised: boolean) =>
+            ({ id: '123', isAdmin, isAuthorised } as IAuthentication);
+
+        beforeEach(() => {
             service = TestBed.inject(UserAdministrationManagementService);
-
-            const account: IAuthentication = { id: '123' } as IAuthentication;
             mockUserAdministrationService.changeRole.mockReturnValue(of(true));
-
-            service.updateAccountRole(account, 'Admin', true);
-
-            await new Promise(resolve => setTimeout(resolve, 110));
-            expect(mockUserAdministrationService.changeRole).toHaveBeenCalledWith(expect.objectContaining({
-                userId: '123',
-                roleName: 'Admin',
-                isSelected: true,
-            }));
         });
 
-        it('should emit error on role update failure', async () => {
-            service = TestBed.inject(UserAdministrationManagementService);
+        it('should grant Admin and withdraw Authorised when a supervisor becomes admin', async () => {
+            service.updateAccountRights(accountOf(false, true), USER_RIGHTS_LEVEL.Admin);
 
-            const account: IAuthentication = { id: '123' } as IAuthentication;
-            mockUserAdministrationService.changeRole.mockReturnValue(throwError(() => new Error('Update failed')));
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(rolesSent()).toEqual(['Admin:true', 'Authorised:false']);
+            expect(mockUserAdministrationService.changeRole).toHaveBeenCalledWith(expect.objectContaining({ userId: '123' }));
+        });
 
-            service.updateAccountRole(account, 'Authorised', false);
+        it('should withdraw Admin first and then grant Authorised when an admin becomes supervisor', async () => {
+            service.updateAccountRights(accountOf(true, false), USER_RIGHTS_LEVEL.Supervisor);
 
-            await new Promise(resolve => setTimeout(resolve, 3510));
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(rolesSent()).toEqual(['Admin:false', 'Authorised:true']);
+        });
+
+        it('should withdraw Admin before Authorised when an admin with both roles becomes planner', async () => {
+            service.updateAccountRights(accountOf(true, true), USER_RIGHTS_LEVEL.Planner);
+
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(rolesSent()).toEqual(['Admin:false', 'Authorised:false']);
+        });
+
+        it('should only withdraw Authorised when an account with both roles is set to Admin', async () => {
+            service.updateAccountRights(accountOf(true, true), USER_RIGHTS_LEVEL.Admin);
+
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(rolesSent()).toEqual(['Authorised:false']);
+        });
+
+        it('should grant only Authorised when a planner becomes supervisor', async () => {
+            service.updateAccountRights(accountOf(false, false), USER_RIGHTS_LEVEL.Supervisor);
+
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(rolesSent()).toEqual(['Authorised:true']);
+        });
+
+        it('should not call the backend when nothing changes', async () => {
+            service.updateAccountRights(accountOf(true, false), USER_RIGHTS_LEVEL.Admin);
+
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(mockUserAdministrationService.changeRole).not.toHaveBeenCalled();
+        });
+
+        it('should stop at the first refusal, report it and reload the accounts', async () => {
+            mockUserAdministrationService.changeRole
+                .mockReturnValueOnce(throwError(() => new Error('Last administrator')))
+                .mockReturnValue(of(true));
+
+            service.updateAccountRights(accountOf(true, true), USER_RIGHTS_LEVEL.Planner);
+
+            await new Promise(resolve => setTimeout(resolve, 10));
+            expect(rolesSent()).toEqual(['Admin:false']);
             expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
                 code: 'ACCOUNT_ROLE_UPDATE_ERROR',
             }));
+            expect(mockUserAdministrationService.readAccountsList).toHaveBeenCalled();
         });
     });
 
