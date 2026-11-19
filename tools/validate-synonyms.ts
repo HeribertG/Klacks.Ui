@@ -36,7 +36,7 @@ const LOCALE_NAMES: Record<string, string> = {
 const CHUNK_SIZE = Number(process.env.VALIDATE_CHUNK_SIZE ?? '10');
 const ONLY_LOCALES = (process.env.VALIDATE_ONLY_LOCALES ?? '').split(',').map(s => s.trim()).filter(Boolean);
 const ACTIVE_LOCALES = ONLY_LOCALES.length ? PLUGIN_LOCALES.filter(l => ONLY_LOCALES.includes(l)) : PLUGIN_LOCALES;
-const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe';
+const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\PostgreSQL\\19\\bin\\psql.exe';
 const DB_HOST = process.env.KLACKS_DB_HOST ?? 'localhost';
 const DB_PORT = process.env.KLACKS_DB_PORT ?? '5434';
 const DB_USER = process.env.KLACKS_DB_USER ?? 'postgres';

@@ -57,7 +57,7 @@ const MIN_PHRASE_LEN = 4;
 // useless outside the API process, so it must never travel to a provider as a credential.
 const ENCRYPTED_PREFIX = 'ENC:';
 
-const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe';
+const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\PostgreSQL\\19\\bin\\psql.exe';
 const DB_HOST = process.env.KLACKS_DB_HOST ?? 'localhost';
 const DB_PORT = process.env.KLACKS_DB_PORT ?? '5434';
 const DB_USER = process.env.KLACKS_DB_USER ?? 'postgres';
