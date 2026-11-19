@@ -111,8 +111,9 @@ LDAP senza SSL. Se la directory viene usata per l'accesso, utilizzare LDAPS ("Us
 <h4>Active Directory: accesso solo tramite LDAPS</h4>
 <p>
 Klacks fa accedere le persone ad Active Directory solo tramite LDAPS (porta 636). Senza SSL il modulo mostra
-un avviso, nessuno può accedere e la scheda Autorizzazione accesso resta chiusa; l'importazione clienti e il
-test di connessione continuano a funzionare.
+un avviso, nessuno può accedere e la scheda Autorizzazione accesso resta chiusa. Senza SSL, l'importazione
+clienti e il test di connessione funzionano solo se Klacks gira direttamente su Windows; in Docker (Linux)
+Active Directory richiede LDAPS per tutto.
 </p>
 <ul>
   <li>
@@ -131,9 +132,12 @@ test di connessione continuano a funzionare.
     hosts (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
   </li>
   <li>
-    <strong>Docker (non ancora verificato):</strong> montare il certificato della CA come file PEM nel
+    <strong>Docker:</strong> montare il certificato della CA come file PEM nel
     container dell'API, impostare la variabile d'ambiente <code>LDAPTLS_CACERT</code> su quel percorso e
-    aggiungere il FQDN con <code>extra_hosts</code> se il DNS non lo risolve.
+    aggiungere il FQDN con <code>extra_hosts</code> se il DNS non lo risolve. Se il controller di dominio non
+    invia un certificato della CA (certificato autofirmato), il suo certificato come file PEM funge da ancora
+    di fiducia. Senza un certificato attendibile la connessione viene rifiutata e segnalata come errore di
+    connessione.
   </li>
   <li>
     <strong>Account di bind:</strong> inserirlo come user principal name (UPN), ad es.

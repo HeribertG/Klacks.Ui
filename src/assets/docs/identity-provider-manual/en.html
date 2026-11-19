@@ -111,8 +111,9 @@ SSL. Use LDAPS ("Use SSL", port 636) whenever the directory is used for sign-in.
 <h4>Active Directory: sign-in only over LDAPS</h4>
 <p>
 Klacks signs people in to Active Directory only over LDAPS (port 636). Without SSL the form shows a warning,
-nobody can sign in and the sign-in approval tab stays closed; client import and the connection test still
-work.
+nobody can sign in and the sign-in approval tab stays closed. Without SSL, client import and the connection
+test work only when Klacks runs directly on Windows; in Docker (Linux) Active Directory needs LDAPS for
+everything.
 </p>
 <ul>
   <li>
@@ -131,9 +132,11 @@ work.
     (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
   </li>
   <li>
-    <strong>Docker (not yet verified):</strong> mount the CA certificate as a PEM file into the API container,
+    <strong>Docker:</strong> mount the CA certificate as a PEM file into the API container,
     set the environment variable <code>LDAPTLS_CACERT</code> to its path, and add the FQDN with
-    <code>extra_hosts</code> if DNS does not resolve it.
+    <code>extra_hosts</code> if DNS does not resolve it. If the domain controller does not send a CA
+    certificate (self-signed certificate), its own certificate as a PEM file works as the trust anchor.
+    Without a trusted certificate the connection is refused and reported as a connection error.
   </li>
   <li>
     <strong>Bind account:</strong> enter it as user principal name (UPN), e.g.

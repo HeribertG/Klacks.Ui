@@ -113,8 +113,9 @@ LDAP-Provider ohne SSL eine Warnung. Wird das Verzeichnis für die Anmeldung gen
 <h4>Active Directory: Anmeldung nur über LDAPS</h4>
 <p>
 Klacks meldet Personen bei Active Directory nur über LDAPS (Port 636) an. Ohne SSL zeigt das Formular eine
-Warnung, niemand kann sich anmelden und der Reiter Anmelde-Freigabe bleibt geschlossen; Client-Import und
-Verbindungstest funktionieren weiterhin.
+Warnung, niemand kann sich anmelden und der Reiter Anmelde-Freigabe bleibt geschlossen. Client-Import und
+Verbindungstest funktionieren ohne SSL nur, wenn Klacks direkt unter Windows läuft; in Docker (Linux) braucht
+Active Directory für alles LDAPS.
 </p>
 <ul>
   <li>
@@ -133,9 +134,12 @@ Verbindungstest funktionieren weiterhin.
     hosts-Datei anlegen (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
   </li>
   <li>
-    <strong>Docker (noch nicht verifiziert):</strong> das CA-Zertifikat als PEM-Datei in den API-Container
+    <strong>Docker:</strong> das CA-Zertifikat als PEM-Datei in den API-Container
     einbinden, die Umgebungsvariable <code>LDAPTLS_CACERT</code> auf diesen Pfad setzen und den FQDN mit
-    <code>extra_hosts</code> eintragen, falls DNS ihn nicht auflöst.
+    <code>extra_hosts</code> eintragen, falls DNS ihn nicht auflöst. Sendet der Domänencontroller kein
+    CA-Zertifikat mit (selbstsigniertes Zertifikat), dient sein eigenes Zertifikat als PEM-Datei als
+    Vertrauensanker. Ohne vertrauenswürdiges Zertifikat wird die Verbindung abgelehnt und als
+    Verbindungsfehler gemeldet.
   </li>
   <li>
     <strong>Bind-Konto:</strong> als User Principal Name (UPN) eintragen, z. B.
