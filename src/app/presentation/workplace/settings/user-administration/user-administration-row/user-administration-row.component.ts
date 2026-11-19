@@ -2,6 +2,7 @@
 
 import {
   Component, ChangeDetectionStrategy,
+  computed,
   effect,
   signal,
   input,
@@ -11,8 +12,10 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
-import { RoleChangeEvent } from './role-change-event.interface';
-import { UserRoleModel } from './user-role-model.interface';
+import { RightsChangeEvent } from './rights-change-event.interface';
+import { UserRightsModel } from './user-rights-model.interface';
+import { USER_RIGHTS_LEVEL, UserRightsLevel } from 'src/app/domain/constants/user-rights-level.constants';
+import { userRightsLevelOf } from 'src/app/domain/helpers/user-rights-level.helper';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
@@ -27,57 +30,46 @@ export class UserAdministrationRowComponent {
   readonly user = input<IAuthentication | undefined>(undefined);
   readonly enabled = input<boolean | undefined>(undefined);
   readonly isDeactivateEvent = output<void>();
-  readonly isRoleChangeEvent = output<RoleChangeEvent>();
+  readonly isRightsChangeEvent = output<RightsChangeEvent>();
   readonly isSentToEvent = output<string>();
   readonly isEditEvent = output<IAuthentication>();
 
-  private isInitialized = false;
-  private lastModel: UserRoleModel | null = null;
-
-  private userRoleModel = signal<UserRoleModel>({
-    isAuthorised: 'false',
-    isAdmin: 'false',
+  readonly rightsLevels = USER_RIGHTS_LEVEL;
+  readonly currentRights = computed(() => {
+    const u = this.user();
+    return u ? userRightsLevelOf(u) : USER_RIGHTS_LEVEL.Planner;
   });
-  userRoleForm = form(this.userRoleModel);
+
+  private isInitialized = false;
+  private lastRights: UserRightsLevel | null = null;
+
+  private userRightsModel = signal<UserRightsModel>({
+    rights: USER_RIGHTS_LEVEL.Planner,
+  });
+  userRightsForm = form(this.userRightsModel);
 
   constructor() {
     effect(() => {
       const u = this.user();
       if (u) {
-        const initialModel: UserRoleModel = {
-          isAuthorised: u.isAuthorised ? 'true' : 'false',
-          isAdmin: u.isAdmin ? 'true' : 'false',
-        };
-        this.userRoleModel.set(initialModel);
-        this.lastModel = { ...initialModel };
+        const rights = userRightsLevelOf(u);
+        this.userRightsModel.set({ rights });
+        this.lastRights = rights;
         this.isInitialized = true;
       }
     });
 
     effect(() => {
-      const model = this.userRoleModel();
+      const rights = this.userRightsModel().rights;
       const u = this.user();
       if (this.isInitialized && u) {
-        if (
-          this.lastModel &&
-          model.isAuthorised !== this.lastModel.isAuthorised
-        ) {
-          u.isAuthorised = model.isAuthorised === 'true';
-          this.isRoleChangeEvent.emit({
+        if (this.lastRights !== null && rights !== this.lastRights) {
+          this.isRightsChangeEvent.emit({
             account: u,
-            roleName: 'Authorised',
-            isSelected: u.isAuthorised,
+            level: rights,
           });
         }
-        if (this.lastModel && model.isAdmin !== this.lastModel.isAdmin) {
-          u.isAdmin = model.isAdmin === 'true';
-          this.isRoleChangeEvent.emit({
-            account: u,
-            roleName: 'Admin',
-            isSelected: u.isAdmin,
-          });
-        }
-        this.lastModel = { ...model };
+        this.lastRights = rights;
       }
     });
   }

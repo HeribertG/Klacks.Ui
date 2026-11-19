@@ -20,6 +20,7 @@ import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messa
 import { DataUserMessengerContactService } from 'src/app/infrastructure/api/messaging/data-user-messenger-contact.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { USER_RIGHTS_LEVEL } from 'src/app/domain/constants/user-rights-level.constants';
 
 describe('UserAdministrationComponent', () => {
     let component: UserAdministrationComponent;
@@ -104,7 +105,7 @@ describe('UserAdministrationComponent', () => {
             addAccount: vi.fn(),
             updateAccount: vi.fn(),
             deactivateAccount: vi.fn(),
-            updateAccountRole: vi.fn(),
+            updateAccountRights: vi.fn(),
             requestPasswordReset: vi.fn(),
             accountsList: signal([...mockUsers]),
             currentAccountId: signal('current-user-id'),
@@ -413,38 +414,29 @@ describe('UserAdministrationComponent', () => {
         });
     });
 
-    describe('Role Management', () => {
-        it('should update user role to Admin', () => {
-            // Arrange
+    describe('Rights Management', () => {
+        it('should hand the chosen rights level to the service', () => {
             const user = mockUsers[1];
 
-            // Act
-            component.onRoleChange(user, 'Admin', true);
+            component.onRightsChange(user, USER_RIGHTS_LEVEL.Admin);
 
-            // Assert
-            expect(mockUserAdminService.updateAccountRole).toHaveBeenCalledWith(user, 'Admin', true);
+            expect(mockUserAdminService.updateAccountRights).toHaveBeenCalledWith(user, USER_RIGHTS_LEVEL.Admin);
         });
 
-        it('should remove Admin role from user', () => {
-            // Arrange
+        it('should hand the planner level to the service for an admin', () => {
             const user = mockUsers[0];
 
-            // Act
-            component.onRoleChange(user, 'Admin', false);
+            component.onRightsChange(user, USER_RIGHTS_LEVEL.Planner);
 
-            // Assert
-            expect(mockUserAdminService.updateAccountRole).toHaveBeenCalledWith(user, 'Admin', false);
+            expect(mockUserAdminService.updateAccountRights).toHaveBeenCalledWith(user, USER_RIGHTS_LEVEL.Planner);
         });
 
-        it('should update user role to Authorised', () => {
-            // Arrange
+        it('should hand the supervisor level to the service', () => {
             const user = mockUsers[2];
 
-            // Act
-            component.onRoleChange(user, 'Authorised', true);
+            component.onRightsChange(user, USER_RIGHTS_LEVEL.Supervisor);
 
-            // Assert
-            expect(mockUserAdminService.updateAccountRole).toHaveBeenCalledWith(user, 'Authorised', true);
+            expect(mockUserAdminService.updateAccountRights).toHaveBeenCalledWith(user, USER_RIGHTS_LEVEL.Supervisor);
         });
     });
 

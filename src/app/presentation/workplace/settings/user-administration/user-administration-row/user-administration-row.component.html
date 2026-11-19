@@ -30,58 +30,40 @@
     <span id="user-admin-row-sendto-{{ user()!.id }}" class="send-to" (click)="onClickSentTo()">{{ 'setting.user-admin.row.send' | translate }}</span>
     }
   </div>
-  <div id="user-admin-row-authorised-group-{{ user()!.id }}" class="form-group">
+  <div id="user-admin-row-rights-group-{{ user()!.id }}" class="form-group">
     @if (enabled()) {
       <select
-        id="user-admin-row-authorised-{{ user()!.id }}"
-        [formField]="userRoleForm.isAuthorised"
-        class="form-select gap"
-        aria-label="isAuthorised"
+        id="user-admin-row-rights-{{ user()!.id }}"
+        [formField]="userRightsForm.rights"
+        class="form-select"
+        [attr.aria-label]="'setting.user-admin.header.rights' | translate"
       >
-        <option value="true">
-          {{ 'setting.user-admin.row.yes' | translate }}
+        <option [value]="rightsLevels.Planner">
+          {{ 'setting.user-admin.row.rights.planner' | translate }}
         </option>
-        <option value="false">
-          {{ 'setting.user-admin.row.no' | translate }}
+        <option [value]="rightsLevels.Supervisor">
+          {{ 'setting.user-admin.row.rights.supervisor' | translate }}
+        </option>
+        <option [value]="rightsLevels.Admin">
+          {{ 'setting.user-admin.row.rights.admin' | translate }}
         </option>
       </select>
     } @else {
       <select
-        id="user-admin-row-authorised-{{ user()!.id }}"
-        class="form-select gap"
-        disabled
-        aria-label="isAuthorised"
-      >
-        <option [selected]="user()!.isAuthorised">
-          {{ 'setting.user-admin.row.yes' | translate }}
-        </option>
-        <option [selected]="!user()!.isAuthorised">
-          {{ 'setting.user-admin.row.no' | translate }}
-        </option>
-      </select>
-    }
-  </div>
-
-  <div id="user-admin-row-admin-group-{{ user()!.id }}" class="form-group">
-    @if (enabled()) {
-      <select
-        id="user-admin-row-admin-{{ user()!.id }}"
-        [formField]="userRoleForm.isAdmin"
-        class="form-select"
-        aria-label="isAdmin"
-      >
-        <option value="true">Admin</option>
-        <option value="false">User</option>
-      </select>
-    } @else {
-      <select
-        id="user-admin-row-admin-{{ user()!.id }}"
+        id="user-admin-row-rights-{{ user()!.id }}"
         class="form-select"
         disabled
-        aria-label="isAdmin"
+        [attr.aria-label]="'setting.user-admin.header.rights' | translate"
       >
-        <option [selected]="user()!.isAdmin">Admin</option>
-        <option [selected]="!user()!.isAdmin">User</option>
+        <option [selected]="currentRights() === rightsLevels.Planner">
+          {{ 'setting.user-admin.row.rights.planner' | translate }}
+        </option>
+        <option [selected]="currentRights() === rightsLevels.Supervisor">
+          {{ 'setting.user-admin.row.rights.supervisor' | translate }}
+        </option>
+        <option [selected]="currentRights() === rightsLevels.Admin">
+          {{ 'setting.user-admin.row.rights.admin' | translate }}
+        </option>
       </select>
     }
   </div>

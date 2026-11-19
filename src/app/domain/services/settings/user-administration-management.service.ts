@@ -3,13 +3,16 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AccountValidationErrors } from 'src/app/domain/models/auth/account-validation-errors.interface';
-import { Subject, timer, of } from 'rxjs';
-import { takeUntil, retry, catchError, tap, finalize } from 'rxjs/operators';
+import { Subject, timer, of, concat, defer } from 'rxjs';
+import { takeUntil, retry, catchError, tap, finalize, toArray } from 'rxjs/operators';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { ChangeRole } from 'src/app/domain/models/change-role-class';
+import { UserRoleStep } from 'src/app/domain/models/auth/user-role-step.interface';
+import { UserRightsLevel } from 'src/app/domain/constants/user-rights-level.constants';
+import { planUserRightsChange } from 'src/app/domain/helpers/user-rights-level.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { readAccountRegistrationRejectionReasons } from 'src/app/domain/helpers/account-registration-rejection.helper';
@@ -209,28 +212,24 @@ export class UserAdministrationManagementService {
       });
   }
 
-  updateAccountRole(
-    account: IAuthentication,
-    roleName: 'Admin' | 'Authorised',
-    isSelected: boolean
-  ): void {
+  updateAccountRights(account: IAuthentication, level: UserRightsLevel): void {
+    const steps = planUserRightsChange(account, level);
+    if (steps.length === 0) {
+      return;
+    }
+
     this.isLoading.set(true);
 
-    const changeRole = new ChangeRole();
-    changeRole.userId = account.id!;
-    changeRole.roleName = roleName;
-    changeRole.isSelected = isSelected;
-
-    this.userAdministrationService
-      .changeRole(changeRole)
+    concat(...steps.map((step) => defer(() => this.userAdministrationService.changeRole(this.toChangeRole(account, step)))))
       .pipe(
         takeUntil(this.destroy$),
+        toArray(),
         catchError((error) => {
-          console.error('Failed to update account role:', error);
+          console.error('Failed to update account rights:', error);
           this.eventBus.emit(DomainEventType.ERROR, {
             message: '',
             code: 'ACCOUNT_ROLE_UPDATE_ERROR',
-            context: 'UserAdministrationManagementService.updateAccountRole',
+            context: 'UserAdministrationManagementService.updateAccountRights',
           });
           return of(null);
         }),
@@ -239,6 +238,14 @@ export class UserAdministrationManagementService {
       .subscribe(() => {
         this.loadAccountsList();
       });
+  }
+
+  private toChangeRole(account: IAuthentication, step: UserRoleStep): ChangeRole {
+    const changeRole = new ChangeRole();
+    changeRole.userId = account.id!;
+    changeRole.roleName = step.roleName;
+    changeRole.isSelected = step.isSelected;
+    return changeRole;
   }
 
   requestPasswordReset(email: string): void {
