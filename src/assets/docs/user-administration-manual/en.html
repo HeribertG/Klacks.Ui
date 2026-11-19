@@ -64,6 +64,29 @@ The trash icon removes a login account permanently, after confirmation in the de
 dialog.
 </p>
 
+<h3>Accounts from the directory</h3>
+<p>
+Accounts that an administrator approved on the <em>Sign-in approval</em> tab of an LDAP or Active
+Directory identity provider sign in with their directory password. Such an account has no Klacks
+password and is marked <em>Directory sign-in only</em> in its row; the link for sending access
+credentials is not shown, and a password reset is not possible. Its roles are assigned here as usual.
+</p>
+<ul>
+  <li>
+    An approval never takes over an existing account. If a person already has a Klacks account with the
+    same e-mail address, delete that account or change its e-mail address here first, then tick the
+    directory account.
+  </li>
+  <li>
+    Removing the approval on the identity provider deactivates the account. A deactivated directory
+    account that has roles is reactivated here, not on the identity provider.
+  </li>
+  <li>
+    When someone leaves, remove the tick in Klacks too: a running session continues until it expires,
+    even if the account is already disabled in the directory.
+  </li>
+</ul>
+
 <hr>
 
 <h3>Your own account</h3>

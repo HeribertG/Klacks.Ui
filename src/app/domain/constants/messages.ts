@@ -29,6 +29,8 @@ export class DomainMessages {
   public static AUTH_USER_NOT_EXIST =
     'Es wurde ein falsches Passwort oder falscher Benutzername eingegeben. Bitte versuchen Sie es erneut!';
   public static AUTH_USER_ERROR = 'Zugangsberechtigung fehlgeschlagen! ';
+  public static AUTH_DIRECTORY_ACCESS_NOT_GRANTED =
+    'Ihre Anmeldedaten sind korrekt, aber Ihr Konto ist für Klacks nicht freigegeben. Bitte wenden Sie sich an Ihren Administrator.';
   public static RESPONSE_ERROR = 'Bekommen keine Antwort vom Server! ';
 
   public static SUCCESS_STORAGE = 'Daten wurden erfolgreich gespeichert';

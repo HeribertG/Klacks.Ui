@@ -62,6 +62,94 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Nota: Per OpenLDAP, il genere è predefinito "Neutro" e può essere corretto manualmente.</em></p>
 
+<h4>Accesso tramite directory</h4>
+<p>
+Se "Usa per autenticazione" è attivato e salvato, le persone possono accedere a Klacks con la password
+della directory. Nessuno ottiene l'accesso automaticamente: l'amministratore autorizza ogni persona nella
+scheda <strong>Autorizzazione accesso</strong>.
+</p>
+<ul>
+  <li>La scheda elenca gli account della directory (al massimo 1000; con la ricerca si restringe l'elenco).</li>
+  <li>
+    La spunta crea un nuovo account Klacks senza ruolo e senza password. Gli account Klacks esistenti non
+    vengono mai ripresi: se l'indirizzo e-mail è già usato da un account Klacks, la riga non può essere
+    spuntata. Eliminare prima quell'account o cambiarne l'indirizzo e-mail nell'amministrazione utenti.
+  </li>
+  <li>
+    Togliendo la spunta l'account Klacks viene disattivato; spuntando di nuovo viene riattivato, purché non
+    abbia ruoli. Un account disattivato che ha ancora ruoli si riattiva nell'amministrazione utenti.
+  </li>
+  <li>
+    Uscita: quando una persona lascia l'azienda, togliere anche la spunta in Klacks. Bloccare l'account nella
+    directory impedisce nuovi accessi, ma le sessioni già in corso continuano fino alla loro scadenza.
+  </li>
+  <li>Un account senza indirizzo e-mail nella directory non può essere autorizzato.</li>
+  <li>Il proprio account non può essere modificato in questa scheda.</li>
+  <li>
+    Chi ha credenziali della directory corrette ma non è autorizzato riceve il messaggio che l'account non è
+    autorizzato e che deve rivolgersi all'amministratore.
+  </li>
+</ul>
+
+<h4>Nomi di accesso</h4>
+<table>
+  <tr><th>Tipo</th><th>Nomi di accesso accettati</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName o indirizzo e-mail</td></tr>
+  <tr><td>LDAP</td><td>uid o indirizzo e-mail</td></tr>
+</table>
+<p>
+Klacks cerca la persona con l'utente di bind e poi verifica la password presso la directory; il nome di
+accesso quindi non deve corrispondere all'indirizzo e-mail.
+</p>
+
+<h4>Crittografia</h4>
+<p>
+LDAP semplice sulla porta 389 trasmette le password in chiaro; il modulo mostra un avviso per un provider
+LDAP senza SSL. Se la directory viene usata per l'accesso, utilizzare LDAPS ("Usa SSL", porta 636).
+</p>
+
+<h4>Active Directory: accesso solo tramite LDAPS</h4>
+<p>
+Klacks fa accedere le persone ad Active Directory solo tramite LDAPS (porta 636). Senza SSL il modulo mostra
+un avviso, nessuno può accedere e la scheda Autorizzazione accesso resta chiusa; l'importazione clienti e il
+test di connessione continuano a funzionare.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> il nome completo (FQDN) esattamente come compare nel certificato del domain
+    controller, ad es. <code>dc01.example.local</code>. Un indirizzo IP non funziona, perché la verifica del
+    certificato confronta il nome.
+  </li>
+  <li>
+    <strong>Fidarsi della CA:</strong> il computer su cui gira Klacks deve fidarsi dell'autorità di
+    certificazione che ha emesso il certificato del domain controller. Windows: importare il certificato
+    della CA nell'archivio <em>Autorità di certificazione radice attendibili</em> del computer, ad es.
+    <code>certutil -addstore Root ca.cer</code> (come amministratore).
+  </li>
+  <li>
+    <strong>Risoluzione dei nomi:</strong> se il FQDN non viene risolto dal DNS, aggiungere una voce nel file
+    hosts (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker (non ancora verificato):</strong> montare il certificato della CA come file PEM nel
+    container dell'API, impostare la variabile d'ambiente <code>LDAPTLS_CACERT</code> su quel percorso e
+    aggiungere il FQDN con <code>extra_hosts</code> se il DNS non lo risolve.
+  </li>
+  <li>
+    <strong>Account di bind:</strong> inserirlo come user principal name (UPN), ad es.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Quali account vengono importati</h4>
+<ul>
+  <li>Gli account disattivati e gli account di sistema di Active Directory non vengono mai importati né elencati.</li>
+  <li>
+    Escludere gli account di servizio con il filtro utente, ad es. solo i membri di un gruppo:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -93,19 +181,21 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 <h4>Synology NAS come server LDAP</h4>
 <p>
 Un NAS Synology può essere utilizzato come server LDAP. Installare il pacchetto
-"Server LDAP" o un container Docker con OpenLDAP.
+"LDAP Server" o un container Docker con OpenLDAP.
 </p>
 <ul>
-  <li>Tipo provider: "Active Directory" (per autenticazione di fallback)</li>
+  <li>Tipo di provider: "LDAP" (non "Active Directory")</li>
   <li>Filtro utente: (objectClass=inetOrgPerson)</li>
-  <li>Formato DN utente: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Accesso con uid o indirizzo e-mail</li>
+  <li>Se possibile usare LDAPS (porta 636)</li>
 </ul>
 
 <h4>Test connessione</h4>
 <p>
-Utilizzare il pulsante "Test connessione" per verificare la configurazione.
-In caso di connessione riuscita, verranno visualizzati il numero di utenti
-trovati e alcuni nomi utente di esempio.
+Con il pulsante "Test connessione" si verifica la configurazione. Mostra il numero di account attivi trovati
+dal filtro utente (gli account disattivati e di sistema non vengono contati) e alcuni nomi utente di esempio.
+Un "+" dopo il numero significa che il server della directory si è fermato al suo limite di risultati; gli
+account quindi sono di più.
 </p>
 
 <h4>Risoluzione problemi</h4>
@@ -115,4 +205,6 @@ trovati e alcuni nomi utente di esempio.
   <tr><td>Bind fallito</td><td>Verificare Bind DN e password</td></tr>
   <tr><td>Nessun utente trovato</td><td>Verificare Base DN e filtro utente</td></tr>
   <tr><td>Indirizzi non importati</td><td>OpenLDAP usa "street" invece di "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Attivare "Usa SSL" (porta 636)</td></tr>
+  <tr><td>La connessione fallisce solo con SSL</td><td>Inserire l'host come FQDN esattamente come nel certificato e fidarsi della CA sul computer</td></tr>
 </table>

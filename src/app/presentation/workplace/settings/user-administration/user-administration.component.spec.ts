@@ -52,6 +52,7 @@ describe('UserAdministrationComponent', () => {
             modelState: undefined,
             deactivatedAt: null,
             phoneNumber: null,
+            isDirectoryLoginOnly: false,
         },
         {
             id: '2',
@@ -70,6 +71,7 @@ describe('UserAdministrationComponent', () => {
             modelState: undefined,
             deactivatedAt: null,
             phoneNumber: null,
+            isDirectoryLoginOnly: false,
         },
         {
             id: '3',
@@ -88,6 +90,7 @@ describe('UserAdministrationComponent', () => {
             modelState: undefined,
             deactivatedAt: null,
             phoneNumber: null,
+            isDirectoryLoginOnly: false,
         },
     ];
 

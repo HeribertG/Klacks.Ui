@@ -85,6 +85,12 @@
         }
       </div>
 
+      @if (transportWarningKey(); as warningKey) {
+        <div id="identity-provider-modal-transport-warning" class="alert alert-warning transport-warning" role="status">
+          {{ warningKey | translate }}
+        </div>
+      }
+
       <div id="identity-provider-modal-tabs-container">
         <ul id="identity-provider-modal-tabs" class="nav nav-tabs">
           <li id="identity-provider-modal-tab-general-item" class="nav-item">
@@ -104,6 +110,17 @@
                 [class.active]="tabId() === 'connection'"
                 (click)="tabId.set('connection')"
                 >{{ 'settings.identity-provider.tab-connection' | translate }}</a
+              >
+            </li>
+          }
+          @if (hasAccountsTab()) {
+            <li id="identity-provider-modal-tab-accounts-item" class="nav-item">
+              <a
+                id="identity-provider-modal-tab-accounts-link"
+                class="nav-link"
+                [class.active]="tabId() === 'accounts'"
+                (click)="tabId.set('accounts')"
+                >{{ 'settings.identity-provider.tab-accounts' | translate }}</a
               >
             </li>
           }
@@ -220,7 +237,7 @@
         <div class="form-row-inline" style="margin-top: 15px;">
           <div style="margin-inline-start: 30px; width: 100%">
             <label for="userFilter">{{ 'settings.identity-provider.user-filter' | translate }}</label>
-            <input type="text" class="form-control" id="userFilter" [(ngModel)]="p.userFilter" placeholder="(&(objectClass=user)(objectCategory=person))" style="width: calc(100% - 60px)" />
+            <input type="text" class="form-control" id="userFilter" [(ngModel)]="p.userFilter" [placeholder]="userFilterPlaceholder()" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
@@ -230,7 +247,7 @@
             @if (result.success) {
               <strong>{{ 'settings.identity-provider.test-success' | translate }}</strong>
               @if (result.userCount !== undefined) {
-                <br />{{ 'settings.identity-provider.user-count' | translate }}: {{ result.userCount }}
+                <br />{{ 'settings.identity-provider.user-count' | translate }}: {{ userCountLabel(result) }}
               }
               @if (result.sampleUsers && result.sampleUsers.length > 0) {
                 <br />{{ 'settings.identity-provider.sample-users' | translate }}: {{ result.sampleUsers.join(', ') }}
@@ -261,6 +278,12 @@
           </div>
         }
       </div>
+
+      @if (tabId() === 'accounts' && hasAccountsTab()) {
+        <div id="identity-provider-modal-accounts-content" class="tab-content-box">
+          <app-identity-provider-accounts [providerId]="p.id" />
+        </div>
+      }
 
       <!-- OAuth Tab -->
       <div

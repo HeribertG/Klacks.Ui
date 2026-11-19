@@ -19,4 +19,5 @@ export interface IAuthentication {
   modelState: IModelStateDictionary | undefined;
   deactivatedAt: string | null | undefined;
   phoneNumber: string | null | undefined;
+  isDirectoryLoginOnly: boolean;
 }

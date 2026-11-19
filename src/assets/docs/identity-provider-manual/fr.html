@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Note: Pour OpenLDAP, le genre est par défaut "Neutre" et peut être corrigé manuellement.</em></p>
 
+<h4>Connexion par l'annuaire</h4>
+<p>
+Lorsque « Utiliser pour l'authentification » est activé et enregistré, les personnes peuvent se connecter
+à Klacks avec leur mot de passe de l'annuaire. Personne n'obtient l'accès automatiquement : l'administrateur
+autorise chaque personne dans l'onglet <strong>Autorisation de connexion</strong>.
+</p>
+<ul>
+  <li>L'onglet liste les comptes de l'annuaire (1000 au maximum ; la recherche permet d'affiner la liste).</li>
+  <li>
+    Cocher un compte crée un nouveau compte Klacks sans rôle ni mot de passe. Les comptes Klacks existants ne
+    sont jamais repris : si l'adresse e-mail est déjà utilisée par un compte Klacks, la ligne ne peut pas être
+    cochée. Supprimez d'abord ce compte ou modifiez son adresse e-mail dans la gestion des utilisateurs.
+  </li>
+  <li>
+    Décocher désactive le compte Klacks ; cocher à nouveau le réactive, tant qu'il n'a pas de rôle. Un compte
+    désactivé qui possède encore des rôles se réactive dans la gestion des utilisateurs.
+  </li>
+  <li>
+    Départ : lorsqu'une personne quitte l'entreprise, décochez aussi son compte dans Klacks. Bloquer le compte
+    dans l'annuaire empêche les nouvelles connexions, mais les sessions en cours continuent jusqu'à leur
+    expiration.
+  </li>
+  <li>Un compte sans adresse e-mail dans l'annuaire ne peut pas être autorisé.</li>
+  <li>Votre propre compte ne peut pas être modifié dans cet onglet.</li>
+  <li>
+    Une personne dont les identifiants de l'annuaire sont corrects mais qui n'est pas autorisée reçoit le
+    message que son compte n'est pas autorisé et qu'elle doit contacter l'administrateur.
+  </li>
+</ul>
+
+<h4>Identifiants de connexion</h4>
+<table>
+  <tr><th>Type</th><th>Identifiants acceptés</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName ou adresse e-mail</td></tr>
+  <tr><td>LDAP</td><td>uid ou adresse e-mail</td></tr>
+</table>
+<p>
+Klacks recherche la personne avec l'utilisateur de liaison, puis vérifie le mot de passe auprès de
+l'annuaire ; l'identifiant n'a donc pas besoin de correspondre à l'adresse e-mail.
+</p>
+
+<h4>Chiffrement</h4>
+<p>
+LDAP simple sur le port 389 transmet les mots de passe en clair ; le formulaire affiche un avertissement pour
+un fournisseur LDAP sans SSL. Utilisez LDAPS (« Utiliser SSL », port 636) dès que l'annuaire sert à la
+connexion.
+</p>
+
+<h4>Active Directory : connexion uniquement via LDAPS</h4>
+<p>
+Klacks connecte les personnes à Active Directory uniquement via LDAPS (port 636). Sans SSL, le formulaire
+affiche un avertissement, personne ne peut se connecter et l'onglet Autorisation de connexion reste fermé ;
+l'import de clients et le test de connexion continuent de fonctionner.
+</p>
+<ul>
+  <li>
+    <strong>Hôte :</strong> le nom complet (FQDN) exactement tel qu'il figure dans le certificat du contrôleur
+    de domaine, p. ex. <code>dc01.example.local</code>. Une adresse IP ne fonctionne pas, car la vérification
+    du certificat compare le nom.
+  </li>
+  <li>
+    <strong>Faire confiance à l'autorité de certification :</strong> l'ordinateur qui exécute Klacks doit faire
+    confiance à l'autorité qui a émis le certificat du contrôleur de domaine. Windows : importez le certificat
+    de l'autorité dans le magasin <em>Autorités de certification racines de confiance</em> de l'ordinateur,
+    p. ex. <code>certutil -addstore Root ca.cer</code> (en tant qu'administrateur).
+  </li>
+  <li>
+    <strong>Résolution de noms :</strong> si le FQDN n'est pas résolu par le DNS, ajoutez une entrée dans le
+    fichier hosts (Windows : <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker (pas encore vérifié) :</strong> montez le certificat de l'autorité en fichier PEM dans le
+    conteneur de l'API, définissez la variable d'environnement <code>LDAPTLS_CACERT</code> sur ce chemin et
+    ajoutez le FQDN avec <code>extra_hosts</code> si le DNS ne le résout pas.
+  </li>
+  <li>
+    <strong>Compte de liaison :</strong> saisissez-le sous forme de nom d'utilisateur principal (UPN), p. ex.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Comptes importés</h4>
+<ul>
+  <li>Les comptes désactivés et les comptes système d'Active Directory ne sont jamais importés ni listés.</li>
+  <li>
+    Excluez les comptes de service avec le filtre utilisateur, p. ex. uniquement les membres d'un groupe :
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -93,19 +183,21 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 <h4>Synology NAS comme serveur LDAP</h4>
 <p>
 Un NAS Synology peut être utilisé comme serveur LDAP. Installez le paquet
-"Serveur LDAP" ou un conteneur Docker avec OpenLDAP.
+« LDAP Server » ou un conteneur Docker avec OpenLDAP.
 </p>
 <ul>
-  <li>Type de fournisseur: "Active Directory" (pour l'authentification de secours)</li>
-  <li>Filtre utilisateur: (objectClass=inetOrgPerson)</li>
-  <li>Format DN utilisateur: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Type de fournisseur : « LDAP » (pas « Active Directory »)</li>
+  <li>Filtre utilisateur : (objectClass=inetOrgPerson)</li>
+  <li>Connexion avec l'uid ou l'adresse e-mail</li>
+  <li>Utilisez de préférence LDAPS (port 636)</li>
 </ul>
 
 <h4>Tester la connexion</h4>
 <p>
-Utilisez le bouton "Tester la connexion" pour vérifier la configuration.
-En cas de connexion réussie, le nombre d'utilisateurs trouvés et quelques
-noms d'utilisateurs exemples seront affichés.
+Le bouton « Tester la connexion » permet de vérifier la configuration. Il affiche le nombre de comptes actifs
+trouvés par le filtre utilisateur (les comptes désactivés et système ne sont pas comptés) et quelques noms
+d'utilisateur d'exemple. Un « + » après le nombre signifie que le serveur d'annuaire s'est arrêté à sa limite
+de résultats ; il y a donc davantage de comptes.
 </p>
 
 <h4>Dépannage</h4>
@@ -115,4 +207,6 @@ noms d'utilisateurs exemples seront affichés.
   <tr><td>Bind échoué</td><td>Vérifier le Bind DN et le mot de passe</td></tr>
   <tr><td>Aucun utilisateur trouvé</td><td>Vérifier le Base DN et le filtre utilisateur</td></tr>
   <tr><td>Adresses non importées</td><td>OpenLDAP utilise "street" au lieu de "streetAddress"</td></tr>
+  <tr><td>« Strong authentication required »</td><td>Activer « Utiliser SSL » (port 636)</td></tr>
+  <tr><td>La connexion échoue seulement avec SSL</td><td>Saisir l'hôte en FQDN exactement comme dans le certificat et faire confiance à l'autorité sur l'ordinateur</td></tr>
 </table>

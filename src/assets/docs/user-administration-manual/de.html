@@ -67,6 +67,30 @@ Der Papierkorb-Button entfernt ein Login-Konto endgültig, nach Bestätigung im
 Lösch-Dialog.
 </p>
 
+<h3>Konten aus dem Verzeichnis</h3>
+<p>
+Konten, die ein Administrator im Reiter <em>Anmelde-Freigabe</em> eines LDAP- oder Active-Directory-
+Identity-Providers freigegeben hat, melden sich mit ihrem Verzeichnis-Passwort an. Ein solches Konto hat
+kein Klacks-Passwort und ist in seiner Zeile mit <em>Nur Verzeichnis-Anmeldung</em> markiert; der Link
+"Passwort zurücksetzen" fehlt, ein Zurücksetzen des Passworts ist nicht möglich. Die Rollen werden wie
+gewohnt hier vergeben.
+</p>
+<ul>
+  <li>
+    Eine Freigabe übernimmt nie ein bestehendes Konto. Hat eine Person bereits ein Klacks-Konto mit
+    derselben E-Mail-Adresse, löschen Sie dieses Konto zuerst oder ändern Sie hier dessen E-Mail-Adresse
+    und haken Sie danach das Verzeichniskonto an.
+  </li>
+  <li>
+    Wird die Freigabe beim Identity Provider entfernt, wird das Konto deaktiviert. Ein deaktiviertes
+    Verzeichniskonto mit Rollen wird hier reaktiviert, nicht beim Identity Provider.
+  </li>
+  <li>
+    Bei einem Austritt auch den Haken in Klacks entfernen: Eine laufende Sitzung bleibt bis zu ihrem
+    Ablauf bestehen, selbst wenn das Konto im Verzeichnis schon gesperrt ist.
+  </li>
+</ul>
+
 <hr>
 
 <h3>Eigener Account</h3>

@@ -38,6 +38,7 @@ import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.constants';
 import { ACCOUNT_LOGOUT_PATH } from 'src/app/domain/constants/auth-request.constants';
 import { STAND_IN_API_PATH } from 'src/app/domain/constants/stand-in.constants';
+import { DIRECTORY_ACCOUNTS_API_SEGMENT } from 'src/app/domain/constants/identity-provider.constants';
 import { readAddressValidationFailure } from 'src/app/domain/helpers/address-validation-failure.helper';
 import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
@@ -91,6 +92,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     ACCOUNT_LOGOUT_PATH,
     STAND_IN_API_PATH,
     SETUP_FIRST_START_STATUS_API_SEGMENT,
+    DIRECTORY_ACCOUNTS_API_SEGMENT,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,

@@ -29,6 +29,20 @@ import { DataManagementIdentityProviderService } from 'src/app/domain/services/s
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { IdentityProviderAccountsComponent } from '../identity-provider-accounts/identity-provider-accounts.component';
+import {
+  applyDirectoryTypeDefaults,
+  defaultDirectoryPort,
+  directoryTransportWarningKey,
+  isDirectoryProviderType,
+  isUsableForDirectoryLogin,
+} from 'src/app/domain/helpers/identity-provider-defaults.helper';
+import {
+  DEFAULT_USER_FILTER,
+  LDAPS_DEFAULT_PORT,
+  LDAP_DEFAULT_PORT,
+  TRUNCATED_COUNT_SUFFIX,
+} from 'src/app/domain/constants/identity-provider.constants';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
@@ -41,6 +55,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
     TranslateModule,
     NgbModule,
     TrashIconRedComponent,
+    IdentityProviderAccountsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -60,8 +75,9 @@ export class IdentityProviderRowComponent implements OnDestroy {
   private wasSaved = false;
   private destroy$ = new Subject<void>();
 
-  tabId = signal<'general' | 'connection' | 'oauth' | 'help'>('general');
+  tabId = signal<'general' | 'connection' | 'accounts' | 'oauth' | 'help'>('general');
   editProvider = signal<IdentityProvider | null>(null);
+  persistedUseSsl = signal(false);
   testResult = signal<ITestConnectionResult | null>(null);
   syncResult = signal<ISyncResult | null>(null);
   manualContent = signal('');
@@ -76,6 +92,32 @@ export class IdentityProviderRowComponent implements OnDestroy {
   isLdapType(): boolean {
     const p = this.editProvider();
     return p !== null && (p.type === IdentityProviderType.Ldap || p.type === IdentityProviderType.ActiveDirectory);
+  }
+
+  /**
+   * The approval list needs the saved provider: a directory type usable for sign-in (AD only with SSL) with "use for
+   * authentication" stored on the server.
+   */
+  hasAccountsTab(): boolean {
+    const persisted = this.data();
+    return this.isLdapType() && !!this.editProvider()?.id && isDirectoryProviderType(persisted.type)
+      && isUsableForDirectoryLogin(persisted.type, this.persistedUseSsl())
+      && persisted.useForAuthentication;
+  }
+
+  /** Transport warning for the values in the form (AD without SSL cannot sign in, LDAP without SSL is unencrypted). */
+  transportWarningKey(): string | null {
+    const p = this.editProvider();
+    return p !== null ? directoryTransportWarningKey(p.type, p.useSsl) : null;
+  }
+
+  userCountLabel(result: ITestConnectionResult): string {
+    return `${result.userCount}${result.isTruncated ? TRUNCATED_COUNT_SUFFIX : ''}`;
+  }
+
+  userFilterPlaceholder(): string {
+    const p = this.editProvider();
+    return p !== null && isDirectoryProviderType(p.type) ? DEFAULT_USER_FILTER[p.type] : '';
   }
 
   isOAuthType(): boolean {
@@ -107,12 +149,14 @@ export class IdentityProviderRowComponent implements OnDestroy {
       newProvider.name = this.data().name;
       newProvider.type = this.data().type;
       newProvider.isDirty = CreateEntriesEnum.new;
-      newProvider.port = 389;
-      newProvider.userFilter = '(&(objectClass=user)(objectCategory=person))';
+      newProvider.port = defaultDirectoryPort(newProvider.useSsl);
+      applyDirectoryTypeDefaults(newProvider);
+      this.persistedUseSsl.set(false);
       this.editProvider.set(newProvider);
     } else {
       const loaded = await this.providerService.loadProvider(this.data().id);
       if (loaded) {
+        this.persistedUseSsl.set(loaded.useSsl);
         this.editProvider.set(loaded);
       }
     }
@@ -156,13 +200,9 @@ export class IdentityProviderRowComponent implements OnDestroy {
     const p = this.editProvider();
     if (!p) return;
 
-    if (p.type === IdentityProviderType.Ldap) {
-      p.port = 389;
-      p.useSsl = false;
-    } else if (p.type === IdentityProviderType.ActiveDirectory) {
-      p.port = 389;
-      p.useSsl = false;
-      p.userFilter = '(&(objectClass=user)(objectCategory=person))';
+    applyDirectoryTypeDefaults(p);
+    if (!this.isLdapType() && (this.tabId() === 'connection' || this.tabId() === 'accounts')) {
+      this.tabId.set('general');
     }
   }
 
@@ -170,17 +210,17 @@ export class IdentityProviderRowComponent implements OnDestroy {
     const p = this.editProvider();
     if (!p) return;
 
-    if (p.useSsl && (p.port === 389 || !p.port)) {
-      p.port = 636;
-    } else if (!p.useSsl && p.port === 636) {
-      p.port = 389;
+    if (p.useSsl && (p.port === LDAP_DEFAULT_PORT || !p.port)) {
+      p.port = LDAPS_DEFAULT_PORT;
+    } else if (!p.useSsl && p.port === LDAPS_DEFAULT_PORT) {
+      p.port = LDAP_DEFAULT_PORT;
     }
   }
 
   async onSave(): Promise<void> {
     const p = this.editProvider();
-    if (p) {
-      await this.providerService.saveProvider(p);
+    if (p && await this.providerService.saveProvider(p)) {
+      this.persistedUseSsl.set(p.useSsl);
     }
     this.wasSaved = true;
     this.providerChangedEvent.emit();

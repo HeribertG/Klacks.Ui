@@ -10,7 +10,7 @@ export class IdentityProvider implements IIdentityProvider {
   isEnabled = false;
   sortOrder = 0;
   useForAuthentication = false;
-  useForClientImport = true;
+  useForClientImport = false;
   host?: string;
   port?: number;
   useSsl = false;

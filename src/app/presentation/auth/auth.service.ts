@@ -3,9 +3,12 @@
 /* eslint-disable no-prototype-builtins */
 import { inject, Injectable, Injector, ProviderToken } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { HttpStatusCode } from '@angular/common/http';
 import { SERVER_LOGOUT_WAIT_MS } from 'src/app/domain/constants/auth-request.constants';
 import { MyToken } from 'src/app/domain/models/my-token-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { AUTH_ERROR_DIRECTORY_ACCESS_NOT_GRANTED } from 'src/app/domain/constants/auth-error-codes.constants';
+import { readRefusalCode } from 'src/app/domain/helpers/read-refusal-code.helper';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
 import { isRefreshTokenRejection } from 'src/app/domain/helpers/refresh-token-rejection.helper';
@@ -96,7 +99,14 @@ export class AuthService {
           return true;
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        if (readRefusalCode(error, HttpStatusCode.Unauthorized) === AUTH_ERROR_DIRECTORY_ACCESS_NOT_GRANTED) {
+          this.toastShowService.showError(
+            DomainMessages.AUTH_DIRECTORY_ACCESS_NOT_GRANTED,
+            'AUTH_DIRECTORY_ACCESS_NOT_GRANTED'
+          );
+          return false;
+        }
         this.toastShowService.showError(
           DomainMessages.AUTH_USER_ERROR,
           'AUTH_USER_ERROR'

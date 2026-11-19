@@ -20,4 +20,5 @@ export class Authentication implements IAuthentication {
   modelState: ModelStateDictionary | undefined = undefined;
   deactivatedAt: string | null | undefined = null;
   phoneNumber: string | null | undefined = undefined;
+  isDirectoryLoginOnly = false;
 }

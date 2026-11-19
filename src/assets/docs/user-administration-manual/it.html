@@ -70,6 +70,30 @@ L'icona del cestino rimuove definitivamente un account di accesso, dopo conferma
 finestra di eliminazione.
 </p>
 
+<h3>Account dalla directory</h3>
+<p>
+Gli account che un amministratore ha autorizzato nella scheda <em>Autorizzazione accesso</em> di un
+identity provider LDAP o Active Directory accedono con la password della directory. Un tale account non ha
+una password Klacks ed è contrassegnato nella sua riga con <em>Solo accesso tramite directory</em>; il link
+per inviare le credenziali non è mostrato e non è possibile reimpostare la password. I ruoli si assegnano
+qui come di consueto.
+</p>
+<ul>
+  <li>
+    Un'autorizzazione non riprende mai un account esistente. Se una persona ha già un account Klacks con lo
+    stesso indirizzo e-mail, eliminare prima quell'account o cambiarne qui l'indirizzo e-mail, poi spuntare
+    l'account della directory.
+  </li>
+  <li>
+    Togliendo l'autorizzazione nell'identity provider l'account viene disattivato. Un account della
+    directory disattivato che ha dei ruoli si riattiva qui, non nell'identity provider.
+  </li>
+  <li>
+    In caso di uscita togliere anche la spunta in Klacks: una sessione in corso continua fino alla sua
+    scadenza, anche se l'account è già bloccato nella directory.
+  </li>
+</ul>
+
 <hr>
 
 <h3>Il proprio account</h3>

@@ -5,6 +5,11 @@
 @use "../../../../../../assets/standard-styles/modal-buttons.scss";
 @use "../../../../../../assets/standard-styles/standard-manual.scss";
 
+.transport-warning {
+  margin-inline: 30px;
+  margin-bottom: 10px;
+}
+
 .row-line-modal-inline {
   flex-wrap: wrap;
   gap: 10px;

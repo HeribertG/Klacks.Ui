@@ -4,5 +4,6 @@ export interface ITestConnectionResult {
   success: boolean;
   errorMessage?: string;
   userCount?: number;
+  isTruncated: boolean;
   sampleUsers?: string[];
 }

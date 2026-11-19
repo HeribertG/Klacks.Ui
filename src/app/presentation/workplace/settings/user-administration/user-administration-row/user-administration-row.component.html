@@ -26,7 +26,9 @@
       readonly
       aria-label="email"
     />
-    @if (enabled()) {
+    @if (user()!.isDirectoryLoginOnly) {
+    <span id="user-admin-row-directory-login-{{ user()!.id }}" class="directory-login">{{ 'setting.user-admin.row.directory-login' | translate }}</span>
+    } @else if (enabled()) {
     <span id="user-admin-row-sendto-{{ user()!.id }}" class="send-to" (click)="onClickSentTo()">{{ 'setting.user-admin.row.send' | translate }}</span>
     }
   </div>

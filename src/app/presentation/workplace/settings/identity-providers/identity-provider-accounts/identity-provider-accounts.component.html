@@ -1,0 +1,87 @@
+<div id="identity-provider-accounts" class="accounts">
+  <p id="identity-provider-accounts-intro" class="accounts-intro">
+    {{ 'settings.identity-provider.accounts.intro' | translate }}
+  </p>
+
+  <input
+    id="identity-provider-accounts-search"
+    type="search"
+    class="form-control accounts-search"
+    [value]="searchText()"
+    [maxLength]="searchMaxLength"
+    [placeholder]="'settings.identity-provider.accounts.search-placeholder' | translate"
+    [attr.aria-label]="'settings.identity-provider.accounts.search-placeholder' | translate"
+    (input)="onSearchInput($event)"
+  />
+
+  <div id="identity-provider-accounts-status" role="status" aria-live="polite">
+    @if (providerService.isLoadingAccounts()) {
+      <span id="identity-provider-accounts-loading" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+    }
+    @if (providerService.accountsLoadFailed()) {
+      <div id="identity-provider-accounts-load-failed" class="alert alert-danger accounts-notice">
+        {{ 'settings.identity-provider.accounts.load-failed' | translate }}
+      </div>
+    }
+    @if (providerService.accountsTruncated()) {
+      <div id="identity-provider-accounts-truncated" class="alert alert-warning accounts-notice">
+        {{ 'settings.identity-provider.accounts.truncated' | translate }}
+      </div>
+    }
+    @if (showEmpty()) {
+      <div id="identity-provider-accounts-empty" class="accounts-notice">
+        {{ 'settings.identity-provider.accounts.empty' | translate }}
+      </div>
+    }
+  </div>
+
+  @if (providerService.directoryAccounts().length > 0) {
+    <table id="identity-provider-accounts-table" class="table table-sm accounts-table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'settings.identity-provider.accounts.column.may-login' | translate }}</th>
+          <th scope="col">{{ 'settings.identity-provider.accounts.column.name' | translate }}</th>
+          <th scope="col">{{ 'settings.identity-provider.accounts.column.login-name' | translate }}</th>
+          <th scope="col">{{ 'settings.identity-provider.accounts.column.email' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (account of providerService.directoryAccounts(); track account.externalId; let i = $index) {
+          <tr id="identity-provider-accounts-row-{{ i }}" [class.not-in-directory]="!account.isInDirectory">
+            <td>
+              <input
+                id="identity-provider-accounts-may-login-{{ i }}"
+                type="checkbox"
+                class="form-check-input"
+                [checked]="account.mayLogin"
+                [disabled]="isToggleDisabled(account)"
+                [attr.aria-label]="'settings.identity-provider.accounts.column.may-login' | translate"
+                (change)="onToggle(account, $event)"
+              />
+            </td>
+            <td>
+              <span class="account-name">{{ account.displayName }}</span>
+              @if (isOwnAccount(account)) {
+                <div class="account-hint">{{ 'settings.identity-provider.accounts.hint.own-account' | translate }}</div>
+              }
+              @if (isBlockedByEmailInUse(account)) {
+                <div class="account-hint">{{ 'settings.identity-provider.accounts.hint.email-in-use' | translate }}</div>
+              }
+              @if (isBlockedByRoles(account)) {
+                <div class="account-hint">{{ 'settings.identity-provider.accounts.hint.has-roles' | translate }}</div>
+              }
+              @if (account.userId === null && account.email === null) {
+                <div class="account-hint">{{ 'settings.identity-provider.accounts.hint.no-email' | translate }}</div>
+              }
+              @if (!account.isInDirectory) {
+                <div class="account-hint">{{ 'settings.identity-provider.accounts.hint.not-in-directory' | translate }}</div>
+              }
+            </td>
+            <td>{{ account.loginName }}</td>
+            <td>{{ account.email }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

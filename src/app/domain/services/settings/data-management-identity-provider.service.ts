@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Subject, firstValueFrom } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { EMPTY, Observable, Subject, firstValueFrom, of } from 'rxjs';
+import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 import { DataIdentityProviderService } from 'src/app/infrastructure/api/settings/data-identity-provider.service';
 import { IdentityProvider } from 'src/app/domain/models/settings/identity-provider-class';
 import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider-list-item.interface';
@@ -10,16 +10,23 @@ import { ITestConnectionResult } from 'src/app/domain/interfaces/test-connection
 import { ISyncResult } from 'src/app/domain/interfaces/sync-result.interface';
 import { ICreateIdentityProviderRequest } from 'src/app/domain/interfaces/create-identity-provider-request.interface';
 import { IUpdateIdentityProviderRequest } from 'src/app/domain/interfaces/update-identity-provider-request.interface';
-import { IdentityProviderType } from 'src/app/domain/enums/identity-provider-enum';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
+import { readRefusalCode } from 'src/app/domain/helpers/read-refusal-code.helper';
+import { IDirectoryAccount } from 'src/app/domain/models/settings/directory-account.interface';
+import { IDirectoryAccountList } from 'src/app/domain/models/settings/directory-account-list.interface';
+import { IDirectoryAccountsRequest } from 'src/app/domain/models/settings/directory-accounts-request.interface';
+import { IDirectoryAccountAccessOutcome } from 'src/app/domain/models/settings/directory-account-access-outcome.interface';
+import { UserAdministrationManagementService } from './user-administration-management.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementIdentityProviderService {
   private dataService = inject(DataIdentityProviderService);
+  private userAdministration = inject(UserAdministrationManagementService);
   private destroy$ = new Subject<void>();
+  private directoryAccountsRequest$ = new Subject<IDirectoryAccountsRequest | null>();
 
   public providerList = signal<IIdentityProviderListItem[]>([]);
   private providerListOriginal = signal<IIdentityProviderListItem[]>([]);
@@ -32,7 +39,19 @@ export class DataManagementIdentityProviderService {
   public syncResult = signal<ISyncResult | null>(null);
   public isDirty = computed(() => this.checkIfDirty());
 
-  private saveCounter = 0;
+  public directoryAccounts = signal<IDirectoryAccount[]>([]);
+  public isLoadingAccounts = signal<boolean>(false);
+  public accountsTruncated = signal<boolean>(false);
+  public accountsLoadFailed = signal<boolean>(false);
+
+  constructor() {
+    this.directoryAccountsRequest$
+      .pipe(
+        switchMap((request) => (request ? this.fetchDirectoryAccounts(request) : EMPTY)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((result) => this.applyDirectoryAccounts(result));
+  }
 
   loadProviders(): void {
     this.isLoading.set(true);
@@ -84,17 +103,6 @@ export class DataManagementIdentityProviderService {
       console.error('Failed to load identity provider:', error);
       return null;
     }
-  }
-
-  createNewProvider(): IdentityProvider {
-    const provider = new IdentityProvider();
-    provider.isDirty = CreateEntriesEnum.new;
-    provider.type = IdentityProviderType.Ldap;
-    provider.port = 389;
-    provider.userFilter = '(&(objectClass=user)(objectCategory=person))';
-    provider.sortOrder = this.providerList().length;
-    this.selectedProvider.set(provider);
-    return provider;
   }
 
   async saveProvider(provider: IdentityProvider): Promise<boolean> {
@@ -185,6 +193,7 @@ export class DataManagementIdentityProviderService {
     } catch (error) {
       const errorResult: ITestConnectionResult = {
         success: false,
+        isTruncated: false,
         errorMessage: error instanceof Error ? error.message : 'Connection test failed',
       };
       this.testResult.set(errorResult);
@@ -218,6 +227,73 @@ export class DataManagementIdentityProviderService {
     } finally {
       this.isSyncing.set(false);
     }
+  }
+
+  /**
+   * Loads the approval list of a directory provider. A newer call supersedes one still in flight, so a slow answer to
+   * an older search can never overwrite the rows of the current one.
+   * @param providerId - Persisted id of the LDAP/AD provider
+   * @param search - Search text; empty lists everyone the directory returns
+   */
+  loadDirectoryAccounts(providerId: string, search: string): void {
+    this.isLoadingAccounts.set(true);
+    this.accountsLoadFailed.set(false);
+    this.directoryAccountsRequest$.next({ providerId, search });
+  }
+
+  /** Drops the rows of the previous provider and cancels a load still in flight. */
+  clearDirectoryAccounts(): void {
+    this.directoryAccountsRequest$.next(null);
+    this.directoryAccounts.set([]);
+    this.isLoadingAccounts.set(false);
+    this.accountsTruncated.set(false);
+    this.accountsLoadFailed.set(false);
+  }
+
+  /**
+   * Approves or withdraws the sign-in of a directory account. On success the row is replaced by the server's answer and
+   * the user list is reloaded, because an approval can create, link, deactivate or reactivate a Klacks account.
+   * @param providerId - Persisted id of the LDAP/AD provider
+   * @param externalId - Stable directory id of the account
+   * @param mayLogin - True approves, false withdraws
+   * @returns The changed row, or the server's refusal code (null when the failure carried none)
+   */
+  async setDirectoryAccountAccess(
+    providerId: string,
+    externalId: string,
+    mayLogin: boolean
+  ): Promise<IDirectoryAccountAccessOutcome> {
+    try {
+      const account = await firstValueFrom(
+        this.dataService.setDirectoryAccountAccess(providerId, externalId, mayLogin)
+      );
+      this.directoryAccounts.update((rows) =>
+        rows.map((row) => (row.externalId === externalId ? account : row))
+      );
+      this.userAdministration.loadAccounts();
+      return { account, errorCode: null };
+    } catch (error) {
+      console.error('Failed to change directory account access:', error);
+      return { account: null, errorCode: readRefusalCode(error) };
+    }
+  }
+
+  private fetchDirectoryAccounts(request: IDirectoryAccountsRequest): Observable<IDirectoryAccountList | null> {
+    return this.dataService.getDirectoryAccounts(request.providerId, request.search).pipe(
+      map((result) => result ?? null),
+      catchError((error) => {
+        console.error('Failed to load directory accounts:', error);
+        return of(null);
+      })
+    );
+  }
+
+  private applyDirectoryAccounts(result: IDirectoryAccountList | null): void {
+    const loaded = result !== null && result.success;
+    this.directoryAccounts.set(loaded ? result.accounts : []);
+    this.accountsTruncated.set(loaded && result.isTruncated);
+    this.accountsLoadFailed.set(!loaded);
+    this.isLoadingAccounts.set(false);
   }
 
   private checkIfDirty(): boolean {

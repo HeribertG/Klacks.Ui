@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Hinweis: Bei OpenLDAP ist das Geschlecht standardmässig "Neutral" und kann manuell korrigiert werden.</em></p>
 
+<h4>Anmeldung über das Verzeichnis</h4>
+<p>
+Ist "Für Authentifizierung verwenden" aktiviert und gespeichert, können sich Personen mit ihrem
+Verzeichnis-Passwort bei Klacks anmelden. Niemand erhält automatisch Zugang: Der Administrator gibt jede
+Person im Reiter <strong>Anmelde-Freigabe</strong> frei.
+</p>
+<ul>
+  <li>Der Reiter listet die Verzeichniskonten (höchstens 1000; mit der Suche lässt sich die Liste eingrenzen).</li>
+  <li>
+    Ein Haken legt ein neues Klacks-Konto ohne Rolle und ohne Passwort an. Bestehende Klacks-Konten werden
+    nie übernommen: Wird die E-Mail-Adresse bereits von einem Klacks-Konto verwendet, lässt sich die Zeile
+    nicht anhaken. Löschen Sie dieses Konto zuerst oder ändern Sie dessen E-Mail-Adresse in der
+    Benutzerverwaltung.
+  </li>
+  <li>
+    Wird der Haken entfernt, wird das Klacks-Konto deaktiviert; erneutes Anhaken reaktiviert es, solange es
+    keine Rolle hat. Ein deaktiviertes Konto mit Rollen wird in der Benutzerverwaltung reaktiviert.
+  </li>
+  <li>
+    Austritt: Wenn jemand das Unternehmen verlässt, auch den Haken in Klacks entfernen. Das Sperren im
+    Verzeichnis verhindert neue Anmeldungen, laufende Sitzungen bleiben aber bis zu ihrem Ablauf bestehen.
+  </li>
+  <li>Ein Konto ohne E-Mail-Adresse im Verzeichnis kann nicht freigegeben werden.</li>
+  <li>Das eigene Konto kann in diesem Reiter nicht geändert werden.</li>
+  <li>
+    Wer korrekte Verzeichnis-Anmeldedaten hat, aber nicht freigegeben ist, erhält die Meldung, dass das
+    Konto nicht freigegeben ist und er sich an den Administrator wenden soll.
+  </li>
+</ul>
+
+<h4>Anmeldenamen</h4>
+<table>
+  <tr><th>Typ</th><th>Akzeptierte Anmeldenamen</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName oder E-Mail-Adresse</td></tr>
+  <tr><td>LDAP</td><td>uid oder E-Mail-Adresse</td></tr>
+</table>
+<p>
+Klacks sucht die Person mit dem Bind-Benutzer und prüft danach das Passwort gegen das Verzeichnis; der
+Anmeldename muss deshalb nicht der E-Mail-Adresse entsprechen.
+</p>
+
+<h4>Verschlüsselung</h4>
+<p>
+Einfaches LDAP auf Port 389 überträgt Passwörter unverschlüsselt; das Formular zeigt bei einem
+LDAP-Provider ohne SSL eine Warnung. Wird das Verzeichnis für die Anmeldung genutzt, sollte LDAPS
+("SSL verwenden", Port 636) eingesetzt werden.
+</p>
+
+<h4>Active Directory: Anmeldung nur über LDAPS</h4>
+<p>
+Klacks meldet Personen bei Active Directory nur über LDAPS (Port 636) an. Ohne SSL zeigt das Formular eine
+Warnung, niemand kann sich anmelden und der Reiter Anmelde-Freigabe bleibt geschlossen; Client-Import und
+Verbindungstest funktionieren weiterhin.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> der vollständige Name (FQDN) genau so, wie er im Zertifikat des Domänencontrollers
+    steht, z. B. <code>dc01.example.local</code>. Eine IP-Adresse funktioniert nicht, weil die
+    Zertifikatsprüfung den Namen vergleicht.
+  </li>
+  <li>
+    <strong>CA vertrauen:</strong> Der Rechner, auf dem Klacks läuft, muss der Zertifizierungsstelle vertrauen,
+    die das Zertifikat des Domänencontrollers ausgestellt hat. Windows: das CA-Zertifikat in den Speicher
+    <em>Vertrauenswürdige Stammzertifizierungsstellen</em> des Computers importieren, z. B.
+    <code>certutil -addstore Root ca.cer</code> (als Administrator).
+  </li>
+  <li>
+    <strong>Namensauflösung:</strong> Lässt sich der FQDN nicht über DNS auflösen, einen Eintrag in der
+    hosts-Datei anlegen (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker (noch nicht verifiziert):</strong> das CA-Zertifikat als PEM-Datei in den API-Container
+    einbinden, die Umgebungsvariable <code>LDAPTLS_CACERT</code> auf diesen Pfad setzen und den FQDN mit
+    <code>extra_hosts</code> eintragen, falls DNS ihn nicht auflöst.
+  </li>
+  <li>
+    <strong>Bind-Konto:</strong> als User Principal Name (UPN) eintragen, z. B.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Welche Konten importiert werden</h4>
+<ul>
+  <li>Deaktivierte Konten und Systemkonten von Active Directory werden nie importiert und nie aufgelistet.</li>
+  <li>
+    Dienstkonten über den User Filter ausschliessen, z. B. nur Mitglieder einer Gruppe:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +186,18 @@ Ein Synology NAS kann als LDAP-Server verwendet werden. Dazu muss das Paket
 "LDAP Server" oder ein Docker-Container mit OpenLDAP installiert werden.
 </p>
 <ul>
-  <li>Provider-Typ: "Active Directory" (für Fallback-Authentifizierung)</li>
+  <li>Provider-Typ: "LDAP" (nicht "Active Directory")</li>
   <li>User Filter: (objectClass=inetOrgPerson)</li>
-  <li>Benutzer-DN-Format: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Anmeldung mit uid oder E-Mail-Adresse</li>
+  <li>Wenn möglich LDAPS (Port 636) verwenden</li>
 </ul>
 
 <h4>Verbindung testen</h4>
 <p>
-Verwenden Sie den "Verbindung testen"-Button um die Konfiguration zu überprüfen.
-Bei erfolgreicher Verbindung werden die Anzahl gefundener Benutzer und einige
-Beispiel-Benutzernamen angezeigt.
+Mit "Verbindung testen" lässt sich die Konfiguration prüfen. Angezeigt werden die Anzahl der aktiven Konten,
+die der User Filter findet (deaktivierte und Systemkonten werden nicht gezählt), und einige
+Beispiel-Benutzernamen. Ein "+" hinter der Zahl bedeutet, dass der Verzeichnisserver an seinem
+Ergebnislimit angehalten hat; es gibt also mehr Konten.
 </p>
 
 <h4>Fehlerbehebung</h4>
@@ -115,4 +207,6 @@ Beispiel-Benutzernamen angezeigt.
   <tr><td>Bind fehlgeschlagen</td><td>Bind DN und Passwort überprüfen</td></tr>
   <tr><td>Keine Benutzer gefunden</td><td>Base DN und User Filter überprüfen</td></tr>
   <tr><td>Adressen nicht importiert</td><td>OpenLDAP verwendet "street" statt "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>"SSL verwenden" aktivieren (Port 636)</td></tr>
+  <tr><td>Verbindung scheitert nur mit SSL</td><td>Host als FQDN genau wie im Zertifikat eintragen und der CA auf dem Rechner vertrauen</td></tr>
 </table>

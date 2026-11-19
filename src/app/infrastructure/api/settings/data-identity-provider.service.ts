@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -11,6 +11,14 @@ import { ITestConnectionResult } from 'src/app/domain/interfaces/test-connection
 import { ISyncResult } from 'src/app/domain/interfaces/sync-result.interface';
 import { ICreateIdentityProviderRequest } from 'src/app/domain/interfaces/create-identity-provider-request.interface';
 import { IUpdateIdentityProviderRequest } from 'src/app/domain/interfaces/update-identity-provider-request.interface';
+import { IDirectoryAccount } from 'src/app/domain/models/settings/directory-account.interface';
+import { IDirectoryAccountList } from 'src/app/domain/models/settings/directory-account-list.interface';
+import { IDirectoryAccountAccess } from 'src/app/domain/models/settings/directory-account-access.interface';
+import {
+  DIRECTORY_ACCOUNTS_ACCESS_API_SEGMENT,
+  DIRECTORY_ACCOUNTS_API_SEGMENT,
+  DIRECTORY_ACCOUNTS_SEARCH_PARAM,
+} from 'src/app/domain/constants/identity-provider.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -59,5 +67,22 @@ export class DataIdentityProviderService {
     return this.httpClient
       .post<ISyncResult>(`${this.apiUrl}/${id}/SyncClients`, {})
       .pipe(retry(1));
+  }
+
+  getDirectoryAccounts(id: string, search: string): Observable<IDirectoryAccountList> {
+    const term = search.trim();
+    const params = term ? new HttpParams().set(DIRECTORY_ACCOUNTS_SEARCH_PARAM, term) : undefined;
+    return this.httpClient.get<IDirectoryAccountList>(
+      `${this.apiUrl}/${id}/${DIRECTORY_ACCOUNTS_API_SEGMENT}`,
+      { params }
+    );
+  }
+
+  setDirectoryAccountAccess(id: string, externalId: string, mayLogin: boolean): Observable<IDirectoryAccount> {
+    const body: IDirectoryAccountAccess = { externalId, mayLogin };
+    return this.httpClient.put<IDirectoryAccount>(
+      `${this.apiUrl}/${id}/${DIRECTORY_ACCOUNTS_API_SEGMENT}/${DIRECTORY_ACCOUNTS_ACCESS_API_SEGMENT}`,
+      body
+    );
   }
 }

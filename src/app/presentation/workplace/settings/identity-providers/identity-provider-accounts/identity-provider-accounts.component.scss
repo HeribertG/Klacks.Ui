@@ -1,0 +1,31 @@
+.accounts {
+  margin-inline: 30px;
+}
+
+.accounts-intro {
+  margin-bottom: 10px;
+}
+
+.accounts-search {
+  width: 300px;
+  height: var(--controlHeight);
+  margin-bottom: 10px;
+}
+
+.accounts-notice {
+  margin-top: 10px;
+}
+
+.accounts-table {
+  margin-top: 10px;
+}
+
+.account-hint {
+  font-size: var(--fontSizeLabel);
+  font-style: italic;
+  color: var(--colorWorkplaceHeadline);
+}
+
+.not-in-directory .account-name {
+  text-decoration: line-through;
+}

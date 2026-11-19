@@ -62,6 +62,94 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Note: For OpenLDAP, gender defaults to "Neutral" and can be manually corrected.</em></p>
 
+<h4>Sign-in through the directory</h4>
+<p>
+When "Use for Authentication" is enabled and saved, people can sign in to Klacks with their directory
+password. Nobody gets access automatically: the administrator approves each person on the
+<strong>Sign-in approval</strong> tab.
+</p>
+<ul>
+  <li>The tab lists the directory accounts (at most 1000; use the search to narrow the list).</li>
+  <li>
+    Ticking an account creates a new Klacks account without a role and without a password. Existing Klacks
+    accounts are never taken over: if the e-mail address is already used by a Klacks account, the row cannot
+    be ticked. Delete that account or change its e-mail address in the user administration first.
+  </li>
+  <li>
+    Removing the tick deactivates the Klacks account; ticking again reactivates it, as long as it has no role.
+    A deactivated account that still has roles is reactivated in the user administration.
+  </li>
+  <li>
+    Offboarding: when someone leaves, remove the tick in Klacks as well. Disabling the account in the
+    directory blocks new sign-ins, but sessions that are already running continue until they expire.
+  </li>
+  <li>An account without an e-mail address in the directory cannot be approved.</li>
+  <li>Your own account cannot be changed on this tab.</li>
+  <li>
+    A person with correct directory credentials but without approval gets the message that the account
+    is not approved and should contact the administrator.
+  </li>
+</ul>
+
+<h4>Login names</h4>
+<table>
+  <tr><th>Type</th><th>Accepted login names</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName or e-mail address</td></tr>
+  <tr><td>LDAP</td><td>uid or e-mail address</td></tr>
+</table>
+<p>
+Klacks looks the person up with the bind user and then checks the password against the directory, so
+the login name does not need to match the e-mail address.
+</p>
+
+<h4>Encryption</h4>
+<p>
+Plain LDAP on port 389 sends passwords unencrypted; the form shows a warning for an LDAP provider without
+SSL. Use LDAPS ("Use SSL", port 636) whenever the directory is used for sign-in.
+</p>
+
+<h4>Active Directory: sign-in only over LDAPS</h4>
+<p>
+Klacks signs people in to Active Directory only over LDAPS (port 636). Without SSL the form shows a warning,
+nobody can sign in and the sign-in approval tab stays closed; client import and the connection test still
+work.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> the fully qualified name (FQDN) exactly as it appears in the domain controller's
+    certificate, e.g. <code>dc01.example.local</code>. An IP address does not work, because the certificate
+    check compares the name.
+  </li>
+  <li>
+    <strong>Trust the CA:</strong> the computer that runs Klacks must trust the certificate authority that
+    issued the domain controller certificate. Windows: import the CA certificate into the computer's
+    <em>Trusted Root Certification Authorities</em> store, e.g. <code>certutil -addstore Root ca.cer</code>
+    (as administrator).
+  </li>
+  <li>
+    <strong>Name resolution:</strong> if the FQDN cannot be resolved through DNS, add a hosts entry
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker (not yet verified):</strong> mount the CA certificate as a PEM file into the API container,
+    set the environment variable <code>LDAPTLS_CACERT</code> to its path, and add the FQDN with
+    <code>extra_hosts</code> if DNS does not resolve it.
+  </li>
+  <li>
+    <strong>Bind account:</strong> enter it as user principal name (UPN), e.g.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Which accounts are imported</h4>
+<ul>
+  <li>Disabled accounts and Active Directory system accounts are never imported and never listed.</li>
+  <li>
+    Exclude service accounts with the user filter, e.g. only members of one group:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +184,17 @@ A Synology NAS can be used as an LDAP server. Install the "LDAP Server" package
 or a Docker container with OpenLDAP.
 </p>
 <ul>
-  <li>Provider Type: "Active Directory" (for fallback authentication)</li>
+  <li>Provider Type: "LDAP" (not "Active Directory")</li>
   <li>User Filter: (objectClass=inetOrgPerson)</li>
-  <li>User DN Format: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Users sign in with their uid or e-mail address</li>
+  <li>Prefer LDAPS (port 636)</li>
 </ul>
 
 <h4>Test Connection</h4>
 <p>
-Use the "Test Connection" button to verify the configuration.
-On successful connection, the number of users found and some
-sample usernames will be displayed.
+Use the "Test Connection" button to verify the configuration. It shows the number of active accounts the
+user filter finds (disabled and system accounts are not counted) and some sample user names. A "+" after
+the number means the directory server stopped at its result limit, so there are more accounts.
 </p>
 
 <h4>Troubleshooting</h4>
@@ -115,4 +204,6 @@ sample usernames will be displayed.
   <tr><td>Bind failed</td><td>Check Bind DN and password</td></tr>
   <tr><td>No users found</td><td>Check Base DN and User Filter</td></tr>
   <tr><td>Addresses not imported</td><td>OpenLDAP uses "street" instead of "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Enable "Use SSL" (port 636)</td></tr>
+  <tr><td>Connection fails only with SSL</td><td>Enter the host as FQDN exactly as in the certificate and make the computer trust the CA</td></tr>
 </table>

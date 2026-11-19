@@ -73,6 +73,30 @@ L'icône de corbeille supprime définitivement un compte de connexion, après co
 dans la boîte de dialogue de suppression.
 </p>
 
+<h3>Comptes issus de l'annuaire</h3>
+<p>
+Les comptes qu'un administrateur a autorisés dans l'onglet <em>Autorisation de connexion</em> d'un
+fournisseur d'identité LDAP ou Active Directory se connectent avec leur mot de passe de l'annuaire. Un tel
+compte n'a pas de mot de passe Klacks et est marqué <em>Connexion par annuaire uniquement</em> dans sa
+ligne ; le lien d'envoi des identifiants n'est pas affiché et une réinitialisation du mot de passe n'est
+pas possible. Les rôles sont attribués ici comme d'habitude.
+</p>
+<ul>
+  <li>
+    Une autorisation ne reprend jamais un compte existant. Si une personne possède déjà un compte Klacks
+    avec la même adresse e-mail, supprimez d'abord ce compte ou modifiez ici son adresse e-mail, puis
+    cochez le compte de l'annuaire.
+  </li>
+  <li>
+    Retirer l'autorisation dans le fournisseur d'identité désactive le compte. Un compte de l'annuaire
+    désactivé qui possède des rôles se réactive ici, pas dans le fournisseur d'identité.
+  </li>
+  <li>
+    Lors d'un départ, décochez aussi le compte dans Klacks : une session en cours continue jusqu'à son
+    expiration, même si le compte est déjà bloqué dans l'annuaire.
+  </li>
+</ul>
+
 <hr>
 
 <h3>Votre propre compte</h3>

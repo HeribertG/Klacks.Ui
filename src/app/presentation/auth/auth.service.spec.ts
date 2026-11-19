@@ -7,6 +7,8 @@ import { AuthService } from './auth.service';
 import { MyToken } from 'src/app/domain/models/my-token-class';
 import { ToastShowService } from '../toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { AUTH_ERROR_DIRECTORY_ACCESS_NOT_GRANTED } from 'src/app/domain/constants/auth-error-codes.constants';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import {
     SERVER_LOGOUT_WAIT_MS,
@@ -118,6 +120,34 @@ describe('AuthService', () => {
         expect(localStorage.getItem(StorageKeys.TOKEN_USERID)).toBe('id');
         expect(localStorage.getItem(StorageKeys.TOKEN_EXP)).not.toBeNull();
         expect(service.authenticated()).toBe(true);
+    });
+
+    describe('refused sign-in', () => {
+        it('should explain a directory account that is not approved instead of reporting wrong credentials', async () => {
+            const toast = TestBed.inject(ToastShowService);
+            const showError = vi.spyOn(toast, 'showError').mockImplementation(() => undefined);
+
+            const loginPromise = service.logIn('anna', 'password');
+            httpMock.expectOne(loginUrl).flush({ errorCode: AUTH_ERROR_DIRECTORY_ACCESS_NOT_GRANTED }, unauthorized);
+
+            expect(await loginPromise).toBe(false);
+            expect(showError).toHaveBeenCalledWith(
+                DomainMessages.AUTH_DIRECTORY_ACCESS_NOT_GRANTED,
+                'AUTH_DIRECTORY_ACCESS_NOT_GRANTED'
+            );
+            expect(service.authenticated()).toBe(false);
+        });
+
+        it('should keep the general failure text for a 401 without that code', async () => {
+            const toast = TestBed.inject(ToastShowService);
+            const showError = vi.spyOn(toast, 'showError').mockImplementation(() => undefined);
+
+            const loginPromise = service.logIn('anna', 'wrong');
+            httpMock.expectOne(loginUrl).flush('Unauthorized', unauthorized);
+
+            expect(await loginPromise).toBe(false);
+            expect(showError).toHaveBeenCalledWith(DomainMessages.AUTH_USER_ERROR, 'AUTH_USER_ERROR');
+        });
     });
 
     describe('session marker', () => {
