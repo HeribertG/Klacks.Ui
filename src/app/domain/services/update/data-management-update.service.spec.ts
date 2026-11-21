@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
+import { firstValueFrom, of } from 'rxjs';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 import { DataWhisperPluginService } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
@@ -48,5 +49,22 @@ describe('DataManagementUpdateService whisper plugin operations', () => {
     whisperApi.uninstall.mockResolvedValue(result);
 
     await expect(service.uninstallWhisperPlugin()).resolves.toBe(result);
+  });
+});
+
+describe('DataManagementUpdateService engine upgrade', () => {
+  it('forwards the engine upgrade start to the update api', async () => {
+    const result = { enqueued: true, operationId: 'op-3', blockedReason: null };
+    const api = { startEngineUpgrade: vi.fn().mockReturnValue(of(result)) };
+    TestBed.configureTestingModule({
+      providers: [
+        DataManagementUpdateService,
+        { provide: DataUpdateService, useValue: api },
+        { provide: DataWhisperPluginService, useValue: {} },
+      ],
+    });
+
+    await expect(firstValueFrom(TestBed.inject(DataManagementUpdateService).startEngineUpgrade())).resolves.toBe(result);
+    expect(api.startEngineUpgrade).toHaveBeenCalledTimes(1);
   });
 });

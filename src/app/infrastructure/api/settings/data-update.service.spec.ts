@@ -35,6 +35,32 @@ describe('DataUpdateService', () => {
     req.flush({ enqueued: true, operationId: 'abc', reason: 'Update enqueued.' });
   });
 
+  it('starts the engine upgrade via POST without a body', () => {
+    let result: unknown;
+    service.startEngineUpgrade().subscribe(r => (result = r));
+    const req = httpMock.expectOne(`${environment.baseUrl}update/EngineUpgrade`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toBeNull();
+    req.flush({ enqueued: true, operationId: 'op-9', blockedReason: null });
+    expect(result).toEqual({ enqueued: true, operationId: 'op-9', blockedReason: null });
+  });
+
+  it('returns the blocked reason of a 409 as a result instead of an error', () => {
+    let result: unknown;
+    service.startEngineUpgrade().subscribe(r => (result = r));
+    httpMock
+      .expectOne(`${environment.baseUrl}update/EngineUpgrade`)
+      .flush({ enqueued: false, operationId: null, blockedReason: 'OperationInProgress' }, { status: 409, statusText: 'Conflict' });
+    expect(result).toEqual({ enqueued: false, operationId: null, blockedReason: 'OperationInProgress' });
+  });
+
+  it('passes any other failure of the engine upgrade on as an error', () => {
+    let status: number | null = null;
+    service.startEngineUpgrade().subscribe({ error: (e: { status: number }) => (status = e.status) });
+    httpMock.expectOne(`${environment.baseUrl}update/EngineUpgrade`).flush(null, { status: 403, statusText: 'Forbidden' });
+    expect(status).toBe(403);
+  });
+
   it('saves config via PUT', () => {
     const config = {
       autoEnabled: true, channel: 'Beta', checkIntervalHours: 8,

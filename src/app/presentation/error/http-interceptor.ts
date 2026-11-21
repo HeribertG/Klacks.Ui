@@ -39,6 +39,7 @@ import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.cons
 import { ACCOUNT_LOGOUT_PATH } from 'src/app/domain/constants/auth-request.constants';
 import { STAND_IN_API_PATH } from 'src/app/domain/constants/stand-in.constants';
 import { DIRECTORY_ACCOUNTS_API_SEGMENT } from 'src/app/domain/constants/identity-provider.constants';
+import { ENGINE_UPGRADE_API_PATH } from 'src/app/domain/constants/engine-upgrade.constants';
 import { readAddressValidationFailure } from 'src/app/domain/helpers/address-validation-failure.helper';
 import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
@@ -69,9 +70,7 @@ import {
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
-  private workplaceStateService = inject(
-    WorkplaceStateService
-  );
+  private workplaceStateService = inject(WorkplaceStateService);
   private toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
@@ -93,6 +92,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     STAND_IN_API_PATH,
     SETUP_FIRST_START_STATUS_API_SEGMENT,
     DIRECTORY_ACCOUNTS_API_SEGMENT,
+    ENGINE_UPGRADE_API_PATH,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,

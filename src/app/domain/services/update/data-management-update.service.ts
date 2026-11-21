@@ -13,6 +13,7 @@ import { DataWhisperPluginService } from 'src/app/infrastructure/api/assistant/d
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
+import { IEngineUpgradeTriggerResult } from 'src/app/domain/models/settings/engine-upgrade-trigger-result.interface';
 import { IUpdateConfig } from 'src/app/domain/models/settings/update-config.interface';
 import { IUpdateHistoryItem } from 'src/app/domain/models/settings/update-history-item.interface';
 import { IUpdateStatus } from 'src/app/domain/models/settings/update-status.interface';
@@ -47,6 +48,10 @@ export class DataManagementUpdateService {
 
   rollbackUpdate(): Observable<IUpdateTriggerResult> {
     return this.api.rollbackUpdate();
+  }
+
+  startEngineUpgrade(): Observable<IEngineUpgradeTriggerResult> {
+    return this.api.startEngineUpgrade();
   }
 
   cancelUpdate(id: string): Observable<void> {

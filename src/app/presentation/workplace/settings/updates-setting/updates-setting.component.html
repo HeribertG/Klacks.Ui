@@ -23,6 +23,11 @@
           <span class="hint-text settings-hint">{{ 'settings.updates.status.active' | translate }}</span>
           <span class="hint-text settings-hint">{{ s.activeOperation.operationType }} – {{ s.activeOperation.status }}</span>
         </div>
+      } @else if (engineUpgradeRunning()) {
+        <div class="form-group secondColumn">
+          <span class="hint-text settings-hint">{{ 'settings.updates.status.active' | translate }}</span>
+          <span id="updates-engine-running" class="hint-text settings-hint" role="status">{{ engineKeys.RUNNING | translate }}</span>
+        </div>
       } @else if (s.lastOperation) {
         <div class="form-group secondColumn">
           <span class="hint-text settings-hint">{{ 'settings.updates.status.last' | translate }}</span>
@@ -36,7 +41,7 @@
         type="button"
         id="updates-trigger-btn"
         class="btn btn-primary firstColumn"
-        [disabled]="busy() || !!s.activeOperation || !s.availability?.isUpdateAvailable"
+        [disabled]="actionsLocked() || !s.availability?.isUpdateAvailable"
         (click)="triggerNow()"
       >
         {{ 'settings.updates.button.install' | translate }}
@@ -45,7 +50,7 @@
         type="button"
         id="updates-rollback-btn"
         class="btn btn-outline-secondary secondColumn"
-        [disabled]="busy() || !!s.activeOperation"
+        [disabled]="actionsLocked()"
         (click)="rollback()"
       >
         {{ 'settings.updates.button.rollback' | translate }}
@@ -54,6 +59,49 @@
 
     @if (actionMessage()) {
       <div class="action-message settings-hint">{{ actionMessage() | translate }}</div>
+    }
+
+    <div id="updates-setting-engine-line" class="container-line"></div>
+    <div class="info-text settings-hint">{{ engineKeys.TITLE | translate }}</div>
+    <div id="updates-setting-engine" class="row-line">
+      <div class="form-group firstColumn">
+        <span class="hint-text settings-hint">{{ engineKeys.CURRENT | translate }}</span>
+        <span id="updates-engine-current" class="hint-text settings-hint">{{ s.currentMajor }}</span>
+      </div>
+      <div class="form-group secondColumn">
+        <span class="hint-text settings-hint">{{ engineKeys.AVAILABLE | translate }}</span>
+        @if (engineUpgradeOffered()) {
+          <span id="updates-engine-available" class="hint-text settings-hint status-text-success">{{ s.availableMajor }}</span>
+        } @else {
+          <span id="updates-engine-up-to-date" class="hint-text settings-hint">{{ engineKeys.UP_TO_DATE | translate }}</span>
+        }
+      </div>
+    </div>
+
+    @if (engineUpgradeOffered()) {
+      @if (s.canStartEngineUpgrade) {
+        <div class="row-line" style="margin-top: 12px">
+          <button
+            type="button"
+            id="updates-engine-upgrade-btn"
+            class="btn btn-primary firstColumn"
+            [disabled]="actionsLocked()"
+            (click)="requestEngineUpgrade()"
+          >
+            {{ engineKeys.BUTTON | translate: engineMajorParams() }}
+          </button>
+        </div>
+      } @else if (engineBlockedReasonKey()) {
+        <div id="updates-engine-blocked" class="action-message settings-hint" role="status">
+          {{ engineBlockedReasonKey() | translate }}
+        </div>
+      }
+    }
+
+    @if (engineMessage()) {
+      <div id="updates-engine-message" class="action-message settings-hint" role="status">
+        {{ engineMessage() | translate }}
+      </div>
     }
   }
 
@@ -192,7 +240,7 @@
                 <button
                   type="button"
                   class="btn-icon"
-                  [disabled]="busy()"
+                  [disabled]="actionsLocked()"
                   [ngbTooltip]="'settings.updates.history.continue.tooltip' | translate"
                   [attr.aria-label]="'settings.updates.history.continue.tooltip' | translate"
                   (click)="continueHistoryEntry(item)"
@@ -203,7 +251,7 @@
               <button
                 type="button"
                 class="btn-icon"
-                [disabled]="busy()"
+                [disabled]="actionsLocked()"
                 [ngbTooltip]="'settings.updates.history.delete.tooltip' | translate"
                 [attr.aria-label]="'settings.updates.history.delete.tooltip' | translate"
                 (click)="deleteHistoryEntry(item)"

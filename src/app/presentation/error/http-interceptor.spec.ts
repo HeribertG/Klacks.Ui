@@ -68,6 +68,7 @@ const ERP_IMPORT_FILE_RETRY_URL = '/api/backend/ErpDropPoints/files/3f2b8c1e-0d4
 const SEAL_PERIOD_URL = '/api/backend/PeriodClosing/Seal';
 const CONFIRM_WORK_URL = '/api/backend/Works/3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b/Confirm';
 const EXPLAIN_OFFER_STATE_URL = '/api/backend/assistant/explain-offers/shift-holiday-options';
+const ENGINE_UPGRADE_URL = '/api/backend/update/EngineUpgrade';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
 
@@ -1058,6 +1059,23 @@ describe('ResponseInterceptor', () => {
       httpMock.expectOne(CONFIRM_WORK_URL).flush(null, SERVER_ERROR);
 
       expect(toastShowService.showError).toHaveBeenCalled();
+    });
+  });
+
+  describe('engine upgrade pass-through (the updates card reports every refusal itself)', () => {
+    it.each([CONFLICT, FORBIDDEN, SERVER_ERROR])('neither toasts nor clears the unsaved-changes flag for a $status', (response) => {
+      // Arrange
+      workplaceStateService.isDirty = true;
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(ENGINE_UPGRADE_URL, null).subscribe({ error: (error: HttpErrorResponse) => (captured.status = error.status) });
+
+      // Act
+      httpMock.expectOne(ENGINE_UPGRADE_URL).flush(null, response);
+
+      // Assert
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(captured.status).toBe(response.status);
     });
   });
 
