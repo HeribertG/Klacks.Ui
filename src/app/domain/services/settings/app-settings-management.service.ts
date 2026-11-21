@@ -50,6 +50,7 @@ import { ComplianceEnforcementSettings } from 'src/app/domain/models/settings/co
 import { ActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.model';
 import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { IUpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.interface';
+import { isPseudonymizationEnabled } from 'src/app/domain/helpers/pseudonymization-setting.helper';
 import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
@@ -91,6 +92,7 @@ export class AppSettingsManagementService {
   public complianceEnforcementSettings = signal<IComplianceEnforcementSettings>(new ComplianceEnforcementSettings());
   public activeIndustriesSettings = signal<IActiveIndustriesSettings>(new ActiveIndustriesSettings());
   public oauthConnectionSettings = signal<IOAuthConnectionSettings>(new OAuthConnectionSettings());
+  public readonly llmPseudonymizationEnabled = signal<boolean>(true);
 
   private originalModels = signal<SettingsModels>(createDefaultSettingsModels());
 
@@ -163,6 +165,7 @@ export class AppSettingsManagementService {
 
   private applySettingsToModels(settings: ISetting[]): void {
     const models = parseSettingsModels(settings);
+    this.llmPseudonymizationEnabled.set(isPseudonymizationEnabled(settings));
 
     this.contactSettings.set(models.contact);
     this.emailSettings.set(models.email);

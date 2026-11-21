@@ -22,6 +22,9 @@ import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
 import { LocalSttStatusView } from 'src/app/domain/models/assistant/local-stt-status-view.interface';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
+import { LocalTtsEngineService } from 'src/app/domain/services/speech/local-tts-engine.service';
+import { LocalTtsStatus } from 'src/app/domain/models/assistant/local-tts-status.interface';
+import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 
 function makeEntry(over: Partial<EditableDictionaryEntry> = {}): EditableDictionaryEntry {
   return {
@@ -57,6 +60,7 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
           provide: AppSettingsManagementService,
           useValue: {
             speechSettings: signal({ sttApiKeys: {}, ttsApiKeys: {} }),
+            llmPseudonymizationEnabled: signal(true),
             loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
             saveImmediately: vi.fn().mockResolvedValue(undefined),
           },
@@ -74,6 +78,7 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
         },
         { provide: DataTranscriptionDictionaryService, useValue: mockDict },
         { provide: LocalSttEngineService, useValue: makeLocalSttFake() },
+        { provide: LocalTtsEngineService, useValue: makeLocalTtsFake() },
       ],
     });
 
@@ -216,8 +221,46 @@ function makeLocalSttFake() {
 
 type LocalSttFake = ReturnType<typeof makeLocalSttFake>;
 
+function makeLocalTtsFake(installed = false) {
+  const status = signal<LocalTtsStatus | null>({
+    installed,
+    pending: false,
+    lastError: null,
+    licenseAccepted: installed,
+    licenseAcceptedAt: null,
+    sizeBytes: 128774318,
+  });
+  return {
+    status,
+    license: signal(null),
+    licenseLoadFailed: signal(false),
+    busy: signal(false),
+    installErrorKey: signal(''),
+    pollingSuspended: signal(false),
+    isInstalled: computed(() => !!status()?.installed),
+    isPending: computed(() => !!status()?.pending),
+    lastError: signal<string | null>(null),
+    statusUnavailable: computed(() => !status()),
+    canInstall: computed(() => !!status() && !status()?.installed),
+    attach: vi.fn().mockResolvedValue(undefined),
+    detach: vi.fn(),
+    refresh: vi.fn().mockResolvedValue(undefined),
+    loadLicense: vi.fn().mockResolvedValue(undefined),
+    install: vi.fn().mockResolvedValue(true),
+  };
+}
+
+type LocalTtsFake = ReturnType<typeof makeLocalTtsFake>;
+
+interface VoiceFixture {
+  voiceId: string;
+  locale: string;
+  displayName: string;
+}
+
 interface AppSettingsFake {
   speechSettings: WritableSignal<Partial<ISpeechSettings>>;
+  llmPseudonymizationEnabled: WritableSignal<boolean>;
   loadSettingsAsync: ReturnType<typeof vi.fn>;
   saveImmediately: ReturnType<typeof vi.fn>;
 }
@@ -226,9 +269,12 @@ function configureSpeechTestBed(
   localStt: LocalSttFake,
   speechSettings: WritableSignal<Partial<ISpeechSettings>>,
   customProviders: CustomProviderFixture[],
+  localTts: LocalTtsFake = makeLocalTtsFake(),
+  voices: VoiceFixture[] = [],
 ): AppSettingsFake {
   const appSettings: AppSettingsFake = {
     speechSettings,
+    llmPseudonymizationEnabled: signal(true),
     loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
     saveImmediately: vi.fn().mockResolvedValue(undefined),
   };
@@ -246,11 +292,12 @@ function configureSpeechTestBed(
           getCustomProviders: vi.fn().mockResolvedValue(customProviders),
         },
       },
-      { provide: DataTtsService, useValue: { getVoices: vi.fn().mockResolvedValue([]) } },
+      { provide: DataTtsService, useValue: { getVoices: vi.fn().mockResolvedValue(voices) } },
       { provide: DataAssistantService, useValue: { getModels: vi.fn().mockReturnValue(of([])), checkSpeechModels: vi.fn() } },
       { provide: DataManagementAssistantProviderService, useValue: { loadProviders: vi.fn().mockResolvedValue([]) } },
       { provide: DataTranscriptionDictionaryService, useValue: { getAll: vi.fn().mockResolvedValue([]) } },
       { provide: LocalSttEngineService, useValue: localStt },
+      { provide: LocalTtsEngineService, useValue: localTts },
     ],
   });
 
@@ -702,5 +749,125 @@ describe('AssistantSpeechSettingsComponent (local speech recognition block)', ()
     await render(PLUGIN_ENGINE);
     expect(has('#sttApiKey')).toBe(false);
     expect(has('#sttCustomServerTest')).toBe(false);
+  });
+});
+
+describe('AssistantSpeechSettingsComponent (local speech output)', () => {
+  let fixture: ComponentFixture<AssistantSpeechSettingsComponent>;
+  let appSettings: AppSettingsFake;
+
+  const element = (): HTMLElement => fixture.nativeElement;
+  const has = (selector: string): boolean => !!element().querySelector(selector);
+  const localOption = (): HTMLOptionElement | null =>
+    element().querySelector(`#ttsProvider option[value="${TtsProvider.Local}"]`);
+
+  const render = async (
+    settings: Partial<ISpeechSettings>,
+    options: { installed?: boolean; pseudonymization?: boolean; voices?: VoiceFixture[] } = {},
+  ): Promise<void> => {
+    const speechSettings = signal<Partial<ISpeechSettings>>({ sttApiKeys: {}, ttsApiKeys: {}, ...settings });
+    appSettings = configureSpeechTestBed(
+      makeLocalSttFake(),
+      speechSettings,
+      [],
+      makeLocalTtsFake(options.installed ?? false),
+      options.voices ?? [],
+    );
+    appSettings.llmPseudonymizationEnabled.set(options.pseudonymization ?? true);
+    fixture = TestBed.createComponent(AssistantSpeechSettingsComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe(): void {}
+        unobserve(): void {}
+        disconnect(): void {}
+      },
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('offers the local provider disabled while the local voice is not installed', async () => {
+    await render({ sttEngine: SttEngine.Browser, ttsProvider: TtsProvider.Edge });
+    expect(localOption()?.disabled).toBe(true);
+  });
+
+  it('makes the local provider selectable once the local voice is installed', async () => {
+    await render({ sttEngine: SttEngine.Browser, ttsProvider: TtsProvider.Edge }, { installed: true });
+    expect(localOption()?.disabled).toBe(false);
+  });
+
+  it('keeps a saved local provider although the voice is reported as not installed (no automatic switch)', async () => {
+    await render({ sttEngine: PLUGIN_ENGINE, ttsProvider: TtsProvider.Local });
+    expect(fixture.componentInstance.ttsProvider).toBe(TtsProvider.Local);
+    expect(appSettings.speechSettings().ttsProvider).toBe(TtsProvider.Local);
+  });
+
+  it('shows the install card', async () => {
+    await render({ sttEngine: SttEngine.Browser, ttsProvider: TtsProvider.Edge });
+    expect(has('app-local-tts-install-card #local-tts-install-card')).toBe(true);
+  });
+
+  it('asks for no API key for the local provider', async () => {
+    await render({ sttEngine: PLUGIN_ENGINE, ttsProvider: TtsProvider.Local }, { installed: true });
+    expect(has('#ttsApiKey')).toBe(false);
+  });
+
+  it('still asks for the API key of a cloud provider', async () => {
+    await render({ sttEngine: SttEngine.Browser, ttsProvider: TtsProvider.OpenAi });
+    expect(has('#ttsApiKey')).toBe(true);
+  });
+
+  it.each([TtsProvider.Edge, TtsProvider.OpenAi, TtsProvider.Local])(
+    'labels the voice as computer-generated for %s',
+    async (provider) => {
+      await render({ sttEngine: SttEngine.Browser, ttsProvider: provider }, { installed: true });
+      expect(has('#assistant-speech-computer-generated')).toBe(true);
+    },
+  );
+
+  it('names the local voices by number and gender instead of the model names', async () => {
+    await render(
+      { sttEngine: PLUGIN_ENGINE, ttsProvider: TtsProvider.Local },
+      {
+        installed: true,
+        voices: [
+          { voiceId: 'supertonic:F1', locale: 'auto', displayName: 'F1' },
+          { voiceId: 'supertonic:M5', locale: 'auto', displayName: 'M5' },
+        ],
+      },
+    );
+    const labels = fixture.componentInstance.ttsVoices().map((v) => v.label);
+    expect(labels).toEqual(['Auto', 'setting.speech.local-tts.voice-female', 'setting.speech.local-tts.voice-male']);
+  });
+
+  it('shows no privacy hint when output and input are local', async () => {
+    await render({ sttEngine: PLUGIN_ENGINE, ttsProvider: TtsProvider.Local }, { installed: true });
+    expect(has('#assistant-speech-privacy-hint')).toBe(false);
+  });
+
+  it('warns about the cloud speech output and the browser input while pseudonymisation is on', async () => {
+    await render({ sttEngine: SttEngine.Browser, ttsProvider: TtsProvider.Edge });
+    expect(has('#assistant-speech-privacy-hint-tts')).toBe(true);
+    expect(has('#assistant-speech-privacy-hint-stt')).toBe(true);
+  });
+
+  it('warns only about the cloud input when the output is local', async () => {
+    await render({ sttEngine: SttEngine.Deepgram, ttsProvider: TtsProvider.Local }, { installed: true });
+    expect(has('#assistant-speech-privacy-hint-tts')).toBe(false);
+    expect(has('#assistant-speech-privacy-hint-stt')).toBe(true);
+  });
+
+  it('shows no privacy hint while pseudonymisation is off', async () => {
+    await render({ sttEngine: SttEngine.Browser, ttsProvider: TtsProvider.Edge }, { pseudonymization: false });
+    expect(has('#assistant-speech-privacy-hint')).toBe(false);
   });
 });

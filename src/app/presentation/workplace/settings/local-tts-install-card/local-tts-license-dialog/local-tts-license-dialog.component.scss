@@ -1,0 +1,66 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  cursor: default;
+}
+
+.modal-content {
+  position: relative;
+  width: min(760px, 95vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  background-color: var(--backgroundColorCard);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-inline: 30px;
+  min-height: 0;
+}
+
+.license-text-box {
+  max-height: 50vh;
+  overflow-y: auto;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.license-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  font-size: var(--fontSizeSmall);
+}
+
+.btn-close-dialog {
+  border: none;
+  background: transparent;
+  font-size: var(--fontSizeLabel);
+  color: var(--colorWorkplaceHeadline);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

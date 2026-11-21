@@ -377,6 +377,104 @@ describe('ConversationOrchestratorService', () => {
     expect(service.state()).toBe(ConversationState.Listening);
   });
 
+  describe('sentences without audio (204 from the local voice, or a failed request such as 503)', () => {
+    const wav = (): Blob => new Blob(['a'], { type: 'audio/wav' });
+
+    const startVoiceTurn = async (locale: string): Promise<void> => {
+      const callbacks: ConversationCallbacks = {
+        getInputText: () => 'hello',
+        setInputText: vi.fn(),
+        sendMessage: vi.fn().mockResolvedValue(undefined),
+        getAbortController: () => null,
+        detectChanges: vi.fn(),
+        isTextProcessing: signal(false),
+        stop: vi.fn(),
+      };
+      service.initialize(callbacks, locale);
+      await service.toggleVoiceMode();
+      mockAudioCapture.silenceDetected$.next();
+      await flushPromises();
+    };
+
+    const spyOnTransition = () =>
+      vi.spyOn(service as unknown as { transitionToListening: () => Promise<void> }, 'transitionToListening');
+
+    it('stays SPEAKING when sentence 1 is silent while the stream is still running, and plays the later sentences', async () => {
+      await startVoiceTurn('de');
+      mockDataTts.synthesize.mockResolvedValueOnce(null).mockResolvedValue(wav());
+      const transition = spyOnTransition();
+
+      service.onStreamContent('Erster Satz.');
+      await flushPromises();
+      expect(service.state()).toBe(ConversationState.Speaking);
+      expect(transition).not.toHaveBeenCalled();
+
+      service.onStreamContent(' Zweiter Satz.');
+      await flushPromises();
+
+      expect(mockDataTts.synthesize).toHaveBeenCalledTimes(2);
+      expect(mockAudioQueue.enqueue).toHaveBeenCalledOnce();
+      expect(service.state()).toBe(ConversationState.Speaking);
+      expect(transition).not.toHaveBeenCalled();
+    });
+
+    it('returns to LISTENING exactly once when the stream is done and every sentence was silent', async () => {
+      await startVoiceTurn('mt');
+      mockDataTts.synthesize.mockResolvedValue(null);
+      const transition = spyOnTransition();
+
+      service.onStreamContent('Bongu. Kif inti?');
+      await flushPromises();
+      service.onStreamContent(' Grazzi.');
+      service.onStreamDone();
+      await flushPromises();
+
+      expect(mockAudioQueue.enqueue).not.toHaveBeenCalled();
+      expect(service.state()).toBe(ConversationState.Listening);
+      expect(transition).toHaveBeenCalledOnce();
+    });
+
+    it('returns to LISTENING exactly once when the stream ends after all silent sentences were already settled', async () => {
+      await startVoiceTurn('mt');
+      mockDataTts.synthesize.mockResolvedValue(null);
+      const transition = spyOnTransition();
+
+      service.onStreamContent('Bongu.');
+      await flushPromises();
+      service.onStreamDone();
+      await flushPromises();
+
+      expect(service.state()).toBe(ConversationState.Listening);
+      expect(transition).toHaveBeenCalledOnce();
+    });
+
+    it('plays sentence 2 after sentence 1 failed (503 answers null)', async () => {
+      await startVoiceTurn('de');
+      mockDataTts.synthesize.mockResolvedValueOnce(null).mockResolvedValueOnce(wav());
+      const transition = spyOnTransition();
+
+      service.onStreamContent('Erster Satz. Zweiter Satz.');
+      service.onStreamDone();
+      await flushPromises();
+
+      expect(mockAudioQueue.enqueue).toHaveBeenCalledOnce();
+      expect(mockAudioQueue.enqueue.mock.calls[0][0].type).toBe('audio/wav');
+      expect(transition).not.toHaveBeenCalled();
+    });
+
+    it('stays SPEAKING while an earlier sentence is still playing although the last one had no audio', async () => {
+      await startVoiceTurn('de');
+      mockDataTts.synthesize.mockResolvedValueOnce(wav()).mockResolvedValue(null);
+      mockAudioQueue.isPlaying.mockReturnValue(true);
+
+      service.onStreamContent('Hallo. Zweiter Satz.');
+      service.onStreamDone();
+      await flushPromises();
+
+      expect(service.state()).toBe(ConversationState.Speaking);
+    });
+  });
+
   it('Test 7: Interrupt during SPEAKING → LISTENING, audio queue stopped', async () => {
     let inputText = 'hello';
     const callbacks: ConversationCallbacks = {

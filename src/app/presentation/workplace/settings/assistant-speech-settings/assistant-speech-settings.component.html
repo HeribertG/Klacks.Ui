@@ -49,14 +49,35 @@
             (ngModelChange)="onTtsProviderChange()"
           >
             @for (provider of ttsProviders; track provider.value) {
-              <option [value]="provider.value">
-                {{ provider.labelKey | translate }}
+              <option [value]="provider.value" [disabled]="isTtsOptionDisabled(provider.value)">
+                {{
+                  (isTtsOptionDisabled(provider.value) ? LocalTtsKeys.PROVIDER_NOT_INSTALLED : provider.labelKey)
+                    | translate
+                }}
               </option>
             }
           </select>
         </div>
       }
     </div>
+
+    @if (privacyHint(); as hint) {
+      @if (hint.tts || hint.stt) {
+        <div id="assistant-speech-privacy-hint" class="alert alert-warning speech-privacy-hint" role="status">
+          <strong>{{ LocalTtsKeys.PRIVACY_TITLE | translate }}</strong>
+          @if (hint.tts) {
+            <div id="assistant-speech-privacy-hint-tts">{{ LocalTtsKeys.PRIVACY_TTS | translate }}</div>
+          }
+          @if (hint.stt) {
+            <div id="assistant-speech-privacy-hint-stt">{{ LocalTtsKeys.PRIVACY_STT | translate }}</div>
+          }
+        </div>
+      }
+    }
+
+    @if (showTtsProvider) {
+      <app-local-tts-install-card />
+    }
 
     @if (isLocalSelected()) {
       <div id="assistant-speech-local-stt" class="local-stt-block">
@@ -157,7 +178,7 @@
       </div>
     }
 
-    @if ((sttEngine !== SttEngine.Browser && !isLocalSelected()) || ttsProvider !== TtsProvider.Edge) {
+    @if ((sttEngine !== SttEngine.Browser && !isLocalSelected()) || ttsNeedsApiKey()) {
       <div class="row-line">
         @if (sttEngine !== SttEngine.Browser && !isCustomStt() && !isLocalSelected()) {
           <div class="form-group firstColumn">
@@ -205,7 +226,7 @@
           </div>
         }
 
-        @if (ttsProvider !== TtsProvider.Edge) {
+        @if (ttsNeedsApiKey()) {
           <div class="form-group secondColumn">
             <label for="ttsApiKey"
               >{{ "setting.speech.tts-apikey" | translate }}
@@ -252,6 +273,9 @@
             <option [value]="voice.value">{{ voice.label }}</option>
           }
         </select>
+        <div id="assistant-speech-computer-generated" class="prompt-hint settings-hint">
+          {{ LocalTtsKeys.COMPUTER_GENERATED | translate }}
+        </div>
       </div>
 
       <div class="form-group secondColumn">

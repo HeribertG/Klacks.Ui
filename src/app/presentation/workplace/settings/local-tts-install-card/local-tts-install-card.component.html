@@ -1,0 +1,62 @@
+<div id="local-tts-install-card" class="local-tts-card">
+  <div class="section-header">{{ Keys.HEADLINE | translate }}</div>
+  <p class="hint-text settings-hint">
+    {{ Keys.DESCRIPTION | translate: { size: sizeMegabytes() } }}
+  </p>
+
+  <div class="row-line" role="status" aria-live="polite">
+    <span id="local-tts-status-text" class="settings-hint"
+      [class.status-text-success]="localTts.isInstalled() && !localTts.isPending()"
+      [class.status-text-error]="localTts.statusUnavailable() || !!localTts.lastError()">
+      @if (localTts.statusUnavailable()) {
+        {{ Keys.STATUS_UNAVAILABLE | translate }}
+      } @else if (localTts.isPending()) {
+        {{ Keys.STATUS_PENDING | translate }}
+      } @else if (localTts.isInstalled()) {
+        {{ Keys.STATUS_INSTALLED | translate }}
+      } @else if (localTts.lastError(); as error) {
+        {{ Keys.LAST_ERROR | translate: { error: error } }}
+      } @else {
+        {{ Keys.STATUS_NOT_INSTALLED | translate }}
+      }
+    </span>
+  </div>
+
+  @if (localTts.status()?.licenseAccepted) {
+    <p id="local-tts-license-accepted" class="hint-text settings-hint">{{ Keys.LICENSE_ACCEPTED | translate }}</p>
+  }
+
+  @if (localTts.installErrorKey(); as errorKey) {
+    <p id="local-tts-install-error" class="hint-text settings-hint status-text-error" role="status">
+      {{ errorKey | translate }}
+    </p>
+  }
+
+  <div class="row-line actions-row">
+    @if (localTts.statusUnavailable()) {
+      <button type="button" id="local-tts-refresh-btn" class="btn btn-outline-secondary" (click)="localTts.refresh()">
+        {{ Keys.STATUS_RETRY | translate }}
+      </button>
+    } @else if (!localTts.isInstalled()) {
+      <button
+        type="button"
+        id="local-tts-install-btn"
+        class="btn btn-primary"
+        [disabled]="!localTts.canInstall()"
+        (click)="openDialog()"
+      >
+        {{ (localTts.lastError() ? Keys.RETRY : Keys.INSTALL) | translate }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (dialogOpen()) {
+  <app-local-tts-license-dialog
+    [license]="localTts.license()"
+    [loadFailed]="localTts.licenseLoadFailed()"
+    [busy]="localTts.busy()"
+    (accepted)="onLicenseAccepted($event)"
+    (dismissed)="closeDialog()"
+  />
+}

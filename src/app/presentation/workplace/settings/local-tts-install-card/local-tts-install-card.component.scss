@@ -1,0 +1,24 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.local-tts-card {
+  margin-inline-start: 30px;
+  margin-top: 8px;
+  max-width: 880px;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.actions-row {
+  margin-top: 8px;
+}
+
+.section-header {
+  font-weight: 600;
+  font-size: var(--fontSizeBase);
+  margin-bottom: 6px;
+}

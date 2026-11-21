@@ -2,7 +2,8 @@
 
 /**
  * HTTP client for the TTS synthesis endpoint.
- * Returns raw audio Blobs without managing playback state.
+ * Returns raw audio Blobs (media type as sent by the server) without managing playback state; null when the server
+ * answered without audio (204, e.g. a language the local voice does not speak) or the request failed.
  * @param request - Contains the text to synthesize, locale, and optional provider/voice IDs
  */
 import { Injectable, inject } from '@angular/core';
@@ -24,11 +25,12 @@ export class DataTtsService {
 
   async synthesize(request: TtsSynthesizeRequest): Promise<Blob | null> {
     try {
-      return await firstValueFrom(
+      const blob = await firstValueFrom(
         this.http.post(`${this.baseUrl}${TTS_SYNTHESIZE_ENDPOINT}`, request, {
           responseType: 'blob',
         })
       );
+      return blob && blob.size > 0 ? blob : null;
     } catch {
       return null;
     }

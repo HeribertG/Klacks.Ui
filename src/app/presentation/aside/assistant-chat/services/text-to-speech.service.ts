@@ -1,12 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Service for playing back assistant messages as audio via the backend TTS endpoint.
+ * Service for playing back assistant messages as audio via the backend TTS endpoint. The blob keeps the media type the
+ * server sent (MP3 from cloud providers, WAV from the local voice); 204 or an empty body means "no audio" (e.g. a
+ * language the local voice does not speak) and ends silently, without a cloud fallback.
  * @param isPlaying - Whether audio is currently playing
  * @param isLoading - Whether a TTS request is in flight
  * @param playingMessageId - The id of the message currently being played or loaded
  */
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
+import { HttpStatusCode } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { CredentialedFetchService } from 'src/app/domain/services/auth/credentialed-fetch.service';
 import { PlaygroundStatusGateService } from 'src/app/domain/services/playground/playground-status-gate.service';
@@ -67,7 +70,7 @@ export class TextToSpeechService implements OnDestroy {
         return;
       }
 
-      if (!response.ok) {
+      if (!response.ok || response.status === HttpStatusCode.NoContent) {
         this.reset();
         return;
       }
@@ -75,6 +78,11 @@ export class TextToSpeechService implements OnDestroy {
       const blob = await response.blob();
 
       if (controller.signal.aborted) {
+        return;
+      }
+
+      if (blob.size === 0) {
+        this.reset();
         return;
       }
 

@@ -28,6 +28,7 @@ import { AudioQueueService } from './audio-queue.service';
 import { PlaygroundSpeechOverrideService } from 'src/app/domain/services/speech/playground-speech-override.service';
 import { TranscriptSanitizerService } from 'src/app/domain/services/speech/transcript-sanitizer.service';
 import { SttEngine, SttErrorCodes } from 'src/app/domain/constants/speech-constants';
+import { splitCompletedSentences } from 'src/app/domain/helpers/completed-sentences.helper';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 import {
   PLAYGROUND_CONFIRMATION_HINT,
@@ -126,6 +127,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private subscriptionsWired = false;
   private sentenceBuffer = '';
+  private streamFinished = false;
   private pendingSentences: string[] = [];
   private locale = SpeechDefaults.Locale;
   private synthesisChain: Promise<void> = Promise.resolve();
@@ -299,8 +301,8 @@ export class ConversationOrchestratorService implements OnDestroy {
       this.autoSpeakStreaming = true;
     }
 
-    this.sentenceBuffer += text;
-    const sentences = this.extractSentences();
+    const { sentences, rest } = splitCompletedSentences(this.sentenceBuffer + text);
+    this.sentenceBuffer = rest;
 
     for (const sentence of sentences) {
       this.pendingSentences.push(sentence);
@@ -370,6 +372,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   onStreamDone(): void {
     this.isPlanningSignal.set(false);
+    this.streamFinished = true;
     if (this.sentenceBuffer.trim()) {
       const finalSentence = this.sentenceBuffer.trim();
       this.pendingSentences.push(finalSentence);
@@ -428,6 +431,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   async submitText(text: string): Promise<void> {
     if (!text.trim()) return;
     this.callbacks?.setInputText(text);
+    this.streamFinished = false;
     await this.callbacks?.sendMessage();
   }
 
@@ -604,6 +608,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.sentenceBuffer = '';
     this.pendingSentences = [];
     this.synthesisChain = Promise.resolve();
+    this.streamFinished = false;
     void this.startBargeInMonitorIfEnabled();
     await this.callbacks?.sendMessage();
   }
@@ -746,25 +751,8 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
   }
 
-  private extractSentences(): string[] {
-    const sentences: string[] = [];
-    const regex = /[^.!?。！？؟]+[.!?。！？؟]\s*/g;
-    let match: RegExpExecArray | null;
-    let lastIndex = 0;
-
-    while ((match = regex.exec(this.sentenceBuffer)) !== null) {
-      sentences.push(match[0].trim());
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (sentences.length > 0) {
-      this.sentenceBuffer = this.sentenceBuffer.substring(lastIndex);
-    }
-
-    return sentences;
-  }
-
   private async synthesizeAndEnqueue(sentence: string): Promise<void> {
+    let enqueued = false;
     try {
       const speechSettings = this.settings.speechSettings();
       const blob = await this.dataTts.synthesize({
@@ -775,6 +763,7 @@ export class ConversationOrchestratorService implements OnDestroy {
       });
       if (blob) {
         this.audioQueue.enqueue(blob);
+        enqueued = true;
       }
     } catch (err) {
       console.error('[VS] TTS synthesize threw', err);
@@ -788,7 +777,19 @@ export class ConversationOrchestratorService implements OnDestroy {
       if (idx >= 0) {
         this.pendingSentences.splice(idx, 1);
       }
+      if (!enqueued && this.shouldReturnToListeningAfterSilentSynthesis()) {
+        void this.transitionToListening();
+      }
     }
+  }
+
+  private shouldReturnToListeningAfterSilentSynthesis(): boolean {
+    return (
+      this.streamFinished &&
+      this.state() === ConversationState.Speaking &&
+      this.pendingSentences.length === 0 &&
+      !this.audioQueue.isPlaying()
+    );
   }
 
   protected reportError(hint: IVoiceShellErrorHint): void {

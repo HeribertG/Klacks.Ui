@@ -1,0 +1,70 @@
+<div class="modal-overlay">
+  <button
+    type="button"
+    class="modal-backdrop"
+    (click)="onClose()"
+    [attr.aria-label]="Keys.DIALOG_CLOSE | translate"
+  ></button>
+  <div
+    id="local-tts-license-dialog"
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="local-tts-license-title"
+  >
+    <div class="modal-header">
+      <div id="local-tts-license-title" class="container-header-modal modal-title">
+        {{ Keys.DIALOG_TITLE | translate }}
+      </div>
+      <span class="filler"></span>
+      <button
+        type="button"
+        class="btn-close-dialog"
+        (click)="onClose()"
+        [attr.aria-label]="Keys.DIALOG_CLOSE | translate"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="hint-text settings-hint">{{ Keys.DIALOG_INTRO | translate }}</p>
+
+      <div class="license-text-box" role="status" aria-live="polite">
+        @if (license(); as l) {
+          <pre id="local-tts-license-text" class="license-text" tabindex="0">{{ l.text }}</pre>
+        } @else if (loadFailed()) {
+          <p class="status-text-error">{{ Keys.DIALOG_LOAD_FAILED | translate }}</p>
+        } @else {
+          <p>{{ Keys.DIALOG_LOADING | translate }}</p>
+        }
+      </div>
+
+      <label class="checkbox-label consent-label" for="local-tts-license-consent">
+        <input
+          id="local-tts-license-consent"
+          type="checkbox"
+          [checked]="consentGiven()"
+          [disabled]="!license()"
+          (change)="onConsentChange($event)"
+        />
+        {{ Keys.DIALOG_CHECKBOX | translate }}
+      </label>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="local-tts-license-cancel-btn" class="btn btn-outline-secondary" (click)="onClose()">
+        {{ "cancel" | translate }}
+      </button>
+      <button
+        type="button"
+        id="local-tts-license-accept-btn"
+        class="btn btn-primary"
+        [disabled]="!canAccept()"
+        (click)="onAccept()"
+      >
+        {{ Keys.DIALOG_ACCEPT | translate }}
+      </button>
+    </div>
+  </div>
+</div>

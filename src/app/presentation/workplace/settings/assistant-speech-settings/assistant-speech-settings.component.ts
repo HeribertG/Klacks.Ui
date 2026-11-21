@@ -12,6 +12,7 @@
  * @param outputMode - Selected output mode (text, audio, or both)
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
  * @param bargeInEnabled - Whether the microphone stays open during voice playback so speaking interrupts Klacksy
+ * @param localTts - Status of the local voice; its provider option is selectable only once it is installed
  */
 import {
   Component,
@@ -36,6 +37,7 @@ import { filterModelsWithActiveProvider } from 'src/app/domain/services/assistan
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
+import { TtsVoiceDto } from 'src/app/infrastructure/api/assistant/tts-voice-dto.interface';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { ISpeechModelCheckDto } from 'src/app/domain/models/assistant/speech-model-check-dto.interface';
 import {
@@ -55,13 +57,19 @@ import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
 import { EditableDictionaryEntry } from './editable-dictionary-entry.type';
 import { LocalSttStatusComponent } from '../local-stt-status/local-stt-status.component';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
+import { LocalTtsEngineService } from 'src/app/domain/services/speech/local-tts-engine.service';
+import { LOCAL_TTS_KEYS } from 'src/app/domain/constants/local-tts.constants';
+import { resolveLocalTtsVoiceLabel } from 'src/app/domain/helpers/local-tts-voice-label.helper';
+import { resolveSpeechPrivacyHint } from 'src/app/domain/helpers/speech-privacy-hint.helper';
+import { SpeechPrivacyHint } from 'src/app/domain/models/assistant/speech-privacy-hint.interface';
+import { LocalTtsInstallCardComponent } from '../local-tts-install-card/local-tts-install-card.component';
 
 @Component({
   selector: 'app-assistant-speech-settings',
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [DecimalPipe, TranslateModule, FormsModule, FormField, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent, LocalSttStatusComponent],
+  imports: [DecimalPipe, TranslateModule, FormsModule, FormField, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent, LocalSttStatusComponent, LocalTtsInstallCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
@@ -75,6 +83,7 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   private dataDictionaryService = inject(DataTranscriptionDictionaryService);
   private document = inject(DOCUMENT);
   readonly localStt = inject(LocalSttEngineService);
+  readonly localTts = inject(LocalTtsEngineService);
 
   private isInitialized = false;
   private lastUninstallActive: boolean | null = null;
@@ -110,6 +119,7 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   readonly showTtsProvider = true;
   readonly SttEngine = SttEngine;
   readonly TtsProvider = TtsProvider;
+  readonly LocalTtsKeys = LOCAL_TTS_KEYS;
 
   sttEngine = SttEngine.Browser;
   readonly sttSelection = signal<string>(SttEngine.Browser);
@@ -161,6 +171,7 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
     { value: TtsProvider.OpenAi, labelKey: 'setting.speech.tts-openai' },
     { value: TtsProvider.ElevenLabs, labelKey: 'setting.speech.tts-elevenlabs' },
     { value: TtsProvider.Google, labelKey: 'setting.speech.tts-google' },
+    { value: TtsProvider.Local, labelKey: LOCAL_TTS_KEYS.PROVIDER },
   ];
 
   readonly outputModes = [
@@ -226,6 +237,22 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   onEngineChanged(): void {
     this.applyEngineKeyToField();
     this.onSettingChanged();
+  }
+
+  isTtsOptionDisabled(providerId: string): boolean {
+    return providerId === TtsProvider.Local && !this.localTts.isInstalled();
+  }
+
+  ttsNeedsApiKey(): boolean {
+    return this.ttsProvider !== TtsProvider.Edge && this.ttsProvider !== TtsProvider.Local;
+  }
+
+  privacyHint(): SpeechPrivacyHint {
+    return resolveSpeechPrivacyHint(
+      this.appSettingsService.llmPseudonymizationEnabled(),
+      this.ttsProvider,
+      this.sttEngine,
+    );
   }
 
   isCustomStt(): boolean {
@@ -324,12 +351,17 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
       { value: VoiceId.Auto, label: 'Auto' },
       ...voices.map((v) => ({
         value: v.voiceId,
-        label:
-          v.locale && v.locale !== VoiceId.Auto
-            ? `${v.locale} - ${v.displayName}`
-            : v.displayName,
+        label: this.voiceLabel(v),
       })),
     ]);
+  }
+
+  private voiceLabel(voice: TtsVoiceDto): string {
+    const local = resolveLocalTtsVoiceLabel(voice.voiceId);
+    if (local) {
+      return this.translateService.instant(local.key, { number: local.number });
+    }
+    return voice.locale && voice.locale !== VoiceId.Auto ? `${voice.locale} - ${voice.displayName}` : voice.displayName;
   }
 
   onSettingChanged(): void {

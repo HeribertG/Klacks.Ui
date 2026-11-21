@@ -5,4 +5,5 @@ export class TtsProvider {
   static readonly OpenAi = 'openai';
   static readonly ElevenLabs = 'elevenlabs';
   static readonly Google = 'google-tts';
+  static readonly Local = 'local';
 }
