@@ -370,7 +370,7 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   private editorView(): EditorView | undefined {
-    return (this.codeEditor() as unknown as { view?: EditorView } | undefined)?.view;
+    return this.codeEditor()?.view();
   }
 
   onRunMacro(): void {

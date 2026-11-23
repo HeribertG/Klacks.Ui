@@ -13,7 +13,9 @@ import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroFunction } from 'src/app/domain/enums/macro-function.enum';
 import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';
-import { WritableSignal, signal } from '@angular/core';
+import { Signal, WritableSignal, signal } from '@angular/core';
+import { EditorView } from '@codemirror/view';
+import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
 
 interface MacroFormModel {
   name: string;
@@ -24,6 +26,10 @@ interface MacroFormModel {
 
 interface MacroRowComponentPrivate {
   macroModel: WritableSignal<MacroFormModel>;
+}
+
+interface MacroRowEditorAccess {
+  codeEditor: Signal<Pick<CodeEditorComponent, 'view'> | undefined>;
 }
 
 describe('MacroRowComponent', () => {
@@ -307,6 +313,27 @@ describe('MacroRowComponent', () => {
       // Assert
       expect(component.test()).toContain('Compile Error');
       expect(component.test()).toContain('Syntax error');
+    });
+
+    it('should move the editor cursor to the reported error position', () => {
+      // Arrange
+      const code = 'dim x\ninvalid code';
+      const view = new EditorView({ doc: code });
+      (component as unknown as MacroRowEditorAccess).codeEditor = signal({
+        view: signal<EditorView | undefined>(view).asReadonly(),
+      });
+      component.onEditorContentChange(code);
+      mockScriptService.compile.mockReturnValue({
+        hasError: true,
+        error: { description: 'Syntax error', line: 2, column: 3 },
+      });
+
+      // Act
+      component.onCheckMacro();
+
+      // Assert
+      expect(view.state.selection.main.head).toBe(8);
+      view.destroy();
     });
   });
 

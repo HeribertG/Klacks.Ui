@@ -21,7 +21,7 @@ Versions as declared in `package.json`.
 
 | Area | Technology |
 | --- | --- |
-| Framework | Angular 22 (`@angular/core` `^22.0.2`, CLI / build `^22.0.3`) |
+| Framework | Angular 22 (`@angular/core` `^22.3.0`, CLI / build `^22.3.0`) |
 | Language | TypeScript `^6.0.2` |
 | Reactivity | Angular Signals (plus zone-based change detection via `provideZoneChangeDetection()`) |
 | Real-time | `@microsoft/signalr` `^8.0.7` |
