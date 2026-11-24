@@ -1,18 +1,35 @@
 # Klacks.Ui
 
-[DeepWiki documentation for this repository](https://deepwiki.com/HeribertG/Klacks.Ui)
 [![Tests](https://github.com/HeribertG/Klacks.Ui/actions/workflows/tests.yml/badge.svg)](https://github.com/HeribertG/Klacks.Ui/actions/workflows/tests.yml)
 [![CodeQL](https://github.com/HeribertG/Klacks.Ui/actions/workflows/codeql.yml/badge.svg)](https://github.com/HeribertG/Klacks.Ui/actions/workflows/codeql.yml)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
-Web frontend of the Klacks ecosystem for workforce scheduling and deployment planning
-(Personaleinsatzplanung). Built with **Angular 22**, **TypeScript 6** and **Angular Signals**,
-rendering the large grids on **HTML5 Canvas** and receiving live updates over **SignalR**.
+Klacks is open-source workforce scheduling for shift and field operations, for example home care,
+hospitals, security, cleaning services, logistics and hospitality. You install it on your own server
+or office PC. This repository contains the web client.
+
+![Monthly schedule in Klacks with shifts per employee and the open shifts below](https://raw.githubusercontent.com/HeribertG/Klacks.Api/main/docs/readme/schedule.webp)
+
+- **Start here:** [Klacks.Api](https://github.com/HeribertG/Klacks.Api) is the entry point of the
+  project. Its README describes what Klacks does, how to install it and how your data is handled.
+  Releases are published there; please open issues and discussions there as well.
+- **Try it without installing anything:** the Playground at <https://play.klacks-software.ch> is a
+  public instance with sample data. The login is in the
+  [Klacks.Api README](https://github.com/HeribertG/Klacks.Api#readme).
+- Website: <https://klacks-software.ch>
+- Documentation: <https://klacks-software.ch/docs/>
+
+## About this repository
+
+The web client is built with **Angular 22**, **TypeScript 6** and **Angular Signals**. It renders
+the large grids on **HTML5 Canvas** and receives live updates over **SignalR**.
 
 The application is structured in four layers (presentation / application / domain /
 infrastructure), talks to the Klacks backend over a REST API, and ships two optional feature
 plugins as separate Angular libraries.
 
-> Architecture documentation lives in the **DeepWiki** linked above, which is generated from
+> Architecture documentation lives in the
+> [DeepWiki for this repository](https://deepwiki.com/HeribertG/Klacks.Ui), which is generated from
 > this repository. To steer what it documents, see [`.devin/wiki.json`](.devin/wiki.json).
 
 ## Tech stack
