@@ -9,6 +9,8 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
+const NEW_MACRO_ROW_KEY_PREFIX = 'new-macro-';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +26,27 @@ export class MacroManagementService {
 
   private saveCounter = 0;
   private rejectedMacros: IMacro[] = [];
+  private readonly newMacroRowKeys = new WeakMap<IMacro, string>();
+  private readonly createdMacroRowKeys = new Map<string, string>();
+  private newMacroCounter = 0;
+
+  /**
+   * Identity of a macro in the list. A new macro keeps its key once the server gave it an id,
+   * so its row and an open dialog survive the reload that follows the create.
+   */
+  rowKey(macro: IMacro): string {
+    if (macro.id) {
+      return this.createdMacroRowKeys.get(macro.id) ?? macro.id;
+    }
+
+    let key = this.newMacroRowKeys.get(macro);
+    if (!key) {
+      this.newMacroCounter++;
+      key = `${NEW_MACRO_ROW_KEY_PREFIX}${this.newMacroCounter}`;
+      this.newMacroRowKeys.set(macro, key);
+    }
+    return key;
+  }
 
   loadMacros(): void {
     this.isLoading.set(true);
@@ -99,7 +122,10 @@ export class MacroManagementService {
       .addMacro(macroToAdd)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
+        next: (created) => {
+          if (created?.id) {
+            this.createdMacroRowKeys.set(created.id, this.rowKey(macro));
+          }
           this.saveCounter--;
           this.checkSaveComplete();
         },

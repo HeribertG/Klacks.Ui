@@ -263,4 +263,68 @@ describe('MacroManagementService', () => {
     expect(service.macroList().find((macro) => macro.id === 'macro-1')?.content).toBe(STORED_CONTENT);
     expect(service.isDirty()).toBe(false);
   });
+
+  describe('rowKey', () => {
+    const CREATED_ID = 'macro-created';
+
+    const addNewMacro = (): IMacro => {
+      const created = Object.assign(new Macro(), { name: 'Night', content: ACCEPTED_CONTENT, isDirty: CreateEntriesEnum.new });
+      service.macroList.set([...service.macroList(), created]);
+      return created;
+    };
+
+    it('identifies a stored macro by its id', () => {
+      // Act
+      const key = service.rowKey(service.macroList()[0]);
+
+      // Assert
+      expect(key).toBe('macro-1');
+    });
+
+    it('gives two new macros different keys and keeps each key stable', () => {
+      // Arrange
+      const first = addNewMacro();
+      const second = addNewMacro();
+
+      // Act
+      const firstKey = service.rowKey(first);
+      const secondKey = service.rowKey(second);
+
+      // Assert
+      expect(firstKey).not.toBe(secondKey);
+      expect(service.rowKey(first)).toBe(firstKey);
+    });
+
+    it('keeps the key of a new macro for the stored macro the server made of it', () => {
+      // Arrange
+      const created = addNewMacro();
+      const keyBeforeSave = service.rowKey(created);
+      const storedAfterCreate = [...storedMacros(), buildStored(CREATED_ID, 'Night', ACCEPTED_CONTENT)];
+      dataMacroService.addMacro.mockReturnValue(of(buildStored(CREATED_ID, 'Night', ACCEPTED_CONTENT)));
+      dataMacroService.readMacroList.mockReturnValue(of(storedAfterCreate));
+
+      // Act
+      service.save();
+
+      // Assert
+      const loaded = service.macroList().find((macro) => macro.id === CREATED_ID);
+      expect(loaded).toBeDefined();
+      expect(loaded).not.toBe(created);
+      expect(service.rowKey(loaded as IMacro)).toBe(keyBeforeSave);
+    });
+
+    it('keeps the key of a new macro whose create the server rejected', () => {
+      // Arrange
+      const created = addNewMacro();
+      const keyBeforeSave = service.rowKey(created);
+      dataMacroService.addMacro.mockReturnValue(throwError(() => new Error('rejected')));
+
+      // Act
+      service.save();
+
+      // Assert
+      expect(service.macroList()).toContain(created);
+      expect(service.rowKey(created)).toBe(keyBeforeSave);
+    });
+  });
 });
