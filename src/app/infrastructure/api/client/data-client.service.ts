@@ -48,15 +48,6 @@ export class DataClientService {
       .pipe());
   }
 
-  readChangeList(filter: IFilter) {
-    return this.httpClient
-      .post<ITruncatedClient>(
-        `${environment.baseUrl}Clients/ChangeList`,
-        filter,
-      )
-      .pipe(retryTransientHttpErrors());
-  }
-
   getClient(id: string) {
     return this.httpClient
       .get<IClient>(`${environment.baseUrl}Clients/` + id)

@@ -4,9 +4,7 @@
 import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import {
   Filter,
-  IClient,
   IClientAttribute,
-  ITruncatedClient,
 } from 'src/app/domain/models/client/client-class';
 import { CheckBoxValue } from 'src/app/domain/models/client/check-box-value';
 import { IPostCodeCH } from 'src/app/domain/models/client/i-post-code-ch';
@@ -59,7 +57,6 @@ export class DataManagementClientService
   private destroy$ = new Subject<void>();
 
   public currentFilter: Filter = new Filter();
-  public lastChangeFilter: Filter = new Filter();
   public clientAttribute: IClientAttribute[] = [];
 
   public onSaveCompleted?: () => void;
@@ -68,9 +65,6 @@ export class DataManagementClientService
   public startToReadPage = signal(false);
   public returnUrl: string | null = null;
 
-  public lastChangeListWrapper = signal<ITruncatedClient | undefined>(undefined);
-  public subTitleLastChanges = signal('');
-  public lastChangeMaxItems = signal<number | undefined>(undefined);
   public subTitleLastChangesAllAddress = signal('');
 
   public readonly listWrapper = this.clientListService.listWrapper;
@@ -353,26 +347,6 @@ export class DataManagementClientService
       return this.returnUrl;
     }
     return '/workplace/client';
-  }
-
-  readChangeList(locale: string = DomainMessages.DEFAULT_LANG) {
-    this.dataClientService
-      .readChangeList(this.lastChangeFilter)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => {
-        x.clients.forEach((z: IClient) => {
-          const res = this.clientAttribute.find((y) => +y.type === +z.type);
-          if (res) {
-            z.typeAbbreviation = res.name.substring(0, 1);
-          }
-        });
-
-        this.lastChangeListWrapper.set(x);
-        this.subTitleLastChanges.set(
-          `${DateToString(new Date(x.lastChange), locale)}, bearbeitet von ${x.editor}`
-        );
-        this.lastChangeMaxItems.set(x.maxItems);
-      });
   }
 
   getLastChangeMetaData(locale: string = DomainMessages.DEFAULT_LANG) {

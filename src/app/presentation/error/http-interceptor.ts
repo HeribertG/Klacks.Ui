@@ -504,7 +504,6 @@ export class ResponseInterceptor implements HttpInterceptor {
   private isSpecialGetEndpoint(url: string): boolean {
     const specialGetPatterns = [
       'GetSimpleList',
-      'ChangeList',
       'GetClientTypeTemplate',
       'GetStateTokenList',
       'FindClient',
