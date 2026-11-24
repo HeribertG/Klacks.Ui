@@ -6,6 +6,7 @@ import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IContainerTemplate } from 'src/app/domain/models/container/container-template-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -67,8 +68,7 @@ export class DataContainerTemplateService {
       .post<IContainerTemplate[]>(
         `${environment.baseUrl}Containers/${containerId}/templates`,
         cleanedValues
-      )
-      .pipe(retry(3));
+      );
   }
 
   putTemplates(containerId: string, values: IContainerTemplate[]) {
@@ -79,7 +79,7 @@ export class DataContainerTemplateService {
         `${environment.baseUrl}Containers/${containerId}/templates`,
         cleanedValues
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteTemplates(containerId: string) {
@@ -87,7 +87,7 @@ export class DataContainerTemplateService {
       .delete<IContainerTemplate[]>(
         `${environment.baseUrl}Containers/${containerId}/templates`
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   private deleteUnnecessaryShiftObject(values: IContainerTemplate[]): void {

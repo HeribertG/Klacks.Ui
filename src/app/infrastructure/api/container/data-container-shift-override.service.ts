@@ -10,6 +10,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IContainerShiftOverride } from 'src/app/domain/models/container/container-shift-override';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -45,8 +46,7 @@ export class DataContainerShiftOverrideService {
       .post<IContainerShiftOverride>(
         `${environment.baseUrl}Containers/${containerId}/overrides`,
         cleanedData
-      )
-      .pipe(retry(3));
+      );
   }
 
   putOverride(containerId: string, overrideId: string, data: IContainerShiftOverride): Observable<IContainerShiftOverride> {
@@ -57,7 +57,7 @@ export class DataContainerShiftOverrideService {
         `${environment.baseUrl}Containers/${containerId}/overrides/${overrideId}`,
         cleanedData
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteOverride(containerId: string, overrideId: string): Observable<void> {
@@ -65,7 +65,7 @@ export class DataContainerShiftOverrideService {
       .delete<void>(
         `${environment.baseUrl}Containers/${containerId}/overrides/${overrideId}`
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   private cleanItems(data: IContainerShiftOverride): void {

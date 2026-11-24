@@ -8,6 +8,7 @@ import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-sele
 import { ISelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar.interface';
 import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
 import { retry } from 'rxjs';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +42,7 @@ export class DataCalendarSelectionService {
       .delete<ISelectedCalendar>(
         `${environment.baseUrl}SelectedCalendars/` + id
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getList() {
@@ -81,7 +82,7 @@ export class DataCalendarSelectionService {
       .delete<ICalendarSelection>(
         `${environment.baseUrl}CalendarSelections/` + id
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getUsedByContracts() {

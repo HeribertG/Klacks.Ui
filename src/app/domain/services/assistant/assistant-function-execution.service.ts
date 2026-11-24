@@ -3,7 +3,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, from, Observable, of } from 'rxjs';
-import { catchError, map, retry } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { IAssistantFunctionCall } from '../../interfaces/assistant-function-call.interface';
 import { IAssistantFunctionResult } from '../../interfaces/assistant-function-result.interface';
 import { ILLMFunctionExecuteRequest } from '../../interfaces/llm-function-execute-request.interface';
@@ -103,7 +103,6 @@ export class AssistantFunctionExecutionService {
           requests
         )
         .pipe(
-          retry(1),
           map((responses) =>
             responses.map((response, index) => ({
               id: calls[index].id,

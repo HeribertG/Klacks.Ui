@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { IGlobalAgentRule } from 'src/app/domain/interfaces/global-agent-rule.interface';
 import { IGlobalAgentRuleHistory } from 'src/app/domain/interfaces/global-agent-rule-history.interface';
 import { IUpsertGlobalRuleRequest } from 'src/app/domain/interfaces/upsert-global-rule-request.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -31,13 +32,13 @@ export class DataGlobalRuleService {
         `${this.baseUrl}/${encodeURIComponent(name)}`,
         request,
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deactivate(name: string): Observable<void> {
     return this.httpClient
       .delete<void>(`${this.baseUrl}/${encodeURIComponent(name)}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getHistory(limit = 50): Observable<IGlobalAgentRuleHistory[]> {

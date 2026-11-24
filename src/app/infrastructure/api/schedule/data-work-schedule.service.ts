@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { retry, timeout } from 'rxjs';
+import { timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IFrozenPeriodOverride } from 'src/app/domain/models/schedule/frozen-period-override.interface';
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
@@ -11,6 +11,7 @@ import { IRecalculateAllUnsealedResult } from 'src/app/domain/models/schedule/re
 import { IPeriodHoursRequest } from 'src/app/domain/models/schedule/period-hours-request.interface';
 import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
 import { IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-response.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -21,13 +22,13 @@ export class DataWorkScheduleService {
   getWorkSchedule(filter: IWorkScheduleFilter) {
     return this.httpClient
       .post<IWorkScheduleResponse>(`${environment.baseUrl}Works/Schedule`, filter)
-      .pipe(retry(1), timeout(30000));
+      .pipe(retryTransientHttpErrors(1), timeout(30000));
   }
 
   getPeriodHours(request: IPeriodHoursRequest) {
     return this.httpClient
       .post<Record<string, IPeriodHours>>(`${environment.baseUrl}Works/PeriodHours`, request)
-      .pipe(retry(2));
+      .pipe(retryTransientHttpErrors(2));
   }
 
   recalculatePeriodHours(

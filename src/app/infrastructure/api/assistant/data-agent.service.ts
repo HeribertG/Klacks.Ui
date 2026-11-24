@@ -17,6 +17,7 @@ import { IAgentSkillSummary } from 'src/app/domain/interfaces/agent-skill.interf
 import { IAgentSoulSection } from 'src/app/domain/interfaces/agent-soul.interface';
 import { IAgentSoulHistory } from 'src/app/domain/interfaces/agent-soul-history.interface';
 import { IUpsertSoulRequest } from 'src/app/domain/interfaces/upsert-soul-request.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -37,8 +38,7 @@ export class DataAgentService {
 
   create(request: ICreateAgentRequest): Observable<{ id: string; name: string }> {
     return this.httpClient
-      .post<{ id: string; name: string }>(this.baseUrl, request)
-      .pipe(retry(3));
+      .post<{ id: string; name: string }>(this.baseUrl, request);
   }
 
   update(
@@ -47,7 +47,7 @@ export class DataAgentService {
   ): Observable<IAgent> {
     return this.httpClient
       .put<IAgent>(`${this.baseUrl}/${id}`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getSoulSections(agentId: string): Observable<IAgentSoulSection[]> {
@@ -66,7 +66,7 @@ export class DataAgentService {
         `${this.baseUrl}/${agentId}/soul/${sectionType}`,
         request,
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deactivateSoulSection(
@@ -75,7 +75,7 @@ export class DataAgentService {
   ): Observable<void> {
     return this.httpClient
       .delete<void>(`${this.baseUrl}/${agentId}/soul/${sectionType}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getSoulHistory(
@@ -115,8 +115,7 @@ export class DataAgentService {
       .post<IAgentMemory>(
         `${this.baseUrl}/${agentId}/memories`,
         request,
-      )
-      .pipe(retry(3));
+      );
   }
 
   updateMemory(
@@ -129,7 +128,7 @@ export class DataAgentService {
         `${this.baseUrl}/${agentId}/memories/${memoryId}`,
         request,
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteMemory(agentId: string, memoryId: string): Observable<void> {
@@ -137,7 +136,7 @@ export class DataAgentService {
       .delete<void>(
         `${this.baseUrl}/${agentId}/memories/${memoryId}`,
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   togglePin(
@@ -148,8 +147,7 @@ export class DataAgentService {
       .post<{ id: string; isPinned: boolean }>(
         `${this.baseUrl}/${agentId}/memories/${memoryId}/pin`,
         {},
-      )
-      .pipe(retry(3));
+      );
   }
 
   getSkills(agentId: string): Observable<IAgentSkillSummary[]> {

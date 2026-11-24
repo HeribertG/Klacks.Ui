@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +42,6 @@ export class PeriodCapRuleApiService {
     return firstValueFrom(
       this.http
         .post<IPeriodCapRule>(`${environment.baseUrl}periodcaprules`, payload)
-        .pipe(retry(3))
     );
   }
 
@@ -49,7 +49,7 @@ export class PeriodCapRuleApiService {
     return firstValueFrom(
       this.http
         .put<IPeriodCapRule>(`${environment.baseUrl}periodcaprules`, rule)
-        .pipe(retry(3))
+        .pipe(retryTransientHttpErrors())
     );
   }
 
@@ -57,7 +57,7 @@ export class PeriodCapRuleApiService {
     return firstValueFrom(
       this.http
         .delete<IPeriodCapRule>(`${environment.baseUrl}periodcaprules/${id}`)
-        .pipe(retry(3))
+        .pipe(retryTransientHttpErrors())
     );
   }
 }

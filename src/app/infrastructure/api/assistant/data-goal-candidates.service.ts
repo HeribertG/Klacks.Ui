@@ -17,6 +17,7 @@ import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { GoalCandidateDecision, GoalCandidateStatus } from 'src/app/domain/constants/goal-candidate.constants';
 import { ISetGoalCandidateDecisionRequest } from './set-goal-candidate-decision-request.interface';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -46,6 +47,6 @@ export class DataGoalCandidatesService {
         request,
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

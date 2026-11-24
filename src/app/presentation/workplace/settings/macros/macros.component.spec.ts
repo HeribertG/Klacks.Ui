@@ -9,6 +9,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
+import { MacrosComponent } from './macros.component';
 
 describe('MacrosComponent delete logic', () => {
   let mockMacroManagementService: any;
@@ -21,7 +22,7 @@ describe('MacrosComponent delete logic', () => {
       { id: '2', name: 'Macro 2', content: 'code2', type: 0, isDirty: CreateEntriesEnum.undefined } as IMacro,
     ];
 
-    mockMacroManagementService = { save: vi.fn() };
+    mockMacroManagementService = { save: vi.fn(), discardUnsavedMacro: vi.fn() };
 
     dataManagementSettingsService = {
       macros: {
@@ -110,5 +111,24 @@ describe('MacrosComponent delete logic', () => {
 
     expect(mockMacroManagementService.save).not.toHaveBeenCalled();
     expect(macroListStore.length).toBe(2);
+  });
+
+  describe('component', () => {
+    const NEW_MACRO_INDEX = '2';
+
+    it('should forget a new macro the server rejected when it is deleted from the list', () => {
+      // Arrange
+      const rejected = { id: '', name: 'Night', content: 'code', type: 0, isDirty: CreateEntriesEnum.new } as IMacro;
+      dataManagementSettingsService.macros.macroList.set([...macroListStore, rejected]);
+      const component = TestBed.createComponent(MacrosComponent).componentInstance;
+
+      // Act
+      (component as unknown as { deleteMacro: (index: string) => void }).deleteMacro(NEW_MACRO_INDEX);
+
+      // Assert
+      expect(dataManagementSettingsService.macros.macroList()).not.toContain(rejected);
+      expect(mockMacroManagementService.discardUnsavedMacro).toHaveBeenCalledWith(rejected);
+      expect(mockMacroManagementService.save).not.toHaveBeenCalled();
+    });
   });
 });

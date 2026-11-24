@@ -10,10 +10,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({ providedIn: 'root' })
 export class DataProactiveAttributionService {
@@ -32,7 +33,7 @@ export class DataProactiveAttributionService {
         { context: new HttpContext().set(SKIP_LOADING, true) }
       )
       .pipe(
-        retry(2),
+        retryTransientHttpErrors(2),
         catchError(() => of([]))
       );
   }

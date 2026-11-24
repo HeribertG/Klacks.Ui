@@ -7,6 +7,7 @@ import { IGroupVisibility } from 'src/app/domain/models/group/group-visibility.i
 import { Observable, retry } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -23,21 +24,20 @@ export class DataGroupVisibilityService {
   updateGroupVisibility(value: IGroupVisibility): Observable<IGroupVisibility> {
     return this.httpClient
       .put<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addGroupVisibility(value: IGroupVisibility): Observable<IGroupVisibility> {
     delete value.id;
 
     return this.httpClient
-      .post<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/`, value)
-      .pipe(retry(3));
+      .post<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/`, value);
   }
 
   deleteGroupVisibility(id: string): Observable<IGroupVisibility> {
     return this.httpClient
       .delete<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getRoots(): Observable<IGroup[]> {
@@ -68,7 +68,6 @@ export class DataGroupVisibilityService {
       .post<void>(
         `${environment.baseUrl}GroupVisibilities/BulkList`,
         valuesWithoutIds
-      )
-      .pipe(retry(3));
+      );
   }
 }

@@ -40,13 +40,13 @@ export class DataBreakPlaceholderService {
   updateBreak(value: BreakPlaceholder) {
     return defer(() => this.httpClient
       .put<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/`, this.toWirePayload(value))
-      .pipe(retry(3)));
+      .pipe(retryTransientHttpErrors()));
   }
 
   deleteBreak(id: string) {
     return this.httpClient
       .delete<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getScheduleList(filter: IBreakFilter): Observable<IClientBreak[]> {
@@ -55,7 +55,7 @@ export class DataBreakPlaceholderService {
         `${environment.baseUrl}BreakPlaceholders/GetScheduleList/`,
         filter,
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getClientList(filter: IBreakFilter): Observable<{ clients: IClientBreak[], totalCount: number }> {
@@ -66,7 +66,7 @@ export class DataBreakPlaceholderService {
         { observe: 'response' }
       )
       .pipe(
-        retry(3),
+        retryTransientHttpErrors(),
         map((response: HttpResponse<IClientBreak[]>) => {
           const totalCount = parseInt(response.headers.get('X-Total-Count') || '0', 10);
           return {

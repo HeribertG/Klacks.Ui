@@ -13,6 +13,7 @@ import { BulkBreaksResponse } from 'src/app/domain/models/dtos/bulk-breaks-respo
 import { RemovableWork } from 'src/app/domain/models/dtos/removable-work.dto';
 import { idempotentRequestOptions } from 'src/app/infrastructure/helpers/idempotency-key.helper';
 import { IdenticalCreateGuardService } from 'src/app/infrastructure/helpers/identical-create-guard.service';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -39,19 +40,19 @@ export class DataBreakService {
   updateBreak(value: Break) {
     return defer(() => this.httpClient
       .put<IBreak>(`${environment.baseUrl}Breaks/`, this.toWirePayload(value))
-      .pipe(retry(3)));
+      .pipe(retryTransientHttpErrors()));
   }
 
   deleteBreak(id: string, periodStart: string, periodEnd: string) {
     return this.httpClient
       .delete<IBreak>(`${environment.baseUrl}Breaks/${id}?periodStart=${periodStart}&periodEnd=${periodEnd}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   previewTakenWorks(request: BulkAddBreaksRequest) {
     return this.httpClient
       .post<RemovableWork[]>(`${environment.baseUrl}Breaks/Bulk/Preview`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   bulkAddBreaks(request: BulkAddBreaksRequest) {
@@ -62,19 +63,17 @@ export class DataBreakService {
   bulkDeleteBreaks(request: BulkDeleteBreaksRequest) {
     return this.httpClient
       .delete<BulkBreaksResponse>(`${environment.baseUrl}Breaks/Bulk`, { body: request })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   confirmBreak(breakId: string) {
     return this.httpClient
-      .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Confirm`, {})
-      .pipe(retry(3));
+      .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Confirm`, {});
   }
 
   unconfirmBreak(breakId: string) {
     return this.httpClient
-      .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Unconfirm`, {})
-      .pipe(retry(3));
+      .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Unconfirm`, {});
   }
 
   private toWirePayload(value: Break) {

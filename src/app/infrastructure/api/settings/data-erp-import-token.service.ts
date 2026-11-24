@@ -15,6 +15,7 @@ import { environment } from 'src/environments/environment';
 import { IErpImportToken } from 'src/app/domain/models/settings/erp-import-token';
 import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
 import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +39,6 @@ export class DataErpImportTokenService {
     const params = new HttpParams().set('dropPointId', dropPointId);
     return this.httpClient
       .delete<void>(`${this.apiUrl}/${id}`, { params })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

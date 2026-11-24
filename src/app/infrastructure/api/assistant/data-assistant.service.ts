@@ -57,8 +57,7 @@ export class DataAssistantService {
 
   chat(request: IAssistantChatRequest): Observable<IAssistantChatResponse> {
     return this.httpClient
-      .post<IAssistantChatResponse>(`${this.baseUrl}chat`, request)
-      .pipe(retry(3));
+      .post<IAssistantChatResponse>(`${this.baseUrl}chat`, request);
   }
 
   getAutonomyLevel(): Observable<IAutonomyLevelDto> {
@@ -70,7 +69,7 @@ export class DataAssistantService {
   setAutonomyLevel(request: IUpdateAutonomyLevelRequest): Observable<IAutonomyLevelDto> {
     return this.httpClient
       .put<IAutonomyLevelDto>(`${this.baseUrl}autonomy-level`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getModels(): Observable<IAssistantModel[]> {
@@ -82,25 +81,22 @@ export class DataAssistantService {
   updateModel(id: string, updates: Partial<IAssistantModel>): Observable<IAssistantModel> {
     return this.httpClient
       .put<IAssistantModel>(`${this.baseUrl}models/${id}`, updates)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   enableModel(modelId: string): Observable<unknown> {
     return this.httpClient
-      .post(`${this.baseUrl}models/${modelId}/enable`, {})
-      .pipe(retry(3));
+      .post(`${this.baseUrl}models/${modelId}/enable`, {});
   }
 
   disableModel(modelId: string): Observable<unknown> {
     return this.httpClient
-      .post(`${this.baseUrl}models/${modelId}/disable`, {})
-      .pipe(retry(3));
+      .post(`${this.baseUrl}models/${modelId}/disable`, {});
   }
 
   setDefaultModel(modelId: string): Observable<unknown> {
     return this.httpClient
-      .post(`${this.baseUrl}models/${modelId}/set-default`, {})
-      .pipe(retry(3));
+      .post(`${this.baseUrl}models/${modelId}/set-default`, {});
   }
 
   checkSpeechModels(): Observable<ISpeechModelCheckResponse> {
@@ -141,12 +137,11 @@ export class DataAssistantService {
 
   createModel(model: IAssistantModel): Observable<IAssistantModel> {
     return this.httpClient
-      .post<IAssistantModel>(`${this.baseUrl}models`, model)
-      .pipe(retry(3));
+      .post<IAssistantModel>(`${this.baseUrl}models`, model);
   }
 
   deleteModel(id: string): Observable<unknown> {
-    return this.httpClient.delete(`${this.baseUrl}models/${id}`).pipe(retry(3));
+    return this.httpClient.delete(`${this.baseUrl}models/${id}`).pipe(retryTransientHttpErrors());
   }
 
   warmup(): void {

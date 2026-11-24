@@ -21,6 +21,7 @@ import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { NO_SCENARIO_ACCEPT_OVERRIDES } from 'src/app/domain/models/schedule/scenario-stale.model';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 const OVERRIDE_BLOCK_PARAM = 'overrideBlock';
 const OVERRIDE_STALE_PARAM = 'overrideStale';
@@ -80,24 +81,23 @@ export class DataAnalyseScenarioService {
 
   reject(id: string): Observable<void> {
     return this.httpClient
-      .post<void>(`${this.baseUrl}/${id}/Reject`, {})
-      .pipe(retry(3));
+      .post<void>(`${this.baseUrl}/${id}/Reject`, {});
   }
 
   delete(id: string): Observable<void> {
     return this.httpClient
       .delete<void>(`${this.baseUrl}/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteAll(groupId?: string): Observable<void> {
     const url = groupId ? `${this.baseUrl}?groupId=${groupId}` : this.baseUrl;
-    return this.httpClient.delete<void>(url).pipe(retry(3));
+    return this.httpClient.delete<void>(url).pipe(retryTransientHttpErrors());
   }
 
   rename(id: string, name: string): Observable<IAnalyseScenario> {
     return this.httpClient
       .patch<IAnalyseScenario>(`${this.baseUrl}/${id}/Rename`, { name })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

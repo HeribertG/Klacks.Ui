@@ -42,7 +42,7 @@ export class DataGroupService {
 
       return this.httpClient
         .put<IGroup>(`${environment.baseUrl}Groups/`, payload)
-        .pipe(retry(3));
+        .pipe(retryTransientHttpErrors());
     });
   }
 
@@ -50,15 +50,14 @@ export class DataGroupService {
     return defer(() => {
       const { id: _id, ...rest } = value;
       return this.httpClient
-        .post<IGroup>(`${environment.baseUrl}Groups/`, this.toWirePayload(rest))
-        .pipe(retry(3));
+        .post<IGroup>(`${environment.baseUrl}Groups/`, this.toWirePayload(rest));
     });
   }
 
   deleteGroup(id: string): Observable<IGroup> {
     return this.httpClient
       .delete<IGroup>(`${environment.baseUrl}Groups/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getGroupTree(rootId?: string): Observable<IGroupTree> {
@@ -84,8 +83,7 @@ export class DataGroupService {
     return this.httpClient
       .post<IGroup>(`${environment.baseUrl}Groups/move/${id}`, null, {
         params,
-      })
-      .pipe(retry(3));
+      });
   }
 
   getRefreshTree(): Observable<void> {

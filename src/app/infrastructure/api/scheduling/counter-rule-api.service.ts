@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -28,14 +29,14 @@ export class CounterRuleApiService {
 
   create(rule: ICounterRule): Promise<ICounterRule> {
     const { id: _id, ...payload } = rule;
-    return firstValueFrom(this.http.post<ICounterRule>(`${environment.baseUrl}counterrules`, payload).pipe(retry(3)));
+    return firstValueFrom(this.http.post<ICounterRule>(`${environment.baseUrl}counterrules`, payload));
   }
 
   update(rule: ICounterRule): Promise<ICounterRule> {
-    return firstValueFrom(this.http.put<ICounterRule>(`${environment.baseUrl}counterrules`, rule).pipe(retry(3)));
+    return firstValueFrom(this.http.put<ICounterRule>(`${environment.baseUrl}counterrules`, rule).pipe(retryTransientHttpErrors()));
   }
 
   delete(id: string): Promise<ICounterRule> {
-    return firstValueFrom(this.http.delete<ICounterRule>(`${environment.baseUrl}counterrules/${id}`).pipe(retry(3)));
+    return firstValueFrom(this.http.delete<ICounterRule>(`${environment.baseUrl}counterrules/${id}`).pipe(retryTransientHttpErrors()));
   }
 }

@@ -1426,7 +1426,7 @@
   "setting.macro.header.level": "Level",
   "setting.macro.header.name": "NAME",
   "setting.macro.headline": "Modify Macros",
-  "setting.macro.headline-modal": "Create new Macro",
+  "setting.macro.headline-modal": "Edit Macro",
   "setting.macro.name-modal": "Name",
   "setting.macro.test-modal": "Test",
   "setting.macro.function-modal": "Function",

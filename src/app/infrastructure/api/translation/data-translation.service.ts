@@ -22,6 +22,6 @@ export class DataTranslationService {
     return this.httpClient.post<TranslationResponse>(
       `${environment.baseUrl}Translation/translate-all`,
       request
-    ).pipe(retry(3));
+    );
   }
 }

@@ -11,6 +11,7 @@ import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -29,19 +30,19 @@ export class IndividualPeriodApiService {
   create(period: IIndividualPeriod): Promise<IIndividualPeriod> {
     return firstValueFrom(defer(() => {
       const { id: _id, ...payload } = this.correctDates(period);
-      return this.http.post<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retry(3));
+      return this.http.post<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload);
     }));
   }
 
   update(period: IIndividualPeriod): Promise<IIndividualPeriod> {
     return firstValueFrom(defer(() => {
       const payload = this.correctDates(period);
-      return this.http.put<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retry(3));
+      return this.http.put<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retryTransientHttpErrors());
     }));
   }
 
   delete(id: string): Promise<IIndividualPeriod> {
-    return firstValueFrom(this.http.delete<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods/${id}`).pipe(retry(3)));
+    return firstValueFrom(this.http.delete<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods/${id}`).pipe(retryTransientHttpErrors()));
   }
 
   private correctDates(period: IIndividualPeriod) {

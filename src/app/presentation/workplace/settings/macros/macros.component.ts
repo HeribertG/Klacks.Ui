@@ -140,6 +140,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy, IRefreshable {
             ...macros.slice(0, index),
             ...macros.slice(index + 1)
           ]);
+          this.macroManagementService.discardUnsavedMacro(macro);
         } else {
           const updatedMacro = { ...macro };
           if (updatedMacro.name) {

@@ -10,6 +10,7 @@ import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-av
 import { IClientAvailabilityClientResponse } from 'src/app/domain/models/client-availability/client-availability-client-response.interface';
 import { IClientAvailabilityRange } from 'src/app/domain/models/client-availability/client-availability-range.interface';
 import { IClientAvailabilityTotal } from 'src/app/domain/models/client-availability/client-availability-total.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -35,8 +36,7 @@ export class DataClientAvailabilityService {
       .post<number>(
         `${environment.baseUrl}ClientAvailabilities/Bulk`,
         request
-      )
-      .pipe(retry(3));
+      );
   }
 
   getClients(filter: IClientAvailabilityClientFilter) {
@@ -45,7 +45,7 @@ export class DataClientAvailabilityService {
         `${environment.baseUrl}ClientAvailabilities/Clients`,
         filter
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getAvailabilityRanges(startDate: string, endDate: string, clientIds: string[]) {
@@ -70,6 +70,6 @@ export class DataClientAvailabilityService {
         `${environment.baseUrl}ClientAvailabilities/Totals`,
         { startDate, endDate, clientIds }
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

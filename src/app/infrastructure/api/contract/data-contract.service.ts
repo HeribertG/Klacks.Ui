@@ -7,6 +7,7 @@ import { Contract } from 'src/app/domain/models/contract/contract-class';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
 import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +45,7 @@ export class DataContractService {
   deleteContract(id: string) {
     return this.httpClient
       .delete<IContract>(`${environment.baseUrl}Contracts/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   private toWirePayload(value: Omit<IContract, 'id'> | IContract) {

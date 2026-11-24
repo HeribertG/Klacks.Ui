@@ -14,6 +14,7 @@ import { IPersonalAccessToken } from 'src/app/domain/models/settings/personal-ac
 import { IPersonalAccessTokenCreate } from 'src/app/domain/models/settings/personal-access-token-create.interface';
 import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
 import { retry } from 'rxjs/operators';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -37,6 +38,6 @@ export class DataPersonalAccessTokenService {
   revokeToken(id: string) {
     return this.httpClient
       .delete(`${environment.baseUrl}personal-access-tokens/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

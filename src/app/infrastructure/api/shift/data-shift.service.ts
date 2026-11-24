@@ -61,7 +61,7 @@ export class DataShiftService {
   deleteShift(id: string) {
     return this.httpClient
       .delete<IShift>(`${environment.baseUrl}Shifts/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   private toListWirePayload(filter: IShiftListFilter) {

@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { retry } from 'rxjs/operators';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -24,19 +25,18 @@ export class DataQualificationService {
 
   addQualification(value: IQualification) {
     return this.httpClient
-      .post<IQualification>(`${environment.baseUrl}Qualification/AddQualification`, value)
-      .pipe(retry(3));
+      .post<IQualification>(`${environment.baseUrl}Qualification/AddQualification`, value);
   }
 
   updateQualification(value: IQualification) {
     return this.httpClient
       .put<IQualification>(`${environment.baseUrl}Qualification/PutQualification`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteQualification(id: string) {
     return this.httpClient
       .delete<void>(`${environment.baseUrl}Qualification/DeleteQualification/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

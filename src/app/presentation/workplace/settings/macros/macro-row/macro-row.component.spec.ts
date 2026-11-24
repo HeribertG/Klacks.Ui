@@ -42,6 +42,7 @@ describe('MacroRowComponent', () => {
   };
   let mockMacroManagementService: {
     save: ReturnType<typeof vi.fn>;
+    discardUnsavedMacro: ReturnType<typeof vi.fn>;
     macroList: WritableSignal<IMacro[]>;
   };
 
@@ -71,6 +72,7 @@ describe('MacroRowComponent', () => {
 
     mockMacroManagementService = {
       save: vi.fn(),
+      discardUnsavedMacro: vi.fn(),
       macroList: signal<IMacro[]>([]),
     };
 
@@ -616,6 +618,85 @@ describe('MacroRowComponent', () => {
       expect(externals['weekendday2']).toBe(7);
       expect(externals['weekendday3']).toBe(0);
       expect(externals['hour']).toBe(8);
+    });
+  });
+
+  describe('dialog dismissal', () => {
+    const dismissDialog = async (): Promise<void> => {
+      (component as unknown as { modalService: NgbModal }).modalService.dismissAll();
+      await fixture.whenStable();
+    };
+
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should discard the unsaved macro when the dialog is dismissed after a save the server did not take', async () => {
+      // Arrange
+      component.openModal();
+      component.onSave();
+      const unsaved = component.data();
+
+      // Act
+      await dismissDialog();
+
+      // Assert
+      expect(unsaved.isDirty).toBe(CreateEntriesEnum.rewrite);
+      expect(mockMacroManagementService.discardUnsavedMacro).toHaveBeenCalledTimes(1);
+      expect(mockMacroManagementService.discardUnsavedMacro).toHaveBeenCalledWith(unsaved);
+    });
+
+    it('should discard a macro that is still unsaved from an earlier rejected save when it is reopened and dismissed', async () => {
+      // Arrange
+      const unsaved = { ...mockMacro, isDirty: CreateEntriesEnum.rewrite } as IMacro;
+      fixture.componentRef.setInput('data', unsaved);
+      component.openModal();
+
+      // Act
+      await dismissDialog();
+
+      // Assert
+      expect(mockMacroManagementService.discardUnsavedMacro).toHaveBeenCalledWith(unsaved);
+    });
+
+    it('should cancel and discard a new macro that was never saved', async () => {
+      // Arrange
+      const created = { ...mockMacro, id: '', isDirty: CreateEntriesEnum.new } as IMacro;
+      fixture.componentRef.setInput('data', created);
+      const cancelled = vi.fn();
+      component.cancelNewEvent.subscribe(cancelled);
+      component.openModal();
+
+      // Act
+      await dismissDialog();
+
+      // Assert
+      expect(cancelled).toHaveBeenCalledTimes(1);
+      expect(mockMacroManagementService.discardUnsavedMacro).toHaveBeenCalledWith(created);
+    });
+
+    it('should discard nothing when the dialog is dismissed without a save', async () => {
+      // Arrange
+      component.openModal();
+
+      // Act
+      await dismissDialog();
+
+      // Assert
+      expect(mockMacroManagementService.discardUnsavedMacro).not.toHaveBeenCalled();
+    });
+
+    it('should discard nothing when the save went through and the row shows the stored macro again', async () => {
+      // Arrange
+      component.openModal();
+      component.onSave();
+      fixture.componentRef.setInput('data', { ...mockMacro } as IMacro);
+
+      // Act
+      await dismissDialog();
+
+      // Assert
+      expect(mockMacroManagementService.discardUnsavedMacro).not.toHaveBeenCalled();
     });
   });
 });

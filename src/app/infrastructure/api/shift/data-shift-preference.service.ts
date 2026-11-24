@@ -38,7 +38,6 @@ export class DataShiftPreferenceService {
       .post<IClientShiftPreference[]>(
         `${environment.baseUrl}ClientShiftPreferences/bulk`,
         { clientId, preferences },
-      )
-      .pipe(retry(3));
+      );
   }
 }

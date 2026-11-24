@@ -25,6 +25,7 @@ import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-poin
 import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpOrderFileRetryResult } from 'src/app/domain/models/settings/erp-order-file-retry-result';
 import { ERP_DROP_FOLDER_PATH, ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 const DEFAULT_PATH_SEGMENT = 'default';
 const RETRY_PATH_SEGMENT = 'retry';
@@ -55,7 +56,7 @@ export class DataErpDropPointService {
   updateDropPoint(id: string, request: IErpDropPointRequest): Observable<IErpDropPoint> {
     return this.httpClient
       .put<IErpDropPoint>(`${this.apiUrl}/${id}`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   uploadFile(file: File): Observable<{ key: string }> {

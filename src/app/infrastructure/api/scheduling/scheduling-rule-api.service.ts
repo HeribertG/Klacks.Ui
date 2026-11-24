@@ -17,6 +17,7 @@ import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rul
 import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.interface';
 import { IIndustryMigrationCandidate } from 'src/app/domain/models/scheduling/industry-migration-candidate.model';
 import { IContractSchedulingRuleAssignment } from 'src/app/domain/models/scheduling/contract-scheduling-rule-assignment.model';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,7 @@ export class SchedulingRuleApiService {
   }
 
   update(rule: ISchedulingRule): Promise<ISchedulingRule> {
-    return firstValueFrom(this.http.put<ISchedulingRule>(`${environment.baseUrl}schedulingrules`, rule).pipe(retry(3)));
+    return firstValueFrom(this.http.put<ISchedulingRule>(`${environment.baseUrl}schedulingrules`, rule).pipe(retryTransientHttpErrors()));
   }
 
   delete(id: string): Promise<ISchedulingRule> {

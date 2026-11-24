@@ -31,6 +31,7 @@ import { ICreateStandInsRequest } from 'src/app/domain/models/client/stand-in/cr
 import { ICreatedStandIn } from 'src/app/domain/models/client/stand-in/created-stand-in.interface';
 import { IConvertStandInRequest } from 'src/app/domain/models/client/stand-in/convert-stand-in-request.interface';
 import { STAND_IN_API_PATH, STAND_IN_CONVERT_PATH_SUFFIX } from 'src/app/domain/constants/stand-in.constants';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -53,7 +54,7 @@ export class DataClientService {
         `${environment.baseUrl}Clients/ChangeList`,
         filter,
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getClient(id: string) {
@@ -81,7 +82,7 @@ export class DataClientService {
   updateClient(value: IClient) {
     return defer(() => this.httpClient
       .put<IClient>(`${environment.baseUrl}Clients/`, ClientDataMapper.mapForUpdate(value))
-      .pipe(retry(3)));
+      .pipe(retryTransientHttpErrors()));
   }
 
   addClient(value: IClient) {

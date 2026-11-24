@@ -121,11 +121,7 @@ export class StringInputStream {
       i = this._sourceText.indexOf('\r', this._sourceIndex);
     }
     if (i === -1) {
-      i = this._sourceText.indexOf('\r\n', this._sourceIndex);
-    }
-
-    if (i === 0) {
-      i = this._sourceText.length + 1;
+      i = this._sourceText.length;
     }
 
     this._col = this._col + (i - this._sourceIndex);

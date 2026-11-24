@@ -234,8 +234,15 @@ export class MacroRowComponent implements OnDestroy {
         if (!this.wasSaved && d2.isDirty === CreateEntriesEnum.new) {
           this.cancelNewEvent.emit();
         }
+        if (this.hasUnsavedChange(d2)) {
+          this.macroManagementService.discardUnsavedMacro(d2);
+        }
       }
     );
+  }
+
+  private hasUnsavedChange(macro: IMacro): boolean {
+    return macro.isDirty === CreateEntriesEnum.new || macro.isDirty === CreateEntriesEnum.rewrite;
   }
 
   private commitFormToData(): void {

@@ -23,6 +23,7 @@ export class MacroManagementService {
   public isDirty = computed(() => this.checkIfDirty());
 
   private saveCounter = 0;
+  private rejectedMacros: IMacro[] = [];
 
   loadMacros(): void {
     this.isLoading.set(true);
@@ -33,9 +34,7 @@ export class MacroManagementService {
       .subscribe({
         next: (macros) => {
           if (macros) {
-            const sortedMacros = this.sortMacros(macros as IMacro[]);
-            this.macroList.set(sortedMacros);
-            this.macroListOriginal.set(cloneObject(sortedMacros));
+            this.applyLoadedMacros(macros as IMacro[]);
           }
         },
         error: (error) => {
@@ -49,12 +48,17 @@ export class MacroManagementService {
   }
 
   async loadMacrosAsync(): Promise<void> {
+    this.rejectedMacros = [];
     const macros = await firstValueFrom(this.dataMacroService.readMacroList());
     if (macros) {
-      const sortedMacros = this.sortMacros(macros as IMacro[]);
-      this.macroList.set(sortedMacros);
-      this.macroListOriginal.set(cloneObject(sortedMacros));
+      this.applyLoadedMacros(macros as IMacro[]);
     }
+  }
+
+  private applyLoadedMacros(macros: IMacro[]): void {
+    const sortedMacros = this.sortMacros(macros);
+    this.macroListOriginal.set(cloneObject(sortedMacros));
+    this.macroList.set(this.withRejectedMacros(sortedMacros));
   }
 
   private sortMacros(macros: IMacro[]): IMacro[] {
@@ -68,6 +72,7 @@ export class MacroManagementService {
       return;
     }
 
+    this.rejectedMacros = [];
     const macros = this.sortMacros(this.macroList());
 
     macros.forEach((macro) => {
@@ -100,6 +105,7 @@ export class MacroManagementService {
         },
         error: (error) => {
           console.error('Failed to add macro:', error);
+          this.rejectedMacros.push(macro);
           this.saveCounter--;
           this.checkSaveComplete();
         },
@@ -118,6 +124,7 @@ export class MacroManagementService {
         },
         error: (error) => {
           console.error('Failed to update macro:', error);
+          this.rejectedMacros.push(macro);
           this.saveCounter--;
           this.checkSaveComplete();
         },
@@ -152,6 +159,31 @@ export class MacroManagementService {
     }
   }
 
+  private withRejectedMacros(loaded: IMacro[]): IMacro[] {
+    if (this.rejectedMacros.length === 0) {
+      return loaded;
+    }
+
+    const rejectedUpdates = new Map(
+      this.rejectedMacros.filter((macro) => macro.id).map((macro) => [macro.id, macro])
+    );
+    const rejectedCreates = this.rejectedMacros.filter((macro) => !macro.id);
+    return [...loaded.map((macro) => rejectedUpdates.get(macro.id) ?? macro), ...rejectedCreates];
+  }
+
+  discardUnsavedMacro(macro: IMacro): void {
+    this.rejectedMacros = this.rejectedMacros.filter((rejected) => rejected !== macro);
+
+    const current = this.macroList();
+    if (!current.includes(macro)) {
+      return;
+    }
+
+    const stored = macro.id ? this.macroListOriginal().find((original) => original.id === macro.id) : undefined;
+    const restored = stored ? [cloneObject(stored)] : [];
+    this.macroList.set(current.flatMap((entry) => (entry === macro ? restored : [entry])));
+  }
+
   private checkIfDirty(): boolean {
     const listOfExcludedProperties = ['isDirty'];
 
@@ -176,6 +208,7 @@ export class MacroManagementService {
   }
 
   resetData(): void {
+    this.rejectedMacros = [];
     this.loadMacros();
   }
 

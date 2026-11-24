@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { defer, retry, timeout } from 'rxjs';
+import { defer, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IShiftSchedulePartialFilter } from 'src/app/domain/models/schedule/shift-schedule-partial-filter.interface';
 import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
@@ -20,7 +20,7 @@ export class DataShiftScheduleService {
     return defer(() =>
       this.httpClient
         .post<IShiftScheduleResponse>(`${environment.baseUrl}Shifts/Schedule`, this.toWirePayload(filter))
-        .pipe(retry(1), timeout(30000)),
+        .pipe(retryTransientHttpErrors(1), timeout(30000)),
     );
   }
 

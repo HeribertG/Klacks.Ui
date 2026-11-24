@@ -22,6 +22,7 @@ import {
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { ISetProactiveReactionRequest } from './set-proactive-reaction-request.interface';
 import { IProactiveUnreadCount } from 'src/app/domain/interfaces/proactive-unread-count.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -45,7 +46,7 @@ export class DataProactiveMessageService {
         request,
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   getUnreadMessages(take: number): Observable<IProactiveInboxItem[]> {
@@ -76,7 +77,7 @@ export class DataProactiveMessageService {
         { ids: messageIds },
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   delegateCondition(messageId: string, maxAction: number): Observable<void> {
@@ -86,7 +87,7 @@ export class DataProactiveMessageService {
         { maxAction },
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   acknowledge(messageId: string): Observable<void> {
@@ -96,6 +97,6 @@ export class DataProactiveMessageService {
         null,
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

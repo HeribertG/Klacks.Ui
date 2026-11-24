@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import { retry } from 'rxjs/operators';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -27,19 +28,18 @@ export class DataBranchService {
   updateBranch(value: IBranch) {
     return this.httpClient
       .put<IBranch>(`${environment.baseUrl}Branch/PutBranch`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addBranch(value: IBranch) {
     delete value.id;
     return this.httpClient
-      .post<IBranch>(`${environment.baseUrl}Branch/AddBranch`, value)
-      .pipe(retry(3));
+      .post<IBranch>(`${environment.baseUrl}Branch/AddBranch`, value);
   }
 
   deleteBranch(id: string) {
     return this.httpClient
       .delete<IBranch>(`${environment.baseUrl}Branch/DeleteBranch/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

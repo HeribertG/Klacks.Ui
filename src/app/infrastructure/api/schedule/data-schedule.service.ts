@@ -54,14 +54,14 @@ export class DataScheduleService {
   deleteWork(id: string, periodStart: string, periodEnd: string) {
     return this.httpClient
       .delete<IWork>(`${environment.baseUrl}Works/${id}?periodStart=${periodStart}&periodEnd=${periodEnd}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   bulkDeleteWorks(workIds: string[]) {
     const request: BulkDeleteWorksRequest = { workIds };
     return this.httpClient
       .delete<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, { body: request })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   bulkAddWorks(request: BulkAddWorksRequest) {
@@ -108,8 +108,7 @@ export class DataScheduleService {
 
   reopenPeriod(startDate: string, endDate: string) {
     return this.httpClient
-      .post<number>(`${environment.baseUrl}Works/ReopenPeriod`, { startDate, endDate })
-      .pipe(retry(3));
+      .post<number>(`${environment.baseUrl}Works/ReopenPeriod`, { startDate, endDate });
   }
 
   private toWirePayload(value: Work) {

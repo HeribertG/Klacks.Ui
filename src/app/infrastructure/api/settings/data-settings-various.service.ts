@@ -2,7 +2,6 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { retry } from 'rxjs/operators';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { EmailTestRequest } from 'src/app/domain/interfaces/email-test.interface';
 import { EmailTestConfig } from 'src/app/domain/interfaces/email-test-config.interface';
@@ -10,6 +9,7 @@ import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.int
 import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -24,13 +24,12 @@ export class DataSettingsVariousService {
   updateSetting(value: ISetting): Observable<ISetting> {
     return this.httpClient
       .put<ISetting>(`${environment.baseUrl}GeneralSettings/PutSetting/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addSetting(value: ISetting): Observable<ISetting> {
     return this.httpClient
-      .post<ISetting>(`${environment.baseUrl}GeneralSettings/AddSetting/`, value)
-      .pipe(retry(3));
+      .post<ISetting>(`${environment.baseUrl}GeneralSettings/AddSetting/`, value);
   }
 
   readSettingList(): Observable<ISetting[]> {
@@ -54,8 +53,7 @@ export class DataSettingsVariousService {
       .post<EmailTestResult>(
         `${environment.baseUrl}GeneralSettings/TestEmailConfiguration`,
         emailTestRequest
-      )
-      .pipe(retry(1));
+      );
   }
 
   testImapConfiguration(config: ImapTestRequest): Observable<EmailTestResult> {
@@ -63,7 +61,6 @@ export class DataSettingsVariousService {
       .post<EmailTestResult>(
         `${environment.baseUrl}ReceivedEmail/TestImapConnection`,
         config
-      )
-      .pipe(retry(1));
+      );
   }
 }

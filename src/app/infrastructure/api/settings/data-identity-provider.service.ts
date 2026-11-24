@@ -19,6 +19,7 @@ import {
   DIRECTORY_ACCOUNTS_API_SEGMENT,
   DIRECTORY_ACCOUNTS_SEARCH_PARAM,
 } from 'src/app/domain/constants/identity-provider.constants';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -41,32 +42,29 @@ export class DataIdentityProviderService {
 
   createProvider(request: ICreateIdentityProviderRequest): Observable<IIdentityProvider> {
     return this.httpClient
-      .post<IIdentityProvider>(this.apiUrl, request)
-      .pipe(retry(3));
+      .post<IIdentityProvider>(this.apiUrl, request);
   }
 
   updateProvider(id: string, request: IUpdateIdentityProviderRequest): Observable<IIdentityProvider> {
     return this.httpClient
       .put<IIdentityProvider>(`${this.apiUrl}/${id}`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteProvider(id: string): Observable<void> {
     return this.httpClient
       .delete<void>(`${this.apiUrl}/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   testConnection(id: string): Observable<ITestConnectionResult> {
     return this.httpClient
-      .post<ITestConnectionResult>(`${this.apiUrl}/${id}/TestConnection`, {})
-      .pipe(retry(1));
+      .post<ITestConnectionResult>(`${this.apiUrl}/${id}/TestConnection`, {});
   }
 
   syncClients(id: string): Observable<ISyncResult> {
     return this.httpClient
-      .post<ISyncResult>(`${this.apiUrl}/${id}/SyncClients`, {})
-      .pipe(retry(1));
+      .post<ISyncResult>(`${this.apiUrl}/${id}/SyncClients`, {});
   }
 
   getDirectoryAccounts(id: string, search: string): Observable<IDirectoryAccountList> {

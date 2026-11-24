@@ -8,11 +8,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { IUpdateTriggerPreferenceRequest } from './update-trigger-preference-request.interface';
 import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +30,7 @@ export class DataTriggerPreferenceService {
         request,
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   snoozeKind(triggerKind: string, snoozedUntilUtc: string): Observable<ITriggerPreference> {
@@ -41,6 +41,6 @@ export class DataTriggerPreferenceService {
         request,
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

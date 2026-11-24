@@ -8,6 +8,7 @@ import { Absence } from 'src/app/domain/models/absence/absence-class';
 import { AbsenceFilter } from 'src/app/domain/models/absence/absence-filter-class';
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { TruncatedAbsence } from 'src/app/domain/models/absence/truncated-absence-class';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class DataAbsenceService {
         `${environment.baseUrl}Absences/GetSimpleAbsenceList`,
         filter
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   readAbsence(value: IAbsence) {
@@ -33,13 +34,12 @@ export class DataAbsenceService {
   updateAbsence(value: IAbsence) {
     return this.httpClient
       .put(`${environment.baseUrl}Absences/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addAbsence(value: Absence) {
     return this.httpClient
-      .post(`${environment.baseUrl}Absences/`, value)
-      .pipe(retry(3));
+      .post(`${environment.baseUrl}Absences/`, value);
   }
 
   readAbsenceList() {
@@ -57,6 +57,6 @@ export class DataAbsenceService {
   deleteAbsence(id: string) {
     return this.httpClient
       .delete<IAbsence>(`${environment.baseUrl}Absences/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

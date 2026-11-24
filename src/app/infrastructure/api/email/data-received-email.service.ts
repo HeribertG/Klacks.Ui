@@ -10,6 +10,7 @@ import { IReceivedEmailListResponse } from 'src/app/domain/models/email/received
 import { ITranslatedEmail } from 'src/app/domain/models/email/translated-email.interface';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 import { Observable } from 'rxjs';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 const API_PATH = 'ReceivedEmail/';
 
@@ -56,31 +57,31 @@ export class DataReceivedEmailService {
         {},
         { context: new HttpContext().set(SKIP_LOADING, true) }
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   delete(id: string) {
     return this.httpClient
       .delete<void>(`${environment.baseUrl}${API_PATH}${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   restore(id: string) {
     return this.httpClient
       .put<boolean>(`${environment.baseUrl}${API_PATH}${id}/Restore`, {})
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   permanentlyDelete(id: string) {
     return this.httpClient
       .delete<boolean>(`${environment.baseUrl}${API_PATH}${id}/Permanent`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   moveToFolder(id: string, folder: string) {
     return this.httpClient
       .put<boolean>(`${environment.baseUrl}${API_PATH}${id}/MoveToFolder?folder=${encodeURIComponent(folder)}`, {})
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   translateEmail(id: string, targetLanguage: string) {

@@ -13,6 +13,7 @@ import { IAssistantProvider } from '../../../domain/models/assistant/assistant-p
 import { ICreateProviderRequest } from '../../../domain/models/assistant/create-provider-request.interface';
 import { IUpdateProviderRequest } from '../../../domain/models/assistant/update-provider-request.interface';
 import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -35,20 +36,19 @@ export class DataAssistantProviderService {
 
   createProvider(request: ICreateProviderRequest): Observable<IAssistantProvider> {
     return this.httpClient
-      .post<IAssistantProvider>(this.apiUrl, request)
-      .pipe(retry(3));
+      .post<IAssistantProvider>(this.apiUrl, request);
   }
 
   updateProvider(id: string, request: IUpdateProviderRequest): Observable<IAssistantProvider> {
     return this.httpClient
       .put<IAssistantProvider>(`${this.apiUrl}/${id}`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteProvider(id: string): Observable<void> {
     return this.httpClient
       .delete<void>(`${this.apiUrl}/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   discoverProviders(): Observable<IDiscoveredProvider[]> {

@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { ICountry, IPostCodeCH, IState } from 'src/app/domain/models/client/client-class';
 import { retry } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -28,20 +29,19 @@ export class DataCountryStateService {
   updateCountry(value: ICountry) {
     return this.httpClient
       .put<ICountry>(`${environment.baseUrl}Countries/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addCountry(value: ICountry) {
     delete value.id;
     return this.httpClient
-      .post<ICountry>(`${environment.baseUrl}Countries/`, value)
-      .pipe(retry(3));
+      .post<ICountry>(`${environment.baseUrl}Countries/`, value);
   }
 
   deleteCountry(id: string) {
     return this.httpClient
       .delete<ICountry>(`${environment.baseUrl}Countries/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   GetStateList() {
@@ -59,20 +59,19 @@ export class DataCountryStateService {
   updateState(value: IState) {
     return this.httpClient
       .put<IState>(`${environment.baseUrl}States/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addState(value: IState) {
     delete value.id;
     return this.httpClient
-      .post<IState>(`${environment.baseUrl}States/`, value)
-      .pipe(retry(3));
+      .post<IState>(`${environment.baseUrl}States/`, value);
   }
 
   deleteState(id: string) {
     return this.httpClient
       .delete<IState>(`${environment.baseUrl}States/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   SearchCity(zip: string): Promise<IPostCodeCH[] | undefined> {

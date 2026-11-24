@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { AbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -27,19 +28,18 @@ export class DataAbsenceDetailService {
 
   addAbsenceDetail(value: AbsenceDetail) {
     return this.httpClient
-      .post<IAbsenceDetail>(`${environment.baseUrl}AbsenceDetails`, value)
-      .pipe(retry(3));
+      .post<IAbsenceDetail>(`${environment.baseUrl}AbsenceDetails`, value);
   }
 
   updateAbsenceDetail(value: IAbsenceDetail) {
     return this.httpClient
       .put<IAbsenceDetail>(`${environment.baseUrl}AbsenceDetails`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteAbsenceDetail(id: string) {
     return this.httpClient
       .delete<IAbsenceDetail>(`${environment.baseUrl}AbsenceDetails/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

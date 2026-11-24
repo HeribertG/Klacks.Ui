@@ -30,20 +30,17 @@ export class DataFloorPlanService {
 
   create(value: FloorPlan) {
     return this.httpClient
-      .post<IFloorPlan>(`${this.apiUrl}FloorPlans`, value)
-      .pipe(retry(3));
+      .post<IFloorPlan>(`${this.apiUrl}FloorPlans`, value);
   }
 
   update(value: FloorPlan) {
     return this.httpClient
-      .put<IFloorPlan>(`${this.apiUrl}FloorPlans`, value)
-      .pipe(retry(3));
+      .put<IFloorPlan>(`${this.apiUrl}FloorPlans`, value);
   }
 
   delete(id: string) {
     return this.httpClient
-      .delete<void>(`${this.apiUrl}FloorPlans/${id}`)
-      .pipe(retry(3));
+      .delete<void>(`${this.apiUrl}FloorPlans/${id}`);
   }
 
   getMarkers(floorPlanId: string) {
@@ -54,19 +51,16 @@ export class DataFloorPlanService {
 
   addMarker(marker: FloorPlanWorkMarker) {
     return this.httpClient
-      .post<IFloorPlanWorkMarker>(`${this.apiUrl}FloorPlanWorkMarkers`, marker)
-      .pipe(retry(3));
+      .post<IFloorPlanWorkMarker>(`${this.apiUrl}FloorPlanWorkMarkers`, marker);
   }
 
   updateMarker(marker: FloorPlanWorkMarker) {
     return this.httpClient
-      .put<IFloorPlanWorkMarker>(`${this.apiUrl}FloorPlanWorkMarkers`, marker)
-      .pipe(retry(3));
+      .put<IFloorPlanWorkMarker>(`${this.apiUrl}FloorPlanWorkMarkers`, marker);
   }
 
   deleteMarker(id: string) {
     return this.httpClient
-      .delete<void>(`${this.apiUrl}FloorPlanWorkMarkers/${id}`)
-      .pipe(retry(3));
+      .delete<void>(`${this.apiUrl}FloorPlanWorkMarkers/${id}`);
   }
 }

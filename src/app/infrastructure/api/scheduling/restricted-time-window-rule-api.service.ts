@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -28,14 +29,14 @@ export class RestrictedTimeWindowRuleApiService {
 
   create(rule: IRestrictedTimeWindowRule): Promise<IRestrictedTimeWindowRule> {
     const { id: _id, ...payload } = rule;
-    return firstValueFrom(this.http.post<IRestrictedTimeWindowRule>(`${environment.baseUrl}restrictedtimewindowrules`, payload).pipe(retry(3)));
+    return firstValueFrom(this.http.post<IRestrictedTimeWindowRule>(`${environment.baseUrl}restrictedtimewindowrules`, payload));
   }
 
   update(rule: IRestrictedTimeWindowRule): Promise<IRestrictedTimeWindowRule> {
-    return firstValueFrom(this.http.put<IRestrictedTimeWindowRule>(`${environment.baseUrl}restrictedtimewindowrules`, rule).pipe(retry(3)));
+    return firstValueFrom(this.http.put<IRestrictedTimeWindowRule>(`${environment.baseUrl}restrictedtimewindowrules`, rule).pipe(retryTransientHttpErrors()));
   }
 
   delete(id: string): Promise<IRestrictedTimeWindowRule> {
-    return firstValueFrom(this.http.delete<IRestrictedTimeWindowRule>(`${environment.baseUrl}restrictedtimewindowrules/${id}`).pipe(retry(3)));
+    return firstValueFrom(this.http.delete<IRestrictedTimeWindowRule>(`${environment.baseUrl}restrictedtimewindowrules/${id}`).pipe(retryTransientHttpErrors()));
   }
 }

@@ -69,24 +69,20 @@ describe('DataAssistantService', () => {
             req.flush(expectedResponse);
         });
 
-        it('should retry on failure', async () => {
+        it('should send a failed chat message only once', () => {
             // Arrange
             const request: IAssistantChatRequest = { message: 'Hello' };
+            let receivedError: unknown;
 
             // Act
             service.chat(request).subscribe({
-                error: (error) => {
-                    // Assert
-                    expect(error).toBeDefined();
-                    ;
-                }
+                error: (error) => (receivedError = error),
             });
+            httpMock.expectOne(`${baseUrl}chat`).error(new ProgressEvent('error'));
 
             // Assert
-            for (let i = 0; i < 4; i++) { // Initial request + 3 retries
-                const req = httpMock.expectOne(`${baseUrl}chat`);
-                req.error(new ProgressEvent('error'));
-            }
+            httpMock.expectNone(`${baseUrl}chat`);
+            expect(receivedError).toBeDefined();
         });
     });
 

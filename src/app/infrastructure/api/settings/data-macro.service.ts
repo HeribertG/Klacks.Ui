@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { IDefaultShiftMacro } from 'src/app/domain/models/settings/default-shift-macro.model';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -40,19 +41,17 @@ export class DataMacroService {
   updateMacro(value: IMacro) {
     return this.httpClient
       .put<IMacro>(`${environment.baseUrl}Macros/Macros/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addMacro(value: IMacro) {
     delete value.id;
-    return this.httpClient
-      .post<IMacro>(`${environment.baseUrl}Macros/Macros/`, value)
-      .pipe(retry(3));
+    return this.httpClient.post<IMacro>(`${environment.baseUrl}Macros/Macros/`, value);
   }
 
   deleteMacro(id: string) {
     return this.httpClient
       .delete<IMacro>(`${environment.baseUrl}Macros/Macros/` + id)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

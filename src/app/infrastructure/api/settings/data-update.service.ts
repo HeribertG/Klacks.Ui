@@ -15,6 +15,7 @@ import { IUpdateConfig } from '../../../domain/models/settings/update-config.int
 import { IEngineUpgradeTriggerResult } from '../../../domain/models/settings/engine-upgrade-trigger-result.interface';
 import { ENGINE_UPGRADE_API_PATH } from 'src/app/domain/constants/engine-upgrade.constants';
 import { environment } from 'src/environments/environment';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,7 @@ export class DataUpdateService {
   }
 
   saveConfig(config: IUpdateConfig): Observable<IUpdateConfig> {
-    return this.httpClient.put<IUpdateConfig>(`${this.baseUrl}/Config`, config).pipe(retry(1));
+    return this.httpClient.put<IUpdateConfig>(`${this.baseUrl}/Config`, config).pipe(retryTransientHttpErrors(1));
   }
 
   triggerUpdate(): Observable<IUpdateTriggerResult> {

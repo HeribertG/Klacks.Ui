@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 const API_PATH = 'ReceivedEmail/Folders';
 
@@ -26,13 +27,12 @@ export class DataEmailFolderService {
       .post<IEmailFolder>(`${environment.baseUrl}${API_PATH}`, {
         name,
         imapFolderName,
-      })
-      .pipe(retry(3));
+      });
   }
 
   deleteFolder(id: string): Observable<boolean> {
     return this.httpClient
       .delete<boolean>(`${environment.baseUrl}${API_PATH}/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

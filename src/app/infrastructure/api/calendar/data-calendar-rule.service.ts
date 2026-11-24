@@ -8,6 +8,7 @@ import { CalendarRulesFilter } from 'src/app/domain/models/calendar/calendar-rul
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
 import { TruncatedCalendarRule } from 'src/app/domain/models/calendar/truncated-calendar-rule-class';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class DataCalendarRuleService {
   updateCalendarRule(value: ICalendarRule) {
     return this.httpClient
       .put<ICalendarRule>(`${environment.baseUrl}CalendarRules/CalendarRule/`, value)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   addCalendarRule(value: ICalendarRule) {
@@ -33,8 +34,7 @@ export class DataCalendarRuleService {
       .post<ICalendarRule>(
         `${environment.baseUrl}CalendarRules/CalendarRule/`,
         value
-      )
-      .pipe(retry(3));
+      );
   }
 
   readCalendarRuleList() {
@@ -67,6 +67,6 @@ export class DataCalendarRuleService {
       .delete<ICalendarRule>(
         `${environment.baseUrl}CalendarRules/CalendarRule/` + id
       )
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

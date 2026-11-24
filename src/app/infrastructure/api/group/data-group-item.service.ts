@@ -2,9 +2,9 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry } from 'rxjs';
 import { IGroupItemRequest } from './group-item-request.interface';
 import { environment } from 'src/environments/environment';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -14,13 +14,12 @@ export class DataGroupItemService {
 
   addGroupItem(value: IGroupItemRequest) {
     return this.httpClient
-      .post(`${environment.baseUrl}GroupItems/`, value)
-      .pipe(retry(3));
+      .post(`${environment.baseUrl}GroupItems/`, value);
   }
 
   deleteGroupItem(clientId: string, groupId: string) {
     return this.httpClient
       .delete(`${environment.baseUrl}GroupItems/remove?clientId=${clientId}&groupId=${groupId}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }

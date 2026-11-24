@@ -10,6 +10,7 @@ import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification.interface';
 import { SetShiftRequiredQualificationRequest } from './set-shift-required-qualification-request.interface';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({ providedIn: 'root' })
 export class DataShiftQualificationService {
@@ -24,13 +25,12 @@ export class DataShiftQualificationService {
 
   setRequiredQualification(request: SetShiftRequiredQualificationRequest) {
     return this.httpClient
-      .post<string>(`${this.baseUrl}`, request)
-      .pipe(retry(3));
+      .post<string>(`${this.baseUrl}`, request);
   }
 
   deleteRequiredQualification(id: string) {
     return this.httpClient
       .delete<void>(`${this.baseUrl}/${id}`)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 }
