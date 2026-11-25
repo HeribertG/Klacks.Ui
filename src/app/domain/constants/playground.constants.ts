@@ -20,6 +20,9 @@
  * @param PLAYGROUND_MAX_PROMPT_CHARS - Maximum characters per prompt while the limit is active (the backend mirrors it)
  * @param PLAYGROUND_COUNTER_VISIBLE_RATIO - Share of the limit from which the character counter appears
  * @param PLAYGROUND_PRIVACY_ROUTE - In-app route of the privacy page the notice links to
+ * @param PLAYGROUND_DEMO_LOGIN_EMAIL - Seeded demo account the login page of the public playground shows to visitors
+ * @param PLAYGROUND_DEMO_LOGIN_PASSWORD - Publicly documented password of that demo account (README of Klacks.Api); the
+ * playground blocks password changes and reseeds the account every night
  */
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { VOICE_HINT_SEVERITY_INFO } from 'src/app/domain/constants/voice-shell-error-hint.constants';
@@ -95,6 +98,16 @@ export const PLAYGROUND_NOTICE_REQUIRED_I18N_KEY = 'playground.notice-required';
 export const PLAYGROUND_PROMPT_TOO_LONG_I18N_KEY = 'playground.prompt-too-long';
 
 export const PLAYGROUND_VOICE_TOO_LONG_I18N_KEY = 'playground.voice-too-long';
+
+export const PLAYGROUND_DEMO_LOGIN_EMAIL = 'admin@test.com';
+
+export const PLAYGROUND_DEMO_LOGIN_PASSWORD = 'P@ssw0rt1';
+
+export const PLAYGROUND_LOGIN_HINT_TITLE_I18N_KEY = 'playground.login-hint-title';
+
+export const PLAYGROUND_LOGIN_HINT_TEXT_I18N_KEY = 'playground.login-hint-text';
+
+export const PLAYGROUND_LOGIN_HINT_FILL_I18N_KEY = 'playground.login-hint-fill';
 
 export const PLAYGROUND_VOICE_HINT_KIND = 'playground-limit';
 

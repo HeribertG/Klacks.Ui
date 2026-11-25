@@ -1,0 +1,15 @@
+@if (visible()) {
+  <section class="playground-login-hint" role="note" [attr.aria-label]="titleKey | translate">
+    <h2 class="playground-login-hint-title">{{ titleKey | translate }}</h2>
+    <p class="playground-login-hint-text">{{ textKey | translate }}</p>
+    <dl class="playground-login-hint-account">
+      <dt>{{ "login.user" | translate }}</dt>
+      <dd class="playground-login-hint-email">{{ demoEmail }}</dd>
+      <dt>{{ "login.password" | translate }}</dt>
+      <dd class="playground-login-hint-password">{{ demoPassword }}</dd>
+    </dl>
+    <button type="button" class="playground-login-hint-fill" (click)="useDemoLogin.emit()">
+      {{ fillKey | translate }}
+    </button>
+  </section>
+}

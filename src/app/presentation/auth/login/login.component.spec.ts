@@ -23,6 +23,11 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import {
+    PLAYGROUND_DEMO_LOGIN_EMAIL,
+    PLAYGROUND_DEMO_LOGIN_PASSWORD,
+} from 'src/app/domain/constants/playground.constants';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 
 describe('LoginComponent', () => {
     let component: LoginComponent;
@@ -163,6 +168,25 @@ describe('LoginComponent', () => {
         expect(navigationService.navigateAfterLogin).toHaveBeenCalled();
         expect(authorizationService.refresh).toHaveBeenCalled();
         expect(component.isClicked()).toBe(false);
+    });
+
+    it('should show no demo account hint on a normal installation', () => {
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector('.playground-login-hint')).toBeNull();
+    });
+
+    it('should fill in the demo account when the playground hint asks for it', () => {
+        TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: null });
+        fixture.detectChanges();
+
+        fixture.nativeElement.querySelector('.playground-login-hint-fill').click();
+
+        expect(component.loginFormModel()).toEqual({
+            username: PLAYGROUND_DEMO_LOGIN_EMAIL,
+            password: PLAYGROUND_DEMO_LOGIN_PASSWORD,
+        });
+        expect(authService.logIn).not.toHaveBeenCalled();
     });
 
     it('should skip navigateAfterLogin when the setup gate redirects', async () => {

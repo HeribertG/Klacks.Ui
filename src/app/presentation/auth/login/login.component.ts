@@ -24,6 +24,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { RealtimeSessionStartService } from 'src/app/application/services/realtime-session-start.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import {
+  PLAYGROUND_DEMO_LOGIN_EMAIL,
+  PLAYGROUND_DEMO_LOGIN_PASSWORD,
+} from 'src/app/domain/constants/playground.constants';
 import { SOURCE_CODE_API_REPOSITORY_URL } from 'src/app/domain/constants/source-code.constants';
 import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
 import { toSourceCodeUrl } from 'src/app/domain/helpers/source-code-url.helper';
@@ -35,6 +39,7 @@ import { OAuth2Provider } from 'src/app/domain/models/auth/oauth2-provider.inter
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { PlaygroundLoginHintComponent } from 'src/app/presentation/playground/playground-login-hint/playground-login-hint.component';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { LoginFormModel } from './login-form-model.interface';
@@ -51,6 +56,7 @@ import { AuthService } from '../auth.service';
     TranslateModule,
     RouterModule,
     PasswordInputComponent,
+    PlaygroundLoginHintComponent,
     NgbModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -197,6 +203,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
           this.toastService.showError(this.translate.instant('auth.forgot-password.error'), 'auth.forgot-password.error');
         },
       });
+  }
+
+  fillDemoLogin(): void {
+    this.loginFormModel.set({ username: PLAYGROUND_DEMO_LOGIN_EMAIL, password: PLAYGROUND_DEMO_LOGIN_PASSWORD });
   }
 
   updatePassword(value: string): void {

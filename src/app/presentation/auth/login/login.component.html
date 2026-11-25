@@ -68,6 +68,8 @@
     <form (ngSubmit)="onSave()">
       <h1 class="auth-title">{{ "login.header" | translate }}</h1>
 
+      <app-playground-login-hint (useDemoLogin)="fillDemoLogin()" />
+
       <div class="form-group first big-gap-top">
         <label class="mylabel" for="loginForm-name">{{
           "login.user" | translate
