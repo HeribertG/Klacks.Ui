@@ -13,17 +13,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
   >
-    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
-    <title>Stockholm-icons / Communication / Adress-book2</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g
-      id="Stockholm-icons-/-Communication-/-Adress-book2"
-      stroke="none"
-      stroke-width="1"
-      fill="none"
-      fill-rule="evenodd"
-    >
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
       <rect id="bound" x="0" y="0" width="24" height="24"></rect>
       <path
         d="M18,2 L20,2 C21.6568542,2 23,3.34314575 23,5 L23,19 C23,20.6568542 21.6568542,22 20,22 L18,22 L18,2 Z"

@@ -1,6 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+} from '@angular/core';
 import { NavIconColorService } from 'src/app/presentation/services/nav-icon-color.service';
 
 @Component({
@@ -19,15 +24,7 @@ import { NavIconColorService } from 'src/app/presentation/services/nav-icon-colo
     [style.color]="currentColor"
   >
     <g transform="translate(1, 1)">
-      <desc>Created with Sketch.</desc>
-      <defs />
-      <g
-        fill-rule="evenodd"
-        fill="none"
-        stroke-width="1"
-        stroke="none"
-        id="Stockholm-icons-/-General-/-User_1589466893627"
-      >
+      <g fill-rule="evenodd" fill="none" stroke-width="1" stroke="none">
         <polygon
           points="0 0 24 0 24 24 0 24"
           id="Shape_1589466893627"

@@ -14,13 +14,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
   >
-    <g
-      id="Stockholm-icons-/-General-/-Other2"
-      stroke="none"
-      stroke-width="1"
-      fill="none"
-      fill-rule="evenodd"
-    >
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
       <rect id="bound" x="0" y="0" width="24" height="24"></rect>
       <circle
         id="Oval-67"

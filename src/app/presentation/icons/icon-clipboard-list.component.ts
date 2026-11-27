@@ -17,15 +17,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     width="24"
   >
     <g transform="translate(1, 1)">
-      <desc>Created with Sketch.</desc>
-      <defs />
-      <g
-        fill-rule="evenodd"
-        fill="none"
-        stroke-width="1"
-        stroke="none"
-        id="Stockholm-icons-/-Communication-/-Clipboard-list_1589269193371"
-      >
+      <g fill-rule="evenodd" fill="none" stroke-width="1" stroke="none">
         <rect
           height="24"
           width="24"

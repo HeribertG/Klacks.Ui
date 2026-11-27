@@ -17,15 +17,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     width="24"
   >
     <g transform="translate(1, 1)">
-      <desc>Created with Sketch.</desc>
-      <defs />
-      <g
-        fill-rule="evenodd"
-        fill="none"
-        stroke-width="1"
-        stroke="none"
-        id="Stockholm-icons-/-Files-/-File_1589270283210"
-      >
+      <g fill-rule="evenodd" fill="none" stroke-width="1" stroke="none">
         <polygon
           points="0 0 24 0 24 24 0 24"
           id="Shape_1589270283210"
